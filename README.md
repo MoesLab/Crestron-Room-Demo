@@ -4,6 +4,44 @@ A complete Crestron control program for a corporate boardroom, written in SIMPL 
 
 Project and client details have been removed from this public copy.
 
+## Room type and features
+
+**Boardroom:** single room, one display, table-top control, ceiling microphone and speakers.
+
+| Category | Feature | Boardroom |
+|---|---|:---:|
+| **Room** | Single room | ✅ |
+| | Divisible room | ⬜ |
+| | Automatic shutdown | ✅ |
+| | Lighting and shading control | ⬜ |
+| | Room scheduling | ⬜ |
+| **Control** | Touch panel | ✅ |
+| | Wall keypad | ⬜ |
+| **Display** | Single display | ✅ |
+| | Dual display or video wall | ⬜ |
+| | Projector and screen | ⬜ |
+| **Sources** | Wired HDMI and DisplayPort | ✅ |
+| | Room PC | ✅ |
+| | Wireless presentation | ✅ |
+| | Streaming devices | ✅ |
+| | Cable TV | ✅ |
+| **Telephone** | Softphone on DSP | ✅ |
+| | Dial pad and speed dial | ✅ |
+| | Conference phone on table | ⬜ |
+| **Video conferencing** | Web conferencing on room PC | ✅ |
+| | Hardware codec | ⬜ |
+| **Camera** | PTZ camera | ✅ |
+| | Camera presets | ✅ |
+| | Multiple cameras | ⬜ |
+| **Microphone** | Ceiling array | ✅ |
+| | Privacy mute | ✅ |
+| | Table microphones | ⬜ |
+| | Wireless microphones | ⬜ |
+| **Audio** | DSP with per-path levels | ✅ |
+| | Ceiling speakers | ✅ |
+| | Display speakers | ⬜ |
+| | Bluetooth audio | ✅ |
+
 ## What the room does
 
 - **Presentation:** wired HDMI and DisplayPort at the table, room PC, wireless presentation, streaming devices and cable TV
@@ -26,6 +64,7 @@ Project and client details have been removed from this public copy.
 
 ## Documents
 
+- [Scope of Work](docs/Scope-of-Work.md)
 - [System Overview](docs/System-Overview.md)
 - [Network and IP Table](docs/Network-and-IP-Table.md)
 - [Crestron to Q-SYS Map](docs/Crestron-to-QSYS-Map.md)

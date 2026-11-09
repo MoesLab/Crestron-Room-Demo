@@ -8,17 +8,7 @@ Project and client details have been removed from this public copy.
 
 **Boardroom:** single room, one display, table-top control, ceiling microphone and speakers.
 
-| | Included | Not included |
-|---|---|---|
-| **Room** | ✅ Single room &nbsp; ✅ Auto shutdown | ❌ Divisible &nbsp; ❌ Lighting and shades &nbsp; ❌ Scheduling |
-| **Control** | ✅ Touch panel | ❌ Wall keypad |
-| **Display** | ✅ Single display | ❌ Dual or video wall &nbsp; ❌ Projector |
-| **Sources** | ✅ HDMI and DisplayPort &nbsp; ✅ Room PC &nbsp; ✅ Wireless &nbsp; ✅ Streaming &nbsp; ✅ Cable TV | &nbsp; |
-| **Telephone** | ✅ DSP softphone &nbsp; ✅ Dial pad and speed dial | ❌ Table conference phone |
-| **Conferencing** | ✅ Web conferencing on PC | ❌ Hardware codec |
-| **Camera** | ✅ PTZ &nbsp; ✅ Presets | ❌ Multiple cameras |
-| **Microphone** | ✅ Ceiling array &nbsp; ✅ Privacy mute | ❌ Table &nbsp; ❌ Wireless |
-| **Audio** | ✅ DSP levels per path &nbsp; ✅ Ceiling speakers &nbsp; ✅ Bluetooth | ❌ Display speakers |
+<img src="docs/room-features.svg" width="100%" alt="Boardroom features. Included: single room, auto shutdown, touch panel, single display, wired, PC, wireless, streaming and cable TV sources, DSP softphone, web conferencing, PTZ camera, ceiling microphone, privacy mute, ceiling speakers, Bluetooth.">
 
 ## What the room does
 

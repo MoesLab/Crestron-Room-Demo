@@ -8,11 +8,17 @@ Project and client details have been removed from this public copy.
 
 **Boardroom:** single room, one display, table-top control, ceiling microphone and speakers.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/room-features-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="docs/room-features-light.svg">
-  <img src="docs/room-features-light.svg" width="100%" alt="Boardroom features. Included: single room, auto shutdown, touch panel, single display, wired, PC, wireless, streaming and cable TV sources, DSP softphone, web conferencing, PTZ camera, ceiling microphone, privacy mute, ceiling speakers, Bluetooth.">
-</picture>
+| Category | Features |
+|---|---|
+| Room | **Single room** · **Auto shutdown** · <sub>Divisible · Lighting and shades · Scheduling</sub> |
+| Control | **Touch panel** · <sub>Wall keypad</sub> |
+| Display | **Single display** · <sub>Dual or video wall · Projector</sub> |
+| Sources | **HDMI and DisplayPort** · **Room PC** · **Wireless** · **Streaming** · **Cable TV** |
+| Telephone | **DSP softphone** · **Dial pad and speed dial** · <sub>Table conference phone</sub> |
+| Conferencing | **Web conferencing on PC** · <sub>Hardware codec</sub> |
+| Camera | **PTZ** · **Presets** · <sub>Multiple cameras</sub> |
+| Microphone | **Ceiling array** · **Privacy mute** · <sub>Table · Wireless</sub> |
+| Audio | **DSP levels per path** · **Ceiling speakers** · **Bluetooth** · <sub>Display speakers</sub> |
 
 ## What the room does
 

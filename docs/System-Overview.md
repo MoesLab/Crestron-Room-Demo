@@ -13,7 +13,7 @@ flowchart LR
   CP3 -->|RS-232| BT[Bluetooth audio interface]
   CP3 -->|IR| TV[Cable TV receiver]
   MIC -->|Dante| CORE
-  BT -->|Audio| CORE
+  BT -->|Analog| CORE
   CORE <-->|USB bridge| PC[Room PC]
   CORE --> AMP[70 V amplifier and ceiling speakers]
   SW -->|HDMI| DISP

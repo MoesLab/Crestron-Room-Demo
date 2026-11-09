@@ -20,16 +20,6 @@ Project and client details have been removed from this public copy.
 - **Camera control:** pan, tilt, zoom and presets
 - **Room shutdown:** one-touch power off with an on-screen countdown
 
-## What it shows
-
-| Skill | Where to look |
-|---|---|
-| Structured program layout | Startup, System Equipment, System Sources, System Rooms and User Interfaces folders |
-| Scalable room and panel design | Equipment and Control Crosspoint routing between rooms and panels |
-| Controlled startup | A stepped startup sequence for the panel, DSP, cameras, displays and Bluetooth |
-| DSP integration | Q-SYS Named Control modules for gain, mute, snapshots and telephony |
-| IP and serial device control | TCP/IP clients, RS-232 and IR |
-
 ## Documents
 
 - [Scope of Work](docs/Scope-of-Work.md)

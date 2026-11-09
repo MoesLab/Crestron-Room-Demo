@@ -24,7 +24,11 @@ Project and client details have been removed from this public copy.
 | DSP integration | Q-SYS Named Control modules for gain, mute, snapshots and telephony |
 | IP and serial device control | TCP/IP clients, RS-232 and IR |
 
-See [System Overview](docs/System-Overview.md) and the [Crestron to Q-SYS Map](docs/Crestron-to-QSYS-Map.md).
+## Documents
+
+- [System Overview](docs/System-Overview.md)
+- [Network and IP Table](docs/Network-and-IP-Table.md)
+- [Crestron to Q-SYS Map](docs/Crestron-to-QSYS-Map.md)
 
 ## How to open it
 

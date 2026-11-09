@@ -9,7 +9,7 @@ Work through these steps in order. Addresses are in the [Network and IP Table](N
 | SIMPL Windows | 4.28 or later | Compile the program |
 | Crestron Toolbox | Current | Address and load devices |
 | VT Pro-e | 6.2 or later | Touch panel project |
-| Q-SYS Designer | 9.13 or later | DSP design |
+| Q-SYS Designer | 9.1.2 or later | DSP design |
 
 ## 1. Network
 

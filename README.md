@@ -45,12 +45,14 @@ Project and client details have been removed from this public copy.
 1. Download or clone this repository.
 2. Open `Program/BRD-1001_Boardroom_slt01.smw` in SIMPL Windows. It was built with version 4.28.
 3. Compile for a CP3.
+4. Open `QSYS/BRD-1001_Boardroom.qsys` in Q-SYS Designer 9.1.2 or later.
 
 ## Current status
 
 - The program compiles from a clean folder.
 - This public copy has not been loaded onto hardware.
-- The touch panel project and the Q-SYS design file are not included. The Q-SYS map lists every Named Control the program expects.
+- The Q-SYS design is in the `QSYS` folder. It passes emulation in Q-SYS Designer 9.1.2 with all Named Controls the room uses.
+- The touch panel project is not included.
 - Some device modules were written by other programmers and keep their original credits.
 
 ## Author

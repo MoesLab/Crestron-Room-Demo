@@ -1,6 +1,6 @@
 # Q-SYS Build Sheet
 
-Start from the existing demo design, or a new design, in Q-SYS Designer 9.13 or later.
+Start from the existing demo design, or a new design, in Q-SYS Designer 9.1.2 or later.
 
 ## 1. Inventory
 

@@ -1,0 +1,1440 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Avaya
+System Name: Avaya XT5000 & Telepresence
+System Number:
+Programmer: Fabrizio Torbidoni www.automazionesale.it on 28/07/2015
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "RA_Interpret_S_R00d05"
+// #HINT ""
+// #DEFINE_CONSTANT 
+#CATEGORY "46" "Avaya" // Custom
+#PRINT_TO_TRACE
+// 
+#DEFINE_CONSTANT  MAX_MCU_INDEX				50 //max number of terminals in DB. Max possible num =999
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Enable;
+DIGITAL_INPUT XT_UI_Vol_Process;
+DIGITAL_INPUT XT_Plus_Accept; //Accept the current additional incoming call(MCU)
+DIGITAL_INPUT XT_Plus_Reject; //Reject the current additional incoming call(MCU)
+ANALOG_INPUT XT_UI_Vol_Proc_Level;
+ANALOG_INPUT XT_Mod_DebugLevel;//			Debug output level 0=no messages 99=all messages 
+//ANALOG_INPUT XT_ConnectionStatus;
+//--28/07/2015  ANALOG_INPUT XT_ACK_WAITING; 
+ANALOG_INPUT XT_UI_Video_Layout_In;
+STRING_INPUT Process_S_strings$[100]; 
+
+ANALOG_INPUT _SKIP_,From_C_Mod_Network;//			1=SIP	5=IP	6=MCU	7=ISDN						0=Undefined
+ANALOG_INPUT From_C_Mod_CallStat;//CB - 0 = Undefined    
+//  2 = idle (Disconnected)        
+//  5 = first call started
+//  6 = first setup sent to network
+//  7 = the remote system is ringing after the first call
+//  8 = first incoming call
+//  9 = first call connected
+// 10 = a following call is started
+// 11 = a following setup has been sent to network
+// 12 = the remote system is ringing after a following call
+// 13 = following incoming call
+// 14 = following call connected
+// 20 = waiting the complete disconnection
+// 31 = MCU IP active
+ANALOG_INPUT From_C_Mod_VideoRX;//				0=VideoRX OFF			    1=VideoRX ON					2=Undefined
+ANALOG_INPUT From_C_Mod_DataRX;//				0=DataRX OFF			    1=DataRX ON						2=Undefined
+ANALOG_INPUT From_C_Mod_AudCoding;//			0=Audio OFF 				1..35 Audio Coding 				222=undefined
+ANALOG_INPUT From_C_Mod_VidCoding;//			0=Video OFF 				1..58 Video Coding 				222=undefined
+ANALOG_INPUT From_C_Mod_DVstat;//				0=Dual Video OFF			1=Dual Video ON					2=Undefined
+ANALOG_INPUT From_C_Mod_DVinp;//				0=Undefined			   		8=DVI
+
+//DIGITAL_OUTPUT XT_Connect_F,TCPIP_CONN_ERR_FB,_SKIP_;
+//DIGITAL_OUTPUT XT_DATA_OK_OS;
+//DIGITAL_OUTPUT XT_DATA_ACK_OS;
+DIGITAL_OUTPUT XT_TE_Conf_Control_NL_upd_Req;//Set module to check for new terminal list ( AT[?SHN & AT[?SHL )
+DIGITAL_OUTPUT XT_TE_Conf_Control_CB_upd_Req;//Set module to check for local terminal broadcast status ( AT[?SHC & AT[?SHB )
+
+DIGITAL_OUTPUT _SKIP_,Controller_Mod_Rst_Req;//Tell the controller to reset the module
+
+ANALOG_OUTPUT XT_TE_Mute_Status;//			0=MUTE OFF			   1=MUTE ON						2=Undefined
+ANALOG_OUTPUT XT_TE_Privacy_Status;//		0=PRIVACY OFF		   1=PRIVACY ON						2=Undefined
+ANALOG_OUTPUT XT_TE_SelfV_Status;//			0=SELFVIEW OFF		   1=SELFVIEW ON					2=Undefined
+ANALOG_OUTPUT XT_TE_DnD_Status;//			0=DoNotDisturb OFF	   1=DoNotDisturb ON				2=Undefined
+ANALOG_OUTPUT XT_TE_REC_STAT;		//		1=RECording IDLE		2=RECORDING						3=RECording PAUSE			0=Undefined
+ANALOG_OUTPUT XT_TE_REC_AVAILABLE;//		0=RECordingNOTavailable	1=RECording available			2=Undefined
+ANALOG_OUTPUT XT_TE_PLAY_STAT;		//		1=RECording IDLE		2=RECORDING						3=RECording PAUSE			0=Undefined
+ANALOG_OUTPUT XT_TE_PLAY_AVAILABLE;//		0=RECordingNOTavailable	1=RECording available			2=Undefined
+
+
+ANALOG_OUTPUT XT_TE_MMpresentation_TX_Status;//0=DUAL VIDEO OFF	   1=DUAL VIDEO ON					2=Undefined
+ANALOG_OUTPUT XT_TE_MMpresentation_RX_Status;//0=DUAL VIDEO OFF	   1=DUAL VIDEO ON					2=Undefined
+ANALOG_OUTPUT XT_TE_Local_Presentation_Status;//0=NOT ACTIVE	   1=ACTIVE							2=Undefined
+ANALOG_OUTPUT XT_TE_Live_Call_Status;//			0=Disconnected	   1=Connected						2=Undefined					3=Connecting(IN or OUT)		4=Disconnecting  5=Incoming
+
+ANALOG_OUTPUT XT_TE_Video_Layout;//			1..26 (see documentation) local video layouts			0=Undefined
+ANALOG_OUTPUT XT_TE_Multi_Image;//			0..6 (see documentation) local video 'PiP','PaP',PoP'	10=Undefined
+ANALOG_OUTPUT XT_TE_Local_Video_Input;//	1=HD1 2=HD2 3=HD2 4=HD3 5=HD4 8=DVI						0=Undefined
+ANALOG_OUTPUT XT_TE_ScrSav_Status;//		0=INACTIVE			   1=ACTIVE 						2=Undefined
+ANALOG_OUTPUT XT_TE_Volume;//				0=-44....64=+20	
+ANALOG_OUTPUT XT_TE_VideoRX_Status,_SKIP_;//0=VIDEOrx OFF		   1=VIDEOrx ON						2=Undefined
+
+DIGITAL_OUTPUT _SKIP_,Connected_FB;
+DIGITAL_OUTPUT Now_Disconected;//Pulse when status change.
+DIGITAL_OUTPUT Now_Conected;//Pulse when status change.
+DIGITAL_OUTPUT Now_Connecting;//Pulse when status change.
+DIGITAL_OUTPUT Now_Disconnecting;//Pulse when status change.
+DIGITAL_OUTPUT Now_MCUIP_Active;//Pulse when status change.
+DIGITAL_OUTPUT Now_Incoming;//Pulse when status change.
+DIGITAL_OUTPUT Now_Incoming_In_Call,_SKIP_;//Pulse when status change.
+
+DIGITAL_OUTPUT XT_MCU_Refresh,_SKIP_;//Pulse to ask a complete terminals list status refresh
+
+//-28/07/2015  ANALOG_OUTPUT _SKIP_,XT_DATA_ACK;//0=IDLE  1=OK (ACK_WAIT value match)  2=OutOfPhase 3=Error
+ 
+STRING_OUTPUT XT_TE_Display$;	//Connect it to a call information bar
+STRING_OUTPUT XT_TE_InDisplay$;	//Connect it to the incoming call information bar
+STRING_OUTPUT XT_TE_REC_Display$;//Connect it to a rec time display
+STRING_OUTPUT XT_Test_ExtraDebug_Info$;
+STRING_OUTPUT XT_Cmd_To_Send$; //send a command to the TX buffer
+
+
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+// TCP_CLIENT
+// TCP_SERVER
+// UDP_SOCKET
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+// INTEGER_PARAMETER
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+// STRING_PARAMETER
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+/*
+#BEGIN_PARAMETER_PROPERTIES parameter_variable, parameter_variable, ...
+   // propValidUnits = // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   // propDefaultUnit = // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   // propBounds = lower_bound , upper_bound;
+   // propDefaultValue = ;  // or, propDefaultValue = "";
+   // propList = // { "value" , "label" } , { "value" , "label" } , ... ;
+   // propShortDescription = "status_bar_hint_text";
+   // #BEGIN_PROP_FULL_DESCRIPTION  line_1...  line_2...  line_n  #END_PROP_FULL_DESCRIPTION
+   // #BEGIN_PROP_NOTES line_1...  line_2...  line_n  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+*/
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+STRUCTURE CallRegisterType
+{
+	STRING Number[100];
+	INTEGER Connected;//0=disconnected 1=connected 2=Undef 3=ringing/proceeding 4=Disconnecting 5=Incoming
+	INTEGER Interf;//0=IP 1=Sip 2=Undef.
+	INTEGER Type;//0=A/V 1=Audio Only 2=Undef. 
+	INTEGER Rate;//0=Default 1-23 Rates 64k-6M
+	INTEGER Direction;//0=Undef. 1=Outgoing 2=Incoming
+	INTEGER VideoRxON;//0=OFF 1=ON 2=Undef.
+	INTEGER Channels;//1..15 aggregate channels number
+	INTEGER CallId;
+	INTEGER MCUCallId;
+};
+
+/* MCU future implementations of module
+STRUCTURE MCU_Conference_type
+{
+	INTEGER ListLen;//000...999
+	INTEGER LocTermOwned;//0..1
+	INTEGER LocTermBroadcast;//0..1
+};
+
+STRUCTURE MCU_Terminal_type
+{
+	INTEGER MCUid;//000...999
+	INTEGER TEid; //000...999
+	INTEGER Broadcast;//0..1
+	INTEGER Viewed;//0..1
+	INTEGER Floor;//0..1
+	STRING sName[30];//30 char max term name
+};
+*/
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER LastWaitingFor;
+INTEGER LastACKkind,NextACKkind;
+INTEGER Nop;
+INTEGER Last_stat_Read,Last_stat_Live;
+STRING RefName[60];
+CallRegisterType LastCall;
+
+// -->MCU future implementations of module
+//MCU_Conference_type mcuConf;
+//MCU_Terminal_type mcuTerm[MAX_MCU_INDEX];
+
+
+
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+//STRING CurrSending$[200];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+Function InitializeVars()
+{
+ 	
+ 	
+ 	
+ 	LastWaitingFor=0; 
+ 	
+ 	LastCall.Connected=2;//Undefined
+    Last_stat_Live=2;//Undefined
+    Last_stat_Read=0;//Undefined
+    
+    LastCall.CallId=0;
+	LastCall.MCUCallId=0;
+    
+	LastACKkind=0;
+	NextACKkind=0;
+    // ft 02/11/2015 XT_DATA_ACK=0;
+
+	XT_TE_Mute_Status=2;//undefined
+	XT_TE_Privacy_Status=2;//undefined
+	XT_TE_SelfV_Status=2;//undefined
+	XT_TE_DnD_Status=2;//undefined
+	XT_TE_REC_Stat=0;
+	XT_TE_REC_Available=2;//undefined
+	XT_TE_MMpresentation_TX_Status=2;//undefined
+	XT_TE_MMpresentation_RX_Status=2;//undefined
+	XT_TE_Local_Presentation_Status=2;//undefined
+	XT_TE_Live_Call_Status=0;//Disc.
+	
+	XT_TE_Conf_Control_NL_upd_Req=0;
+	XT_TE_Conf_Control_CB_upd_Req=0;
+	
+	XT_TE_Video_Layout=0;//undefined
+	XT_TE_Multi_Image=10;//undefined
+	XT_TE_Local_Video_Input=0;//undefined
+	XT_TE_ScrSav_Status=2;//undefined
+	//XT_TE_Volume=;//undefined
+	XT_TE_VideoRX_Status=2;//undefined
+
+	XT_TE_Display$="DISCONNECTED";
+	XT_TE_REC_Display$=" "; 
+	XT_Test_ExtraDebug_Info$="";
+}
+
+/* //-28072015 
+Function SetAckData(Integer Kind)
+{
+	If (LastACKkind=0)
+	{
+		LastACKkind=Kind;		
+		XT_DATA_ACK=Kind;	
+		Delay(10);
+		XT_DATA_ACK=0;
+		LastACKkind=0;
+	}
+	Else
+	{
+		NextACKkind=Kind;
+		Delay(11);
+		LastACKkind=NextACKkind;		
+		XT_DATA_ACK=NextACKkind;	
+		Delay(10);
+		XT_DATA_ACK=0;
+		LastACKkind=0;			
+	}	
+}
+*/
+
+
+
+Integer_Function atos(String StrVol)//return 0 to 64
+{INTEGER svlen,integ,rval;
+    svlen=len(StrVol);
+	integ=ATOI(StrVol);
+	if (find("-", StrVol) > 0)
+	{
+     	rval=44-integ;
+	}
+	Else
+	{
+        rval=integ+44;
+	}
+	
+	Return(rval);
+}
+
+Function EvaluateCallStatus()//SC - 0=Disconnected	1=Connected	2=Undefined 3=Connecting(IN or OUT) 4=Disconnecting 5=Incoming 6=+Incoming
+{
+	If (LastCall.Connected<>2)//if not undefined
+    {
+    	XT_TE_Live_Call_Status=LastCall.Connected;
+    	IF (LastCall.Connected<>Last_stat_Live)
+    	{
+    		Switch(LastCall.Connected)
+    		{
+    			Case (0)://Disconnected
+    			{
+    				Connected_FB=0;
+    				Last_stat_Read=2;
+    				Pulse(20,Now_Disconected);
+    			}
+    			Case (1)://Connected
+    			{
+    				Connected_FB=1;
+    				Last_stat_Read=9;
+    				Pulse(20,Now_Conected);
+    			}
+    			Case (3)://Connecting(IN or OUT)
+    			{
+    				//Connected_FB=0;
+    				Last_stat_Read=44;
+    				Pulse(20,Now_Connecting);
+    			}
+    			Case (4)://Diconnecting
+    			{
+    				Connected_FB=0;
+    				Pulse(20,Now_Disconnecting);
+    			}
+                Case (5)://Incoming
+    			{
+    				Pulse(20,Now_Incoming);
+    			}
+				Case (6)://+Incoming
+    			{
+    				Pulse(20,Now_Incoming_In_Call);
+    			}
+    		}
+    		Last_stat_Live=LastCall.Connected;
+    	}
+    	
+    }
+}
+
+
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH Enable
+{
+    InitializeVars();
+}
+
+RELEASE Enable
+{
+   InitializeVars();
+}
+
+CHANGE XT_UI_Vol_Proc_Level
+{
+	IF(XT_UI_Vol_Process>0)
+	{
+		XT_TE_Volume=XT_UI_Vol_Proc_Level;
+	}
+}
+CHANGE XT_UI_Video_Layout_In
+{
+	If (XT_UI_Video_Layout_In>0)
+	{
+		XT_TE_Video_Layout=XT_UI_Video_Layout_In;
+	}
+}
+/* //-28072015 
+CHANGE XT_ACK_WAITING //0=idle 1..99=Hprio command - 101..199=Hprio query - 1001..1999=Lprio cmd/poll/query - 500=Initialization  999=Generic command not managed
+{
+	LastWaitingFor=XT_ACK_WAITING;
+}
+*/
+CHANGE Process_S_strings$
+{INTEGER nLen,Cmd_SUB,systm_mcu_en,nInfo[10];
+ INTEGER ikack,tmpack;
+ STRING slong[4],appo[80],appo2[20],trash[20],sINTERF[6],sInfo[10][60];
+ STRING commd$[100];
+	commd$=Process_S_strings$;
+    Cmd_SUB=GetC(commd$);
+    nLen=len(commd$);
+    ikack=999;			
+	SWITCH(Cmd_SUB)//byte 1
+	{					
+		CASE('A')://Generic status update
+		{
+            IF (XT_UI_Vol_Process=0)
+            {
+	                     //Mute 1 Byte
+				IF	   (byte(commd$,1)='0')
+				{
+	                          XT_TE_Mute_Status=0;
+				}
+				Else IF(byte(commd$,1)='1')
+				{
+	                         XT_TE_Mute_Status=1;
+				}
+	                     
+				//Vprivacy 1 Byte
+				IF	   (byte(commd$,2)='0')
+				{
+	                          XT_TE_Privacy_Status=0;
+				}
+				Else IF(byte(commd$,2)='1')
+				{
+	                          XT_TE_Privacy_Status=1;
+				}
+	
+				//Layout 2 bytes
+				nInfo[1]=ATOI(MID(commd$, 3, 2));
+	                     XT_TE_Video_Layout=nInfo[1];
+	
+				//Multi Image  2 bytes
+				nInfo[2]=ATOI(MID(commd$, 5, 2));
+	                     XT_TE_Multi_Image=nInfo[2];
+				
+				//Local Video Input 2 bytes
+				nInfo[3]=ATOI(MID(commd$, 7, 2));
+	                     XT_TE_Local_Video_Input=nInfo[3];
+	
+	            //Screensaver
+	            IF    (byte(commd$,9)='0')
+				{
+	                     XT_TE_ScrSav_Status=0;//not active
+				}
+				Else IF(byte(commd$,9)='1')
+				{
+	                     XT_TE_ScrSav_Status=1;//active
+				}
+	
+				//RX Volume
+				sInfo[1]=MID(commd$,10,3);
+				XT_TE_Volume=atos(sInfo[1]);
+				sInfo[1]="";
+				
+				//Do not Disturb
+	            IF    (byte(commd$,13)='0')
+				{
+	                     XT_TE_DnD_Status=0;//not active
+				}
+				Else IF(byte(commd$,13)='1')
+				{
+	                     XT_TE_DnD_Status=1;//active
+				}
+				
+				//Recording status
+	            IF    (byte(commd$,14)='1')
+				{
+	                     XT_TE_REC_Stat=1;//Idle
+				}
+				Else IF(byte(commd$,14)='2')
+				{
+	                     XT_TE_REC_Stat=2;//Recording USB
+				}
+				Else IF(byte(commd$,14)='3')
+				{
+	                     XT_TE_REC_Stat=3;//Paused
+				}
+				Else IF(byte(commd$,14)='4')
+				{
+	                     XT_TE_REC_Stat=2;//Recording NET
+				}
+				
+				//Play Status
+	            IF    (byte(commd$,15)='1')
+				{
+	                     XT_TE_PLAY_Stat=1;//Play Idle
+				}
+				Else IF(byte(commd$,15)='2')
+				{
+	                     XT_TE_PLAY_Stat=2;//Playing
+				}
+				Else IF(byte(commd$,15)='3')
+				{
+	                     XT_TE_PLAY_Stat=3;//Paused
+				}
+			}
+		}//end 'SA'
+		CASE('F')://Video Input Status
+		{
+			nInfo[1]=ATOI(MID(commd$, 1, 2));//01-02-08 = HD1-HD2-DVI |||||||  03-04-05 = HD2-HD3-HD4 (XT5000+HDMI switcher)                  	
+			IF	   (byte(commd$,3)='0')//Local input
+			{
+                         XT_TE_Local_Video_Input=nInfo[1];
+			}
+			/*
+			Else IF(byte(commd$,3)='1')//Remote input
+			{
+                         XT_TE_Remote_Video_Input=nInfo[1];
+			}
+			*/
+			ikack=105;
+		}
+		CASE('M')://Audio Mute Status
+		{
+            IF (byte(commd$,1)='0')
+			{
+                          XT_TE_Mute_Status=0;
+			}
+			Else IF(byte(commd$,1)='1')
+			{
+                         XT_TE_Mute_Status=1;
+			}
+			ikack=101;
+		}
+		CASE('O')://Remote video RX on/off
+		{
+            IF (byte(commd$,1)='0')
+			{
+						LastCall.VideoRxON=0;
+			}
+			Else IF(byte(commd$,1)='1')
+			{
+                        LastCall.VideoRxON=1;
+			}
+			XT_TE_VideoRX_Status=LastCall.VideoRxON;
+		}
+		CASE('P')://Video Privacy Status
+		{
+            IF	(byte(commd$,1)='0')
+			{
+                          XT_TE_Privacy_Status=0;
+			}
+			Else IF(byte(commd$,1)='1')
+			{
+                          XT_TE_Privacy_Status=1;
+			}
+			ikack=102;
+		}
+		CASE('S')://SelfView Status
+		{
+            IF	(byte(commd$,1)='0')
+			{
+                          XT_TE_SelfV_Status=0;
+			}
+			Else IF(byte(commd$,1)='1')
+			{
+                          XT_TE_SelfV_Status=1;
+			}
+			ikack=103;
+		}
+		CASE('R')://DoNotDisturb Status
+		{
+            IF	(byte(commd$,1)='0')
+			{
+                          XT_TE_DnD_Status=0;
+			}
+			Else IF(byte(commd$,1)='1')
+			{
+                          XT_TE_DnD_Status=1;
+			}
+			ikack=117;
+		}
+		CASE('V'):
+		{
+            sInfo[1]=MID(commd$,1,3);
+			XT_TE_Volume=atos(sInfo[1]);
+			sInfo[1]="";
+			ikack=104;
+		}
+		CASE('K')://Dual Video Status
+		{
+            sInfo[1]=MID(commd$,1,2);
+			IF (FIND("00",sInfo[1],1)>0)//Unknown Status
+			{
+			    XT_TE_MMpresentation_TX_Status=2;
+				XT_TE_MMpresentation_RX_Status=2;
+			}
+			Else IF (FIND("01",sInfo[1],1)>0)//TX Active
+			{
+				XT_TE_MMpresentation_TX_Status=1;
+				XT_TE_Local_Presentation_Status=1;//Active			  		
+			}
+			Else IF (FIND("02",sInfo[1],1)>0)//TX Stopped
+			{
+				XT_TE_MMpresentation_TX_Status=0;
+				XT_TE_Local_Presentation_Status=0;//Not active			  		
+			}
+			Else IF (FIND("03",sInfo[1],1)>0)//RX Active
+			{
+				XT_TE_MMpresentation_RX_Status=1;			  		
+			}
+			Else IF (FIND("04",sInfo[1],1)>0)//RX Stopped
+			{
+				XT_TE_MMpresentation_RX_Status=0;			  		
+			}
+			Else IF (FIND("05",sInfo[1],1)>0)//TX Failed
+			{
+				XT_TE_MMpresentation_TX_Status=0;
+				XT_TE_Local_Presentation_Status=0;//Not active			  		
+			}
+			Else
+			{
+				nop=1;
+			}
+			sInfo[1]="";
+		}
+		CASE('Q')://Local Presentation Status
+		{
+			IF	(byte(commd$,1)='0')//IF Presentation Status
+			{            
+				IF	(byte(commd$,2)='0')
+				{
+	                 XT_TE_Local_Presentation_Status=0;//Not active
+				}
+				Else IF(byte(commd$,2)='1')
+				{
+	                 XT_TE_Local_Presentation_Status=1;//Active
+				}
+				Else IF(byte(commd$,2)='2')
+				{
+	                 XT_TE_Local_Presentation_Status=0;//Not active
+				}
+				Else
+				{
+					XT_TE_Local_Presentation_Status=2;//Unknown
+				}
+			}
+			ikack=116;
+		}
+		CASE('L')://Screen Saver Activation Status
+		{            
+			IF	(byte(commd$,1)='0')
+			{
+                 XT_TE_ScrSav_Status=0;//Deactivated
+			}
+			Else IF(byte(commd$,1)='1')
+			{
+                 XT_TE_ScrSav_Status=1;//Activated
+			}
+			Else
+			{
+				XT_TE_ScrSav_Status=2;//Unknown
+			}
+			ikack=106;
+		}
+		CASE('B')://Video Layout
+		{
+           //Layout 2 bytes
+            XT_TE_Video_Layout=ATOI(MID(commd$,1,2));
+            ikack=114;
+		}
+		CASE('D')://PiP
+		{
+            //Multi Image  2 bytes
+            XT_TE_Multi_Image=ATOI(MID(commd$,1,2));
+            ikack=108;
+		}
+		CASE('N')://Recording Control
+		{
+			SWITCH(byte(commd$,1))
+			{
+				CASE('A')://Status of action related to recording
+				{
+					SWITCH(byte(commd$,2))
+					{
+						CASE('1'):
+						{
+							XT_TE_REC_Stat=1;//Idle
+						}
+						CASE('2'):
+						{
+                            XT_TE_REC_Stat=2;//Recording USB
+						}
+						CASE('3'):
+						{
+							XT_TE_REC_Stat=3;//Paused
+						}
+						CASE('4'):
+						{
+                            XT_TE_REC_Stat=2;//Recording NET
+						}
+					}
+				}
+				CASE('P')://Status of action related to Playing
+				{
+					SWITCH(byte(commd$,2))
+					{
+						CASE('1'):
+						{
+							XT_TE_PLAY_Stat=1;//Idle
+						}
+						CASE('2'):
+						{
+                            XT_TE_PLAY_Stat=2;//Playing
+						}
+						CASE('3'):
+						{
+							XT_TE_PLAY_Stat=3;//Paused
+						}
+					}
+				}
+				CASE('S')://Availability of recording
+				{
+					SWITCH(byte(commd$,2))
+					{
+						CASE('1'):
+						{
+							XT_TE_REC_Available=1;
+						}
+						CASE('0'):
+						{
+                            XT_TE_REC_Available=0;
+						}
+					}
+					SWITCH(byte(commd$,3))
+					{
+						CASE('1'):
+						{
+							XT_TE_PLAY_Available=1;
+						}
+						CASE('0'):
+						{
+                            XT_TE_PLAY_Available=0;
+						}
+					}
+				}
+				CASE('T')://Time left on USB device
+				{
+					tmpack=GetC(commd$);//Take out the "T"
+					XT_TE_REC_Display$=commd$;
+				}
+			}
+			ikack=107;
+		}
+		CASE('G')://Reset or shutdown
+		{
+			IF	(byte(commd$,1)='1')
+			{
+                PULSE(30,Controller_Mod_Rst_Req);//Reset
+			}
+			Else IF(byte(commd$,1)='2')
+			{
+            	PULSE(30,Controller_Mod_Rst_Req);//Shutdown
+			}
+			Else
+			{
+				PULSE(30,Controller_Mod_Rst_Req);//Unknown
+			}
+		}
+		/* MCU future implementations of module
+		CASE('H')://Conference Control
+		{
+			SWITCH(byte(commd$,1))
+			{
+				CASE('R')://Conference Control Response
+				{
+					SWITCH(byte(commd$,2))
+					{
+						CASE('N'):
+						{
+							sInfo[1]=MID(commd$,3,3);
+							mcuConf.ListLen=ATOI(sInfo[1]);
+						}
+						CASE('L'):
+						{
+							nInfo[1]=ATOI(MID(commd$,3,3));// Terminal Idx
+							nInfo[2]=ATOI(MID(commd$,6,3));// MCU Id
+							nInfo[3]=ATOI(MID(commd$,9,3));// TE Id
+
+							mcuTerm[nInfo[1]].MCUid=nInfo[2];
+							mcuTerm[nInfo[1]].TEid=nInfo[3];
+							
+							IF	(byte(commd$,12)='0')
+							{
+				                          mcuTerm[nInfo[1]].Broadcast=0;
+							}
+							Else IF(byte(commd$,12)='1')
+							{
+				                          mcuTerm[nInfo[1]].Broadcast=1;
+							}
+							
+							IF	(byte(commd$,13)='0')
+							{
+				                          mcuTerm[nInfo[1]].Viewed=0;
+							}
+							Else IF(byte(commd$,13)='1')
+							{
+				                          mcuTerm[nInfo[1]].Viewed=1;
+							}
+							
+							IF	(byte(commd$,14)='0')
+							{
+				                          mcuTerm[nInfo[1]].Floor=0;
+							}
+							Else IF(byte(commd$,14)='1')
+							{
+				                          mcuTerm[nInfo[1]].Floor=1;
+							}
+							
+							mcuTerm[nInfo[1]].sName=right(commd$,(nLen-14));//Term name
+						}
+						CASE('C'):
+						{
+							IF	(byte(commd$,3)='0')
+							{
+				                          mcuConf.LocTermOwned=0;// local terminal not owned chair control
+							}
+							Else IF(byte(commd$,3)='1')
+							{
+				                          mcuConf.LocTermOwned=1;// local terminal owned chair control
+							}
+						}
+						CASE('B'):
+						{
+							IF	(byte(commd$,3)='0')
+							{
+				                          mcuConf.LocTermBroadcast=0;// not in broadcast
+							}
+							Else IF(byte(commd$,3)='1')
+							{
+				                          mcuConf.LocTermBroadcast=1;// in broadcast
+							}
+
+						}
+					}//end sw byte 2
+					ikack=111;			
+				}
+				CASE('I')://Conference Control Indication
+				{
+					sInfo[9]=MID(commd$,2,2);
+					IF (FIND("07",sInfo[9],1)>0)//Terminal list is changed or the status of a remote terminal is changed
+					{
+						PULSE(30,XT_TE_Conf_Control_NL_upd_Req);
+					}
+					Else IF (FIND("08",sInfo[9],1)>0)//Local Terminal Chair or Broadcast status is changed
+					{
+						PULSE(30,XT_TE_Conf_Control_CB_upd_Req);
+					}
+					Else
+					{
+						nop=1;
+					}
+					ikack=999;
+				}
+			}			
+		}
+		*/
+		CASE('C')://Call Status
+		{
+            makestring (XT_TE_Display$," ");//Clear display
+			//byte(commd$,1)=call number 1--F
+            LastCall.CallId=HEXTOI(Mid(commd$,1,1));
+			//byte(commd$,2)=call interface 1=IP 6=SIP
+			SWITCH(byte(commd$,2))
+			{
+                CASE('1'):
+				{
+		       		LastCall.Interf=0;
+					sINTERF="H323";	  		
+				}
+				CASE('6'):
+				{
+		        	LastCall.Interf=1;
+					sINTERF="SIP"; 	
+				}
+				CASE('7'):
+				{
+		        	LastCall.Interf=2;
+					sINTERF="ISDN"; 	
+				}
+				DEFAULT:
+				{
+					LastCall.Interf=0;
+					sINTERF="";
+				}
+			}
+			//byte(commd$,3)=call type(in/out) 1--F
+			SWITCH(byte(commd$,3))
+			{
+				CASE ('1')://Release Indication with Progress Indicator
+				{
+					sInfo[1]="call release..."; 
+					SWITCH(byte(commd$,4))
+					{
+				     	CASE('0'):
+						{
+				         	sInfo[2]="Internal error";
+						}
+						CASE('1'):
+						{
+				         	sInfo[2]="Timeout";
+						}
+						CASE('2'):
+						{
+				         	sInfo[2]="Network";	
+						}
+						DEFAULT: 
+						{
+							sInfo[2]="";
+						}
+					}
+					sInfo[3]=Mid(commd$,5,3);//Cause number	
+					sInfo[4]=Mid(commd$,8,3);//Progress indicator
+					nInfo[1]=ATOI(sInfo[3]);
+					Switch(nInfo[1])
+					{
+                    	CASE(1): sInfo[3]="Unassigned Number";
+						CASE(16): sInfo[3]="Normal Call Clearing";
+						CASE(17): sInfo[3]="User Busy";
+						CASE(18): sInfo[3]="No User Responding";
+						CASE(19): sInfo[3]="No answer from user";
+						CASE(21): sInfo[3]="Call rejected";
+						CASE(27): sInfo[3]="Destination out of order";
+						CASE(28): sInfo[3]="Invalid number format"; 
+						CASE(31): sInfo[3]="Unspecified";
+						CASE(38): sInfo[3]="Network out of order";
+						DEFAULT: Makestring(sInfo[3],"%03u",nInfo[1]);
+					}
+					//XT_TE_Live_Call_Status=0;
+					//Live_Conn_Status=0;
+					makestring (XT_TE_Display$,"[%s]%s - %s cause %s num=%s",sINTERF,sInfo[2],sInfo[1],sInfo[3],sInfo[4]);   	
+					LastCall.Connected=0;
+					LastCall.Number="";
+					LastCall.Direction=0;
+					LastCall.Interf=2;
+					LastCall.Type=2;
+					LastCall.Rate=0;
+					LastCall.VideoRxON=0;
+					EvaluateCallStatus();
+				}
+				CASE ('2')://Setup acknowledge
+				{
+					sInfo[1]="Call setup...";
+					LastCall.Connected=3;
+					makestring (XT_TE_Display$,"[%s]%s %s",sINTERF,sInfo[1],LastCall.Number);
+					EvaluateCallStatus();   	
+				}
+				CASE ('3')://Call proceeding
+				{
+					sInfo[1]="Call proceeding...";
+					LastCall.Connected=3;
+					makestring (XT_TE_Display$,"[%s]%s %s",sINTERF,sInfo[1],LastCall.Number);
+					EvaluateCallStatus();   	
+				}
+				CASE ('4')://Information element
+				{
+					sInfo[1]=right(commd$,(nLen-3));		
+					makestring (XT_TE_Display$,"[%s]%s",sINTERF,sInfo[1]);   	
+				}
+				CASE ('5')://Alerting
+				{
+					makestring (XT_TE_Display$,"..ringing..");
+					LastCall.Connected=3;
+					EvaluateCallStatus();   	
+				}
+				CASE ('6')://Incoming Call
+				{
+					sInfo[1]="Incoming Call";
+				 	LastCall.Connected=5;
+					LastCall.Direction=2;//IN
+					SWITCH(byte(commd$,4))
+					{
+				     	CASE('1'):
+						{
+				         	sInfo[2]="Audio only";
+							LastCall.Type=1;
+							LastCall.VideoRxON=0;
+						}
+						CASE('8'):
+						{
+				         	sInfo[2]="Audio/Video";
+							LastCall.Type=0;
+						}
+						DEFAULT: 
+						{
+							sInfo[2]="";
+						}
+					}
+					sInfo[3]=right(commd$,(nLen-4));
+					LastCall.Number=sInfo[3];
+					makestring (XT_TE_Display$,"%s (%s %s) from : %s",sInfo[1],sINTERF,sInfo[2],sInfo[3]); 
+					makestring (XT_TE_InDisplay$,"%s (%s %s)",sInfo[3],sINTERF,sInfo[2]);
+					EvaluateCallStatus();				
+				}
+				CASE ('7')://Outgoing Call Connected
+				{
+					SWITCH(byte(commd$,4))
+					{
+				     	CASE('1'):
+						{
+				         	sInfo[2]="Audio only";
+				            LastCall.Type=1;
+							LastCall.VideoRxON=0;
+						}
+						CASE('8'):
+						{
+				         	sInfo[2]="Audio/Video";
+				            LastCall.Type=0;
+							//LastCall.VideoRxON=1;
+						}
+						DEFAULT: 
+						{
+							sInfo[2]="";
+						}
+					}
+					LastCall.Number=right(commd$,(nLen-5));
+					LastCall.Connected=1;
+					LastCall.Direction=1;//OUT
+					makestring (XT_TE_Display$,"CONNECTED (%s %s) %s",sINTERF,sInfo[2],LastCall.Number);
+					EvaluateCallStatus(); 	
+				}
+				CASE ('8')://Incoming Call Connected
+				{
+					
+					SWITCH(byte(commd$,4))
+					{
+				     	CASE('1'):
+						{
+				         	sInfo[2]="Audio only";
+				            LastCall.Type=1;
+							LastCall.VideoRxON=0;
+						}
+						CASE('8'):
+						{
+				         	sInfo[2]="Audio/Video";
+				            LastCall.Type=0;
+						}
+						DEFAULT: 
+						{
+							sInfo[2]="";
+						}
+					}
+					sInfo[3]=Mid(commd$,5,1);//hex num (1..F) of aggregate channels
+				    sInfo[4]=right(commd$,(nLen-5));//number
+					LastCall.Channels=HEXTOI(sInfo[3]);
+					LastCall.Number=sInfo[3];
+					LastCall.Connected=1;
+					LastCall.Direction=2;//IN
+					makestring (XT_TE_Display$,"CONNECTED (%s %s %u ch) %s",sINTERF,sInfo[2],LastCall.Channels,sInfo[4]);
+					EvaluateCallStatus(); 	
+				}
+				CASE ('9')://Release Indication
+				{
+					sInfo[1]="Call released";
+					SWITCH(byte(commd$,4))
+					{
+				     	CASE('0'):
+						{
+				         	sInfo[2]="Internal error";
+						}
+						CASE('1'):
+						{
+				         	sInfo[2]="Timeout";
+						}
+						CASE('2'):
+						{
+				         	sInfo[2]="Network";	
+						}
+						DEFAULT:
+						{
+				            sInfo[2]="";
+						}
+					}
+					sInfo[3]=Mid(commd$,5,3);//Cause number	
+					LastCall.Connected=4;
+					LastCall.VideoRxON=0;
+					LastCall.Channels=0;
+					makestring (XT_TE_Display$,"[%s]%s - %s cause %s",sINTERF,sInfo[2],sInfo[1],sInfo[3]);   	
+					EvaluateCallStatus();   	
+				}
+				CASE ('A')://Release Confirmation
+				{
+					 	makestring (XT_TE_Display$,"DISCONNECTED.");
+						LastCall.Connected=0; 
+						LastCall.Number="";
+						LastCall.Direction=0;
+						LastCall.Interf=2;
+						LastCall.Type=2;
+						LastCall.Rate=0;
+						LastCall.VideoRxON=0;
+						LastCall.Channels=0;
+						EvaluateCallStatus(); 	
+				}
+				CASE ('B')://Display info element
+				{
+					sInfo[1]=right(commd$,(nLen-3));		
+					makestring (XT_TE_Display$,"[%s]%s",sINTERF,sInfo[1]);   	
+				}
+				CASE ('C')://Charge advise info element
+				{
+					nop=1;   	
+				}
+				CASE ('D')://Suspend Confirm
+				{
+					makestring (XT_TE_Display$,"[%s]..call suspended..",sINTERF);   	
+				}
+				CASE ('E')://Resume Confirm
+				{
+					makestring (XT_TE_Display$,"[%s]..call resumed..",sINTERF);   	
+				}
+				CASE ('F')://Call Advice
+				{
+					SWITCH(byte(commd$,4))
+					{
+				     	CASE('1'):
+						{
+				         	sInfo[2]="Audio only";
+						}
+						CASE('8'):
+						{
+				         	sInfo[2]="Audio/Video";
+						}
+						DEFAULT: 
+						{
+							sInfo[2]="";
+						}
+					}
+				    sInfo[3]=right(commd$,(nLen-4));
+					makestring (XT_TE_Display$,"call (%s %s) %s",sINTERF,sInfo[2],sInfo[3]);   	
+				}
+				CASE ('G')://Incoming Call during a connection
+				{
+					sInfo[1]="Additional Incoming Call";
+				 	LastCall.Connected=6;
+					LastCall.Direction=2;//IN
+					SWITCH(byte(commd$,4))
+					{
+				     	CASE('1'):
+						{
+				         	sInfo[2]="Audio only";
+							LastCall.Type=1;
+							LastCall.VideoRxON=0;
+						}
+						CASE('8'):
+						{
+				         	sInfo[2]="Audio/Video";
+							LastCall.Type=0;
+						}
+						DEFAULT: 
+						{
+							sInfo[2]="";
+						}
+					}
+					//sInfo[3]=right(commd$,(nLen-4));
+					sInfo[3]=MID(commd$,5,10);
+					LastCall.MCUCallId=ATOI(sInfo[3]);
+					sInfo[4]=right(commd$,(nLen-14));//There are 10 Bytes of call ID prior Number/Name/Alias info
+					LastCall.Number=sInfo[4];
+					makestring (XT_TE_Display$,"%s (%s %s) from : %s",sInfo[1],sINTERF,sInfo[2],sInfo[4]); 
+					makestring (XT_TE_InDisplay$,"%s [ID=%02u](%s %s)",sInfo[4],LastCall.MCUCallId,sINTERF,sInfo[2]);
+					makestring (XT_Test_ExtraDebug_Info$,"%s: SC : Additional incoming call id=%010u",RefName,LastCall.MCUCallId);
+					EvaluateCallStatus();				
+				}
+				DEFAULT:
+				{
+					nop=1;
+				}
+			}//end switch byte 5 call type				
+			
+			//XT_TE_Live_Call_Status=LastCall.Connected;
+			//Live_Conn_Status=LastCall.Connected
+			//EvaluateCallStatus();
+			XT_TE_VideoRX_Status=LastCall.VideoRxON;
+
+		}//end case sub 'C'
+        CASE('E')://ERROR
+		{
+			SWITCH(byte(commd$,3))
+			{
+				CASE('1'):
+				{
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: SE : Bad parameter !",RefName);
+					ikack=60001;
+				}
+				CASE('2'):
+				{
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: SE : Unknown message !",RefName);
+					ikack=60002;	
+				}
+				CASE('3'):
+				{
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: SE : Wrong message lenght !",RefName);
+					ikack=60003;
+				}
+				CASE('4'):
+				{
+					sInfo[1]=right(commd$,(nLen-1));
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: SE : Bad mode on param ID: %s !",RefName,sInfo[1]);
+					ikack=60004;
+				}
+				CASE('5'):
+				{
+					SWITCH(byte(commd$,4))
+					{
+						CASE('0'):
+						{
+							IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: SE : Unable to execute command (system timeout) !",RefName);
+							ikack=60010;
+						}
+						CASE('1'):
+						{
+							IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: SE : Unable to execute command (system busy) !",RefName);
+							ikack=60011;
+						}
+					}
+				}
+			}
+		}				
+	}//end main switch byte 1
+	
+}//End CHANGE event
+
+CHANGE From_C_Mod_CallStat
+{
+//CB - 0 = Undefined    
+//  2 = idle (Disconnected)        
+//  5 = first call started
+//  6 = first setup sent to network
+//  7 = the remote system is ringing after the first call
+//  8 = first incoming call
+//  9 = first call connected
+// 10 = a following call is started
+// 11 = a following setup has been sent to network
+// 12 = the remote system is ringing after a following call
+// 13 = following incoming call
+// 14 = following call connected
+// 20 = waiting the complete disconnection
+// 31 = MCU IP active 
+	If (From_C_Mod_CallStat>0)
+	{
+		IF (From_C_Mod_CallStat<>Last_stat_Read)
+	   	{
+	   		Switch(From_C_Mod_CallStat)
+	   		{
+	   			Case (2)://Idle Disconnected
+	   			{
+	   				Connected_FB=0;
+	   				XT_TE_Live_Call_Status=0;
+	   				IF (Last_stat_Live>0)
+	   				{
+	   					Last_stat_Live=0;
+	   					Pulse(20,Now_Disconected);
+	   				}
+	   			}
+	   			Case (5)://first call started
+	   			{
+	   				XT_TE_Live_Call_Status=3;
+	   				If((Last_stat_Live<>3)&&(Last_stat_Read<>44))
+	   				{
+	   					Last_stat_Live=3;
+	   					Pulse(20,Now_Connecting);
+	   				}
+	   			}
+	   			Case (6)://first setup sent to network
+	   			{
+	   				XT_TE_Live_Call_Status=3;
+	   				If((Last_stat_Live<>3)&&(Last_stat_Read<>44))
+	   				{
+	   					Last_stat_Live=3;
+	   					Pulse(20,Now_Connecting);
+	   				}
+	   			}
+	   			Case (7)://the remote system is ringing after the first call
+	   			{
+	   				XT_TE_Live_Call_Status=3;
+	   				If((Last_stat_Live<>3)&&(Last_stat_Read<>44))
+	   				{
+	   					Last_stat_Live=3;
+	   					Pulse(20,Now_Connecting);
+	   				}
+	   			}
+	   			Case (8)://first incoming call
+	   			{
+	   				XT_TE_Live_Call_Status=5;
+	   				If(Last_stat_Live<>5)
+	   				{
+	   					Last_stat_Live=5;
+	   					Pulse(20,Now_Incoming);
+	   				}
+	   			}
+	   			Case (9)://first call connected
+	   			{
+	   				XT_TE_Live_Call_Status=1;
+	   				Connected_FB=1;
+	   				If(Last_stat_Live<>1)
+	   				{
+	   					Last_stat_Live=1;
+	   					Pulse(20,Now_Conected);
+	   				}
+	   			}
+	   			Case (10)://a following call is started
+	   			{
+	   				XT_TE_Live_Call_Status=3;
+	   				If((Last_stat_Live<>3)&&(Last_stat_Read<>44))
+	   				{
+	   					Last_stat_Live=3;
+	   					Pulse(20,Now_Connecting);
+	   				}
+	   			}
+	   			Case (11)://a following setup has been sent to network
+	   			{
+	   				XT_TE_Live_Call_Status=3;
+	   				If((Last_stat_Live<>3)&&(Last_stat_Read<>44))
+	   				{
+	   					Last_stat_Live=3;
+	   					Pulse(20,Now_Connecting);
+	   				}
+	   			}
+	   			Case (12)://the remote system is ringing after a following call
+	   			{
+	   				XT_TE_Live_Call_Status=3;
+	   				If((Last_stat_Live<>3)&&(Last_stat_Read<>44))
+	   				{
+	   					Last_stat_Live=3;
+	   					Pulse(20,Now_Connecting);
+	   				}
+	   			}
+	   			Case (13)://following incoming call
+	   			{
+	   				XT_TE_Live_Call_Status=6;
+	   				If(Last_stat_Live<>6)
+	   				{
+	   					Last_stat_Live=6;
+	   					Pulse(20,Now_Incoming_In_Call);
+	   				}
+	   			}
+	   			Case (14)://following call connected
+	   			{
+	   				XT_TE_Live_Call_Status=1;
+	   				Connected_FB=1;
+	   				If(Last_stat_Live<>1)
+	   				{
+	   					Last_stat_Live=1;
+	   					Pulse(20,Now_Conected);
+	   				}
+	   			}
+	   			Case (20)://waiting the complete disconnection
+	   			{
+	   				XT_TE_Live_Call_Status=3;
+	   				Connected_FB=0;
+	   				If((Last_stat_Live<>3)&&(Last_stat_Read<>44))
+	   				{
+	   					Last_stat_Live=3;
+	   					Pulse(20,Now_Connecting);
+	   				}
+	   			}
+	   			Case (31)://MCU IP active
+	   			{
+	   				Pulse(20,Now_MCUIP_Active);
+	   			}
+	   		}//end Switch
+	   		Last_stat_Read=From_C_Mod_CallStat;
+	   	}//End if Read_Conn_Status<>Last_stat_Read
+	}//End if Read_Conn_Status>0
+}
+
+
+CHANGE From_C_Mod_VideoRX
+{
+	IF (From_C_Mod_VideoRX<2)
+	{
+		LastCall.VideoRxON=From_C_Mod_VideoRX;
+		XT_TE_VideoRX_Status=From_C_Mod_VideoRX;
+	}
+}
+
+CHANGE From_C_Mod_DVstat
+{
+	IF (From_C_Mod_DVstat<2)
+	{
+		XT_TE_MMpresentation_TX_Status=From_C_Mod_DVstat;
+	}
+}
+
+PUSH XT_Plus_Accept
+{
+	IF(LastCall.MCUCallId>0)
+	{
+		Makestring(XT_Cmd_To_Send$,"AT[&CG1%010u0\r",LastCall.MCUCallId);
+	}
+	Else
+	{
+		Pulse(20,XT_MCU_Refresh);
+	}
+}
+
+PUSH XT_Plus_Reject
+{
+    IF(LastCall.MCUCallId>0)
+	{
+		Makestring(XT_Cmd_To_Send$,"AT[&CG0%010u0\r",LastCall.MCUCallId);
+	}
+	Else
+	{
+		Pulse(20,XT_MCU_Refresh);
+	}
+}
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+     InitializeVars();
+     RefName=GetSymbolReferenceName();
+    // WaitForInitializationComplete();
+    
+}
+
+

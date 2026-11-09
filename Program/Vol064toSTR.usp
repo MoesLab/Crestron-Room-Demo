@@ -1,0 +1,35 @@
+#SYMBOL_NAME "Vol064toSTR"
+// #HINT ""
+// #DEFINE_CONSTANT
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT SendVal;
+ANALOG_INPUT InVal; 
+STRING_OUTPUT ToSend$;
+
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH SendVal
+{SIGNED_INTEGER rVOL;
+    rVOL=InVal-44;//NEXT_TX_VOL = 0..64  rVOL= -44..20
+    If (rVOL<0)
+    	Makestring(ToSend$,"AT[&SV%02d\r",rVOL);
+    Else
+    	Makestring(ToSend$,"AT[&SV%03d\r",rVOL);
+}

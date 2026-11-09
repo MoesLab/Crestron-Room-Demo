@@ -1,0 +1,1664 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Avaya
+System Name: Avaya XT5000 & Telepresence
+System Number:
+Programmer: Fabrizio Torbidoni www.automazionesale.it
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "RA_Interpret_D_R00d02"
+// #HINT ""
+#DEFINE_CONSTANT MAX_POSSIBLE_DIR_ENTRIES	20
+#DEFINE_CONSTANT MAX_POSSIBLE_RP_ENTRIES	20
+#CATEGORY "46" "Avaya" // Custom
+#PRINT_TO_TRACE
+
+
+// #DEFINE_CONSTANT  MAX_MCU_INDEX				50 //max number of terminals in DB. Max possible num =999
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Enable;
+
+DIGITAL_INPUT Dial;
+DIGITAL_INPUT Compose_number;
+
+DIGITAL_INPUT XT_DIR_Start;
+DIGITAL_INPUT XT_DIR_Stop;
+DIGITAL_INPUT XT_DIR_prev1_Page;
+DIGITAL_INPUT XT_DIR_prev5_Page;
+DIGITAL_INPUT XT_DIR_next1_Page;
+DIGITAL_INPUT XT_DIR_next5_Page;
+
+DIGITAL_INPUT XT_RP_Start;
+DIGITAL_INPUT XT_RP_Stop;
+DIGITAL_INPUT XT_RP_prev1_Page;
+DIGITAL_INPUT XT_RP_prev3_Page;
+DIGITAL_INPUT XT_RP_next1_Page;
+DIGITAL_INPUT XT_RP_next3_Page;
+
+DIGITAL_INPUT XT_RPDIR_Entry_UnSel;
+DIGITAL_INPUT XT_DIR_Entry_Sel[MAX_POSSIBLE_DIR_ENTRIES];
+DIGITAL_INPUT XT_RP_Entry_Sel[MAX_POSSIBLE_RP_ENTRIES];
+
+ANALOG_INPUT XT_Mod_DebugLevel;//			Debug output level 0=no messages 99=all messages 
+
+BUFFER_INPUT Process_D_strings$[2000];
+ANALOG_INPUT XT_DIR_MAX_Entries_p_Page; 
+ANALOG_INPUT XT_RP_MAX_Entries_p_Page;
+ANALOG_INPUT XT_DIR_GoTo_Page;
+ANALOG_INPUT XT_RP_GoTo_Page;
+
+ANALOG_INPUT XT_TE_CallRate;//0=AUTO 1..27=64Kbps..6144Kbps
+ANALOG_INPUT XT_TE_CallType;//0=AUTO 1=AudioOnly  2=A+V
+ANALOG_INPUT XT_TE_CallInterf;//0=AUTO 1=IP 2=SIP 3=ISDN 4=MCU
+
+STRING_INPUT XT_TE_Nr_to_Call$[128];//Compose number to dial
+                 
+DIGITAL_OUTPUT XT_DIR_StartReading;
+DIGITAL_OUTPUT XT_DIR_ErrorReading;
+DIGITAL_OUTPUT XT_DIR_EndReading;
+DIGITAL_OUTPUT XT_RP_StartReading;
+DIGITAL_OUTPUT XT_RP_ErrorReading;
+DIGITAL_OUTPUT XT_RP_EndReading;
+
+
+ANALOG_OUTPUT XT_DIR_Selected_Entry;//0=No selected item or 1..MAX_POSSIBLE_DIR_ENTRIES
+ANALOG_OUTPUT XT_RP_Selected_Entry;//0=No selected item or 1..MAX_POSSIBLE_RP_ENTRIES
+
+
+STRING_OUTPUT XT_Test_ExtraDebug_Info$;//Connected call number
+STRING_OUTPUT XT_TE_HiSEND$;//connected to High Priority 
+STRING_OUTPUT XT_TE_Display_Number$;
+STRING_OUTPUT XT_DIR_Pages$;
+STRING_OUTPUT XT_RP_Pages$;
+STRING_OUTPUT XT_DIR_EntryText$[MAX_POSSIBLE_DIR_ENTRIES];
+STRING_OUTPUT XT_RP_EntryText$[MAX_POSSIBLE_RP_ENTRIES,MAX_POSSIBLE_RP_ENTRIES];
+
+
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+// TCP_CLIENT
+// TCP_SERVER
+// UDP_SOCKET
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+// INTEGER_PARAMETER
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+// STRING_PARAMETER
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+/*
+#BEGIN_PARAMETER_PROPERTIES parameter_variable, parameter_variable, ...
+   // propValidUnits = // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   // propDefaultUnit = // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   // propBounds = lower_bound , upper_bound;
+   // propDefaultValue = ;  // or, propDefaultValue = "";
+   // propList = // { "value" , "label" } , { "value" , "label" } , ... ;
+   // propShortDescription = "status_bar_hint_text";
+   // #BEGIN_PROP_FULL_DESCRIPTION  line_1...  line_2...  line_n  #END_PROP_FULL_DESCRIPTION
+   // #BEGIN_PROP_NOTES line_1...  line_2...  line_n  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+*/
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+
+STRUCTURE PhoneBookEntry
+{
+	INTEGER SeqWord;//16 bit to check msg
+	STRING SName[64];
+	STRING SCompany[64];
+	STRING SNumber[64];
+	INTEGER Uid;//field id (1-xxx) PAY ATTENTION, ID from 0 to xxx are stored as 1 to xxx+1 and 0 means invalid. When you pass the id to the comm module remember to subtract 1 before.
+};
+
+STRUCTURE RecallEntry
+{
+	INTEGER SeqWord;//16 bit to check msg
+	INTEGER Uid;//field id (1-100) PAY ATTENTION, ID from 0 to xxx are stored as 1 to xxx+1 and 0 means invalid. When you pass the id to the comm module remember to subtract 1 before.	
+	STRING Name1[64];// field number/address/alias
+	STRING Name2[64];// additional field number/address/alias
+	STRING Number1[64];// field number/address/alias
+	STRING Number2[64];// additional field number/address/alias
+	INTEGER Direction;//0=Undefined 1=Outgoing 2=Incoming
+	STRING sInterf[4];// IP - SIP - ISDN string format
+	INTEGER nInterf;// 0=IP - 1=SIP - 2=ISDN numeric format
+	INTEGER nType;//0=AV 1=Speec 2=Undefined
+	STRING lcDate[10];// DD/MM/YYYY
+	STRING lcTime[5];// HH:MM
+	STRING lcDuration[8];// HH:MM:SS
+};
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER Nop;
+STRING RefName[60];
+STRING NrToCall$[144];
+
+INTEGER ProcDon;
+INTEGER dbgnum;
+
+PhoneBookEntry DirEntry[MAX_POSSIBLE_DIR_ENTRIES];
+RecallEntry RPEntry[MAX_POSSIBLE_RP_ENTRIES];
+
+PhoneBookEntry DirNowRd;
+RecallEntry RPNowRd;
+
+INTEGER Dir_Max_records;
+INTEGER Dir_Curr_Entry;
+INTEGER Dir_Tot_Entry_pp;
+INTEGER Dir_Curr_Page_nr;
+INTEGER Dir_Tot_Pages;
+INTEGER Dir_min_idx_in_curr_pag;
+INTEGER Dir_max_idx_in_curr_pag;
+INTEGER Dir_curr_row;
+INTEGER Dir_reading;
+
+INTEGER RP_Max_records;
+INTEGER RP_Curr_Entry;
+INTEGER RP_Tot_Entry_pp;
+INTEGER RP_Curr_Page_nr;
+INTEGER RP_Tot_Pages;
+INTEGER RP_min_idx_in_curr_pag;
+INTEGER RP_max_idx_in_curr_pag;
+INTEGER RP_curr_row;
+INTEGER RP_reading;
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+//STRING CurrSending$[200];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+Function ResetDIRfields()
+{Integer EntNum;
+	If(XT_DIR_MAX_Entries_p_Page=0)
+		Dir_Tot_Entry_pp=9;
+	Else
+		Dir_Tot_Entry_pp=XT_DIR_MAX_Entries_p_Page;
+	
+	Dir_Max_records=0;
+	Dir_Curr_Entry=0;
+	Dir_Curr_Page_nr=0;
+	Dir_Tot_Pages=0;
+	Dir_min_idx_in_curr_pag=1;
+	Dir_max_idx_in_curr_pag=1;
+	Dir_curr_row=1;
+	Dir_reading=0;
+	For(EntNum=1 to MAX_POSSIBLE_DIR_ENTRIES)
+    {
+		DirEntry[EntNum].SName="";
+		DirEntry[EntNum].SCompany="";
+		DirEntry[EntNum].SNumber="";
+		DirEntry[EntNum].Uid=0;
+	}
+}
+
+Function ResetRPfields()
+{Integer EntNum;
+	
+	If(XT_RP_MAX_Entries_p_Page=0)
+		RP_Tot_Entry_pp=9;
+	Else
+		RP_Tot_Entry_pp=XT_RP_MAX_Entries_p_Page;
+		
+	RP_Max_records=0;
+	RP_Curr_Entry=0;
+	RP_Curr_Page_nr=0;
+	RP_Tot_Pages=0;
+	RP_min_idx_in_curr_pag=1;
+	RP_max_idx_in_curr_pag=1;
+	RP_curr_row=1;
+	RP_reading=0;
+	For(EntNum=1 to MAX_POSSIBLE_RP_ENTRIES)
+    {
+    	RPEntry[EntNum].Uid=0;
+		RPEntry[EntNum].Name1="";
+		RPEntry[EntNum].Name2="";
+		RPEntry[EntNum].Number1="";
+		RPEntry[EntNum].Number2="";
+	    RPEntry[EntNum].Direction=0;
+	    RPEntry[EntNum].nInterf=0;
+	    RPEntry[EntNum].SInterf="";
+	    RPEntry[EntNum].nType=0;
+	    RPEntry[EntNum].lcDate="";
+	    RPEntry[EntNum].lcTime="";
+	    RPEntry[EntNum].lcDuration="";
+	}
+}
+
+Function ResetDirNowRd()
+{
+    DirNowRd.SeqWord=0;//16 bit to check msg
+    DirNowRd.Uid=0;
+	DirNowRd.SName="";
+	DirNowRd.SCompany="";
+	DirNowRd.SNumber="";
+}
+
+Function ResetRPNowRd()
+{
+	RPNowRd.SeqWord=0;//16 bit to check msg
+	RPNowRd.Uid=0;
+	RPNowRd.Name1="";
+	RPNowRd.Name2="";
+	RPNowRd.Number1="";
+	RPNowRd.Number2="";
+    RPNowRd.Direction=0;
+    RPNowRd.nInterf=0;
+    RPNowRd.SInterf="";
+    RPNowRd.nType=0;
+    RPNowRd.lcDate="";
+    RPNowRd.lcTime="";
+    RPNowRd.lcDuration="";
+}
+
+Function RPAddBit(Integer Bn)//Bit number must be 1 to 16
+{
+	RPNowRd.SeqWord=RPNowRd.SeqWord | (1<<(Bn-1));
+}
+
+Function DirAddBit(Integer Bn)//Bit number must be 1 to 16
+{
+	DirNowRd.SeqWord=DirNowRd.SeqWord | (1<<(Bn-1));
+}
+
+Function InitializeVars()
+{Integer EntNum;
+ 	
+
+    ResetDIRfields();
+    ResetRPfields();
+    
+    dbgnum=0;
+}
+
+
+FUNCTION CleanTextDirFields()
+{Integer rown;
+	For(rown=1 to MAX_POSSIBLE_DIR_ENTRIES)
+	{
+		XT_DIR_EntryText$[rown]=" ";
+	}
+} 
+ 
+FUNCTION CleanTextRPFields()
+{Integer rown;
+	For(rown=1 to MAX_POSSIBLE_RP_ENTRIES)
+	{
+		XT_RP_EntryText$[rown]=" ";
+	}
+}  
+
+FUNCTION CleanTextDirpage()
+{Integer rown;
+	For(rown=1 to MAX_POSSIBLE_DIR_ENTRIES)
+	{
+		XT_DIR_EntryText$[rown]=" ";
+		DirEntry[rown].SName="";
+		DirEntry[rown].SCompany="";
+		DirEntry[rown].SNumber="";
+		DirEntry[rown].Uid=0;
+	}
+} 
+ 
+FUNCTION CleanTextRPpage()
+{Integer rown;
+	For(rown=1 to MAX_POSSIBLE_RP_ENTRIES)
+	{
+		XT_RP_EntryText$[rown]=" ";
+		RPEntry[rown].Name1="";
+		RPEntry[rown].Name2="";
+		RPEntry[rown].Number1="";
+		RPEntry[rown].Number2="";
+	    RPEntry[rown].Direction=0;
+	    RPEntry[rown].nInterf=0;
+	    RPEntry[rown].SInterf="";
+	    RPEntry[rown].nType=0;
+	    RPEntry[rown].lcDate="";
+	    RPEntry[rown].lcTime="";
+	    RPEntry[rown].lcDuration="";
+	    RPEntry[rown].Uid=0;
+	}
+} 
+ 
+
+FUNCTION DIR_Reading_TO()
+{
+    WAIT(1350,DRTO)//wait 113,5 sec.
+    {
+		If (DIR_reading>0)
+		{
+			PULSE(50,XT_DIR_ErrorReading);
+			Dir_Curr_Entry=0;
+			Dir_Curr_Page_nr=1;
+			Dir_reading=0;
+			Dir_Max_records=0;
+			Dir_Tot_Pages=1;//((dir_max_idx_in_curr_grp-1)/Dir_Tot_Entry_pp)+1;
+			Dir_min_idx_in_curr_pag=0;
+			ResetDirNowRd();
+			//dir_curr_row_in_pag=0;
+		}
+    }
+}
+
+FUNCTION RP_Reading_TO()
+{
+    WAIT (600,RPTO)//wait 1 min
+    {
+		If (RP_reading>0)
+		{
+		    PULSE(50,XT_RP_ErrorReading);
+		    RP_Curr_Entry=0;
+		    RP_Curr_Page_nr=1;
+		    RP_reading=0;
+		    RP_Max_records=0;
+		    RP_Tot_Pages=1;//((RP_max_idx_in_curr_grp-1)/RP_Tot_Entry_pp)+1;
+		    RP_min_idx_in_curr_pag=0;
+		    ResetRPNowRd();
+		    //RP_curr_row_in_pag=0;
+		}
+    }
+}
+
+FUNCTION End_Read_Dir()
+{
+    CANCELWAIT(DRTO);
+    ResetDirNowRd();
+    PULSE(50,XT_DIR_EndReading);
+    Dir_reading=0;
+}
+
+FUNCTION End_Read_RP()
+{
+    CANCELWAIT(RPTO);
+    ResetRPNowRd();
+    PULSE(50,XT_RP_EndReading);
+    RP_reading=0;
+}
+
+Function End_Read_All()
+{
+    End_Read_Dir();
+    End_Read_RP();
+}
+
+
+FUNCTION Start_Read_Dir()
+{
+    End_Read_All();
+    ResetDIRfields();
+	Dir_Curr_Entry=0;
+	Dir_Max_records=0;
+	Dir_Tot_Pages=1;//((dir_max_idx_in_curr_grp-1)/Dir_Tot_Entry_pp)+1
+	Dir_curr_row=0;
+	Dir_reading=1;
+	Makestring(XT_TE_HiSEND$,"AT[?DFA\r");
+	//SEND_STRING VIRTUAL_TE,"'=DIRSTART='"
+	PULSE(50,XT_DIR_StartReading);
+	Makestring(XT_DIR_Pages$,"../..");
+	CleanTextDirpage();
+	DIR_Reading_TO();
+}
+
+
+FUNCTION DIR_grp_page_read()
+{
+	If (Dir_Curr_Page_nr>0)
+	{
+	    Dir_min_idx_in_curr_pag=(Dir_Tot_Entry_pp*(Dir_Curr_Page_nr-1))+1;
+	    Dir_max_idx_in_curr_pag=Dir_min_idx_in_curr_pag+(Dir_Tot_Entry_pp-1);
+	    If (Dir_max_idx_in_curr_pag>Dir_Max_records) Dir_max_idx_in_curr_pag=Dir_Max_records;
+	    Dir_reading=1;
+	    Dir_Curr_Entry=Dir_min_idx_in_curr_pag;
+	    Dir_curr_row=1;
+	    CANCELWAIT(DRTO);	    
+		CleanTextDirpage(); 
+        Makestring(XT_DIR_Pages$,"%02u/%02u",Dir_Curr_Page_nr,Dir_Tot_Pages);
+	    Makestring(XT_TE_HiSEND$,"AT[?DLA%03u\r",(Dir_Curr_Entry-1));
+	    DIR_Reading_TO();
+	}
+}
+
+FUNCTION DIR_next_data()
+{
+	Dir_Curr_Entry=Dir_Curr_Entry+1;
+	If(Dir_Curr_Entry<=Dir_max_idx_in_curr_pag)
+	{
+	    Dir_reading=1;
+	    Dir_curr_row=Dir_curr_row+1;
+	    Makestring(XT_TE_HiSEND$,"AT[?DLA%03u\r",(Dir_Curr_Entry-1));
+	    DIR_Reading_TO();
+	}
+	Else
+	{//end reading
+	    End_Read_Dir();
+	}
+}
+
+FUNCTION DIR_PAGE_inc(INTEGER tstep)
+{
+    End_Read_All();
+	If (Dir_reading=0)
+	{
+	    Dir_Curr_Page_nr=Dir_Curr_Page_nr+tstep;
+	    IF (Dir_Curr_Page_nr>Dir_Tot_Pages) Dir_Curr_Page_nr=Dir_Tot_Pages;
+	    DIR_grp_page_read();
+	}
+}
+
+FUNCTION DIR_PAGE_dec(INTEGER tstep)
+{
+    End_Read_All();
+	If (Dir_reading=0)
+	{
+	    IF (Dir_Curr_Page_nr>tstep)
+	    {
+			Dir_Curr_Page_nr=Dir_Curr_Page_nr-tstep;
+	    }
+	    DIR_grp_page_read();
+	}
+}
+
+FUNCTION DIR_PAGE_goto(INTEGER tstep)
+{
+    End_Read_All();
+	If (Dir_reading=0)
+	{
+	    IF (tstep=0)
+	    {
+			Dir_Curr_Page_nr=1;
+	    }
+	    
+	    IF (tstep<=Dir_Tot_Pages)
+	    {
+			Dir_Curr_Page_nr=tstep;
+	    }
+	    Else
+	    {
+			Dir_Curr_Page_nr=Dir_Tot_Pages;
+	    }
+	    
+	    If (Dir_Curr_Page_nr>0)
+	    {
+			DIR_grp_page_read();
+	    }
+	}
+}
+
+
+
+
+
+
+
+
+FUNCTION Start_Read_RP()
+{
+    End_Read_All();
+    ResetRPfields();
+	RP_Curr_Entry=0;
+	RP_Max_records=0;
+	RP_Tot_Pages=1;//((RP_max_idx_in_curr_grp-1)/RP_Tot_Entry_pp)+1
+	RP_curr_row=0;
+	RP_reading=1;
+	//SEND_STRING VIRTUAL_TE,"'=RPSTART='"
+	Makestring(XT_TE_HiSEND$,"AT[?DQA\r");
+	PULSE(50,XT_RP_StartReading);
+	Makestring(XT_RP_Pages$,"../..");
+	CleanTextRPpage();
+	RP_Reading_TO();
+}
+
+
+FUNCTION RP_grp_page_read()
+{
+	If (RP_Curr_Page_nr>0)
+	{
+	    RP_min_idx_in_curr_pag=(RP_Tot_Entry_pp*(RP_Curr_Page_nr-1))+1;
+	    RP_max_idx_in_curr_pag=RP_min_idx_in_curr_pag+(RP_Tot_Entry_pp-1);
+	    If (RP_max_idx_in_curr_pag>RP_Max_records) RP_max_idx_in_curr_pag=RP_Max_records;
+	    RP_reading=1;
+	    RP_Curr_Entry=RP_min_idx_in_curr_pag;
+	    RP_curr_row=1;
+	    CANCELWAIT(RPTO);
+	    CleanTextRPpage(); 
+	    Makestring(XT_RP_Pages$,"%02u/%02u",RP_Curr_Page_nr,RP_Tot_Pages);
+	    Makestring(XT_TE_HiSEND$,"AT[?DTA%03u\r",(RP_Curr_Entry-1));
+	    RP_Reading_TO();
+	}
+}
+
+FUNCTION RP_next_data()
+{
+	RP_Curr_Entry=RP_Curr_Entry+1;
+	If(RP_Curr_Entry<=RP_max_idx_in_curr_pag)
+	{
+	    RP_reading=1;
+	    RP_curr_row=RP_curr_row+1;
+	    Makestring(XT_TE_HiSEND$,"AT[?DTA%03u\r",(RP_Curr_Entry-1));
+	    RP_Reading_TO();
+	}
+	Else
+	{//end reading
+	    End_Read_RP();
+	}
+}
+
+FUNCTION RP_PAGE_inc(INTEGER tstep)
+{
+    End_Read_All();
+	If (RP_reading=0)
+	{
+	    RP_Curr_Page_nr=RP_Curr_Page_nr+tstep;
+	    IF (RP_Curr_Page_nr>RP_Tot_Pages) RP_Curr_Page_nr=RP_Tot_Pages;
+	    RP_grp_page_read();
+	}
+}
+
+FUNCTION RP_PAGE_dec(INTEGER tstep)
+{
+    End_Read_All();
+	If (RP_reading=0)
+	{
+	    IF (RP_Curr_Page_nr>tstep)
+	    {
+			RP_Curr_Page_nr=RP_Curr_Page_nr-tstep;
+	    }
+	    RP_grp_page_read();
+	}
+}
+
+FUNCTION RP_PAGE_goto(INTEGER tstep)
+{
+    End_Read_All();
+	If (RP_reading=0)
+	{
+	    IF (tstep=0)
+	    {
+			RP_Curr_Page_nr=1;
+	    }
+	    IF (tstep<=RP_Tot_Pages)
+	    {
+			RP_Curr_Page_nr=tstep;
+	    }
+	    Else
+	    {
+			RP_Curr_Page_nr=RP_Tot_Pages;
+	    }
+	    
+	    If(RP_Curr_Page_nr>0)
+	    {
+			RP_grp_page_read();
+	    }
+	}
+}
+
+
+
+FUNCTION DirEntryUpdate(Integer EntNum)
+{
+	IF (DirEntry[EntNum].Uid=0)
+	{
+		DirEntry[EntNum].SName="";
+	    DirEntry[EntNum].SCompany="";
+	    DirEntry[EntNum].SNumber="";
+	    Makestring(XT_DIR_EntryText$[EntNum]," ");		
+	}
+	ELSE
+	{					    
+		IF (Len(DirEntry[EntNum].SCompany)>0)
+		{
+			Makestring(XT_DIR_EntryText$[EntNum],"%s, %s - %s",DirEntry[EntNum].SName,DirEntry[EntNum].SCompany,DirEntry[EntNum].SNumber);
+		}
+		Else
+		{
+			Makestring(XT_DIR_EntryText$[EntNum],"%s - %s",DirEntry[EntNum].SName,DirEntry[EntNum].SNumber);
+		}
+	}
+}
+
+FUNCTION RPEntryUpdate(Integer EntNum)
+{String Stemp[3][10];
+	IF (RPEntry[EntNum].Uid=0)
+	{
+		RPEntry[EntNum].Name1="";
+		RPEntry[EntNum].Name2="";
+		RPEntry[EntNum].Number1="";
+		RPEntry[EntNum].Number2="";
+	    RPEntry[EntNum].Direction=0;
+	    RPEntry[EntNum].nInterf=0;
+	    RPEntry[EntNum].SInterf="";
+	    RPEntry[EntNum].nType=0;
+	    RPEntry[EntNum].lcDate="";
+	    RPEntry[EntNum].lcTime="";
+	    RPEntry[EntNum].lcDuration="";
+	    Makestring(XT_RP_EntryText$[EntNum]," ");		
+	}
+	ELSE
+	{					    
+		Switch(RPEntry[EntNum].Direction)
+		{
+			Case (0):
+			{
+				Stemp[1]="   ";
+			}
+			Case (1):
+			{
+				Stemp[1]="OUT:";
+			}
+			Case (2):
+			{
+				Stemp[1]="IN:";
+			}
+		}
+		Switch(RPEntry[EntNum].nType)
+		{
+			Case (0):
+			{
+				Stemp[2]="A/V";
+			}
+			Case (1):
+			{
+				Stemp[2]="Audio Only";
+			}
+		}
+		Switch(RPEntry[EntNum].nInterf)
+		{
+			Case (0):
+			{
+				RPEntry[EntNum].SInterf="IP";
+				Stemp[3]="IP";
+			}
+			Case (1):
+			{
+				RPEntry[EntNum].SInterf="SIP";
+				Stemp[3]="SIP";
+			}
+			Case (2):
+			{
+				RPEntry[EntNum].SInterf="ISDN";
+				Stemp[3]="ISDN";
+			}
+		}
+		
+		Makestring(XT_RP_EntryText$[EntNum],"%s%s:%s: %s%s - %s%s AT %s %s (%s)",
+		Stemp[1],Stemp[2],Stemp[3],
+		RPEntry[EntNum].Name1,RPEntry[EntNum].Name2,
+		RPEntry[EntNum].Number1,RPEntry[EntNum].Number2,
+		RPEntry[EntNum].lcDate,RPEntry[EntNum].lcTime,RPEntry[EntNum].lcDuration);
+	}
+}
+
+/* ft 02/11/2015
+Function AckResponse(INTEGER ikack)
+{INTEGER tmpack;
+	If (LastWaitingFor>=60000)
+	{
+		nop=1;
+	}
+	Else If ((LastWaitingFor>0)&&(LastWaitingFor<100))
+	{
+		tmpack=LastWaitingFor+100;
+		if (tmpack=ikack)
+		{
+			XT_DATA_ACK=1;
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+		}
+		Else
+		{
+			XT_DATA_ACK=2;
+		}
+		Delay(1);
+		XT_DATA_ACK=0;
+	}
+	Else If ((LastWaitingFor>100)&&(LastWaitingFor<200))
+	{
+		if (LastWaitingFor=ikack)
+		{
+			XT_DATA_ACK=1;	
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+		}
+		Else
+		{
+			XT_DATA_ACK=2;
+		}
+		Delay(1);
+		XT_DATA_ACK=0;
+	}
+	Else If (LastWaitingFor=500)
+	{
+		If(ikack=500)
+		{
+			XT_DATA_ACK=1;
+			Delay(1);
+			XT_DATA_ACK=0;		
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+			Delay(1);
+			XT_DATA_ACK=0;
+		}
+		Else
+		{
+			nop=1;
+		}				
+	}
+	Else If (LastWaitingFor=999)
+	{
+		If(ikack=999)
+		{
+			XT_DATA_ACK=1;
+			Delay(1);
+			XT_DATA_ACK=0;		
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+			Delay(1);
+			XT_DATA_ACK=0;
+		}
+		Else
+		{
+			nop=1;
+		}
+	}
+	Else If ((LastWaitingFor>1000)&&(LastWaitingFor<1100))
+	{
+		tmpack=LastWaitingFor-900;
+		if (tmpack=ikack)
+		{
+			XT_DATA_ACK=1;
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+		}
+		Else
+		{
+			XT_DATA_ACK=2;
+		}
+		Delay(1);
+		XT_DATA_ACK=0;		
+	}
+	Else If ((LastWaitingFor>1100)&&(LastWaitingFor<1200))
+	{
+		tmpack=LastWaitingFor-1000;
+		if (tmpack=ikack)
+		{
+			XT_DATA_ACK=1;
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+		}
+		Else
+		{
+			XT_DATA_ACK=2;
+		}
+		Delay(1);
+		XT_DATA_ACK=0;			
+	}
+	Else
+	{
+		nop=1;
+	}
+}
+*/
+
+Function RPBitCheck()
+{
+	If (RPNowRd.SeqWord=255)//all first 8 bit to 1
+	{
+		If (RPNowRd.Uid>0)
+		{
+		    CANCELWAIT(RPTO);
+		    RPEntry[RP_curr_row].Uid=RPNowRd.Uid;
+			RPEntry[RP_curr_row].Name1=RPNowRd.Name1;
+			RPEntry[RP_curr_row].Name2=RPNowRd.Name2;
+			RPEntry[RP_curr_row].Number1=RPNowRd.Number1;
+			RPEntry[RP_curr_row].Number2=RPNowRd.Number2;
+		    RPEntry[RP_curr_row].Direction=RPNowRd.Direction;
+		    RPEntry[RP_curr_row].nInterf=RPNowRd.nInterf;
+		    RPEntry[RP_curr_row].SInterf=RPNowRd.SInterf;
+		    RPEntry[RP_curr_row].nType=RPNowRd.nType;
+		    RPEntry[RP_curr_row].lcDate=RPNowRd.lcDate;
+		    RPEntry[RP_curr_row].lcTime=RPNowRd.lcTime;
+		    RPEntry[RP_curr_row].lcDuration=RPNowRd.lcDuration;
+		    ResetRPNowRd();
+		    RPEntryUpdate(RP_curr_row);
+		    RP_next_data();
+		}
+		Else
+		{
+			IF (XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,
+				"%s: RPBitCheck UID=0 !! ::Record Index=%03u(calc)::SeqWord=%u",
+				RefName,RPNowRd.Uid,RPNowRd.SeqWord);
+			ResetRPNowRd();
+		}
+		/* ft 02/11/2015
+		AckResponse(162);
+		*/
+	}
+}
+
+Function DirBitCheck()
+{
+	If (DirNowRd.SeqWord=15)//all first 4 bit to 1
+	{
+		IF(DirNowRd.Uid>0)
+		{
+			
+			
+			DirEntry[Dir_curr_row].Uid=DirNowRd.Uid;// !!! ID 000 is passed as 001, id 001 is passed as 002 etc...
+			DirEntry[Dir_curr_row].SName=DirNowRd.SName;
+			DirEntry[Dir_curr_row].SCompany=DirNowRd.SCompany;
+			DirEntry[Dir_curr_row].SNumber=DirNowRd.SNumber;
+			CANCELWAIT(DRTO);
+			ResetDirNowRd();
+			DirEntryUpdate(Dir_curr_row);
+			DIR_next_data();	
+		}
+		Else
+		{
+			IF (XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,
+				"%s: DirBitCheck UID=0 !! ::Record Index=%03u(calc)::SeqWord=%u",
+				RefName,DirNowRd.Uid,DirNowRd.SeqWord);
+			ResetDirNowRd();
+		}
+		/* ft 02/11/2015
+		AckResponse(131);
+		*/
+	}
+}
+
+
+Function RxCode_F(string commd$)//File Descriptor DF
+{
+	//IF (XT_Mod_DebugLevel>3) makestring (XT_Test_ExtraDebug_Info$,"%s: Proc DF event(dbgnum=%u) : CMD=%s",RefName,dbgnum,commd$);
+	//Directory MAX records 3 bytes         
+	Dir_Max_records=ATOI(MID(commd$, 1, 3));
+	If((Dir_Max_records=0)||(Dir_Tot_Entry_pp=0))
+	{
+		Dir_Tot_Pages=0;
+	}
+	Else
+	{
+		Dir_Tot_Pages=((Dir_Max_records-1)/Dir_Tot_Entry_pp)+1;
+	}
+	//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DF : Directory Max Records=%u :::Max Entry p Page=%u :::Total Pages=%u ::SeqWord=%u",
+	//RefName,Dir_Max_records,Dir_Tot_Entry_pp,Dir_Tot_Pages,DirNowRd.SeqWord);
+	IF (Dir_reading>0)
+	{
+		If(Dir_Tot_Pages>0)
+		{   
+			Dir_Curr_Page_nr=1;
+			Makestring(XT_DIR_Pages$,"%02u/%02u",Dir_Curr_Page_nr,Dir_Tot_Pages);
+			ResetDirNowRd();
+			DIR_grp_page_read();
+		}
+		Else
+		{
+			End_Read_DIR();
+		}
+	}
+	/* ft 02/11/2015
+	AckResponse(130);
+	*/
+}//end 'DF'
+		
+		
+Function RxCode_RL(string commd$)//Read Record with index (DR) or (DL)
+{INTEGER nLen,nFound,nidx;		
+	//IF (XT_Mod_DebugLevel>3) makestring (XT_Test_ExtraDebug_Info$,"%s: Proc DRL event(dbgnum=%u) : CMD=%s",RefName,dbgnum,commd$);
+	nLen=len(commd$);
+	IF ((Dir_reading>0)&&(Dir_curr_row>0))
+    {
+        SWITCH(byte(commd$,1))
+		{
+			CASE('0')://Generic
+			{
+				nFound=ATOI(MID(commd$, 6, 1));//2=Not Found 1=Found
+				nidx=1+(ATOI(MID(commd$, 3, 3)));//numeric Index (000-999)+1
+				DirAddBit(1);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DR0A ::Record Index=%s ::Row=%02u ::Found=%u ::SeqWord=%u",
+				//RefName,sInfo[2],Dir_curr_row,nInfo[1],DirNowRd.SeqWord);
+				
+				IF (nFound=1)//2=Not Found 1=Found
+				{
+				    IF ((Dir_Curr_Entry>0)&&(nidx=Dir_Curr_Entry))
+		    		{
+				    	DirNowRd.Uid=nidx;
+				    	DirBitCheck();
+				    }
+				    Else
+				    {
+				    	ResetDirNowRd();
+				    }
+				}
+				Else
+				{
+				    DirEntry[Dir_curr_row].Uid=0;
+				    DirEntry[Dir_curr_row].SName="";
+				    DirEntry[Dir_curr_row].SCompany="";
+				    DirEntry[Dir_curr_row].SNumber="";
+				    ResetDirNowRd();
+				    DirEntryUpdate(Dir_curr_row);
+				    CANCELWAIT(DRTO);
+				    DIR_next_data();
+				}
+			}
+			CASE('N')://Name
+			{
+				If(nLen>0) nLen=nLen-1;
+				DirNowRd.SName=mid(commd$,2,nLen);
+				DirAddBit(2);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DRN ::Record Index=%03u ::Row=%02u ::Name=%s ::SeqWord=%u",
+				//RefName,DirNowRd.Uid,Dir_curr_row,DirNowRd.SName,DirNowRd.SeqWord);
+				DirBitCheck();				
+			}
+			CASE('C')://Company
+			{
+				If(nLen>0) nLen=nLen-1;
+				DirNowRd.SCompany=mid(commd$,2,nLen);
+				DirAddBit(3);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DRC ::Record Index=%03u ::Row=%02u ::Company=%s ::SeqWord=%u",
+				//RefName,DirNowRd.Uid,Dir_curr_row,DirNowRd.SCompany,DirNowRd.SeqWord);
+				DirBitCheck();				
+			}
+			CASE('1')://First Number
+			{
+				If(nLen>0) nLen=nLen-1;
+				DirNowRd.SNumber=mid(commd$,2,nLen);
+				DirAddBit(4);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DR1 ::Record Index=%03u ::Row=%02u ::Number=%s ::SeqWord=%u",
+				//RefName,DirNowRd.Uid,Dir_curr_row,sInfo[1],DirNowRd.SeqWord);
+				DirBitCheck();						
+			}
+		}//end switch
+	}//end if
+	/* ft 02/11/2015
+	Else
+	{
+		AckResponse(131);
+	}
+	*/
+}//end 'DR'
+
+
+Function RxCode_Q(string commd$)//Repeat File Descriptor DQ
+{
+	//IF (XT_Mod_DebugLevel>3) makestring (XT_Test_ExtraDebug_Info$,"%s: Proc DQ event(dbgnum=%u) : CMD=%s",RefName,dbgnum,commd$);
+    //Directory MAX records 3 bytes         
+    RP_Max_records=ATOI(MID(commd$, 1, 3));
+    If((RP_Max_records=0)||(RP_Tot_Entry_pp=0))
+    {
+    	RP_Tot_Pages=0;
+    }
+    Else
+    {
+    	RP_Tot_Pages=((RP_Max_records-1)/RP_Tot_Entry_pp)+1;
+    }
+    //IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DQ : RP Max Records=%u :::Max Entry p Page=%u :::Total Pages=%u ::SeqWord=%u",
+    //RefName,RP_Max_records,RP_Tot_Entry_pp,RP_Tot_Pages,RPNowRd.SeqWord);
+	IF (RP_reading>0)
+	{
+		If(RP_Tot_Pages>0)
+		{   
+			RP_Curr_Page_nr=1;
+			Makestring(XT_RP_Pages$,"%02u/%02u",RP_Curr_Page_nr,RP_Tot_Pages);
+			ResetRPNowRd();
+			RP_grp_page_read();
+		}
+		Else
+		{
+			End_Read_RP();
+		}
+	}
+	/* ft 02/11/2015
+	AckResponse(161);
+	*/         
+}//end 'DQ'
+		
+		
+		
+		
+		
+Function RxCode_T(string commd$)//Read Record with index (DT)
+{INTEGER nLen,nInfo[10];
+ STRING sINTERF[6],sInfo[10][60];
+	//IF (XT_Mod_DebugLevel>3) makestring (XT_Test_ExtraDebug_Info$,"%s: Proc DT event(dbgnum=%u) : CMD=%s",RefName,dbgnum,commd$);
+	nLen=len(commd$);
+	IF ((RP_reading>0)&&(RP_curr_row>0))
+    {
+        SWITCH(byte(commd$,1))
+		{
+			CASE('0')://Generic
+			{
+				RPEntry[RP_curr_row].Name1="";
+			    RPEntry[RP_curr_row].Name2="";
+			    RPEntry[RP_curr_row].Number1="";
+			    RPEntry[RP_curr_row].Number2="";
+			    RPEntry[RP_curr_row].Direction=0;
+			    RPEntry[RP_curr_row].sInterf="";
+			    RPEntry[RP_curr_row].nInterf=0;
+			    RPEntry[RP_curr_row].nType=0;
+			    RPEntry[RP_curr_row].lcDate="";
+			    RPEntry[RP_curr_row].lcTime="";
+			    RPEntry[RP_curr_row].lcDuration="";
+				sInfo[1]="";
+				sInfo[2]="";
+				sInfo[3]="";
+				sInfo[4]="";
+				sInfo[5]="";
+				nInfo[1]=ATOI(MID(commd$, 5, 1));//2=Not Found 1=Found
+				ResetRPNowRd();
+				IF (nInfo[1]=1)//if found
+				{
+					sInfo[2]=MID(commd$, 2, 3);//index
+					nInfo[2]=1+(ATOI(sInfo[2]));//numeric Index (000-999)+1
+					IF ((RP_Curr_Entry>0)&&(nInfo[2]=RP_Curr_Entry))
+		    		{
+						RPNowRd.Uid=nInfo[2];
+						SWITCH(byte(commd$,6))//Net
+						{
+							CASE('L')://Ip
+							{
+								sInfo[3]="L";
+								nInfo[3]=0;				
+							}
+							CASE('S')://Sip
+							{
+								sInfo[3]="S";
+								nInfo[3]=1;
+							}
+							CASE('I')://Isdn
+							{
+								sInfo[3]="I";
+								nInfo[3]=2;
+							}
+						}
+						//RPEntry[RP_curr_row].sInterf=sInfo[3];
+				    	//RPEntry[RP_curr_row].nInterf=nInfo[3];
+						RPNowRd.sInterf=sInfo[3];
+				    	RPNowRd.nInterf=nInfo[3];
+						SWITCH(byte(commd$,7))//Type/Direction
+						{
+							CASE('I')://Incoming
+							{
+								sInfo[4]="IN";
+								nInfo[4]=2;				
+							}
+							CASE('O')://Outgoing
+							{
+								sInfo[4]="OUT";
+								nInfo[4]=1;
+							}
+							CASE('M')://Missed
+							{
+								sInfo[4]="";
+								nInfo[4]=0;
+							}
+						}
+						//RPEntry[RP_curr_row].Direction=nInfo[4];
+						RPNowRd.Direction=nInfo[4];
+						SWITCH(byte(commd$,8))//Speech
+						{
+							CASE('0')://No
+							{
+								sInfo[5]="A/V";
+								nInfo[5]=0;				
+							}
+							CASE('1')://Yes
+							{
+								sInfo[5]="Audio Only";
+								nInfo[5]=1;
+							}
+						}
+						//RPEntry[RP_curr_row].nType=nInfo[5];
+						RPNowRd.nType=nInfo[5];							
+						sInfo[6]=MID(commd$, 9, 10);
+						nInfo[6]=ATOI(sInfo[6]);//nr of calls
+						RPAddBit(1);
+						//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,
+						//"%s: DT0 ::Record Index=%s(real) %03u(calc)::Row=%02u ::Found=%u ::Net=%s Type=%s Speech=%s Numb.of Calls=%u ::SeqWord=%u",
+						//RefName,sInfo[2],RPNowRd.Uid,RP_curr_row,nInfo[1],sInfo[3],sInfo[4],sInfo[5],nInfo[6],RPNowRd.SeqWord);
+						RPBitCheck();
+						
+					    //RPEntry[RP_curr_row].Uid=nInfo[2]+1;// !!! ID 000 is passed as 001, id 001 is passed as 002 etc...
+				    }
+				}
+				Else
+				{
+				    RPEntry[RP_curr_row].Uid=0;
+				    RPEntryUpdate(RP_curr_row);
+				    CANCELWAIT(RPTO);
+				    RP_next_data();
+				}
+			}
+			CASE('N')://Name First Part
+			{
+				//RPEntry[RP_curr_row].Name1="";
+			    //RPEntry[RP_curr_row].Name2="";
+				If(nLen>0) nLen=nLen-1;
+				//RPEntry[RP_curr_row].Name1=mid(commd$,2,nLen);
+				RPNowRd.Name1=mid(commd$,2,nLen);
+				RPAddBit(2);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DTN ::Record Index=%03u ::Row=%02u ::Name(1/2)=%s ::SeqWord=%u",
+				//RefName,RPNowRd.Uid,RP_curr_row,RPNowRd.Name1,RPNowRd.SeqWord);				
+				RPBitCheck();
+			}
+			CASE('M')://Name Second Part
+			{
+			    //RPEntry[RP_curr_row].Name2="";
+				If(nLen>0) nLen=nLen-1;
+				//RPEntry[RP_curr_row].Name2=mid(commd$,2,nLen);
+				RPNowRd.Name2=mid(commd$,2,nLen);
+				RPAddBit(3);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DTM ::Record Index=%03u ::Row=%02u ::Name(2/2)=%s ::SeqWord=%u",
+				//RefName,RPNowRd.Uid,RP_curr_row,RPNowRd.Name2,RPNowRd.SeqWord);
+				RPBitCheck();				
+			}
+			CASE('A')://Number First Part
+			{
+				//RPEntry[RP_curr_row].Number1="";
+			    //RPEntry[RP_curr_row].Number2="";
+				If(nLen>0) nLen=nLen-1;
+				//RPEntry[RP_curr_row].Number1=mid(commd$,2,nLen);
+				RPNowRd.Number1=mid(commd$,2,nLen);
+				RPAddBit(4);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DTA ::Record Index=%03u ::Row=%02u ::Number(1/2)=%s ::SeqWord=%u",
+				//RefName,RPNowRd.Uid,RP_curr_row,RPNowRd.Number1,RPNowRd.SeqWord);	
+				RPBitCheck();			
+			}
+			CASE('B')://Number Second Part
+			{
+			    //RPEntry[RP_curr_row].Number2="";
+				If(nLen>0) nLen=nLen-1;
+				//RPEntry[RP_curr_row].Number2=mid(commd$,2,nLen);
+				RPNowRd.Number2=mid(commd$,2,nLen);
+				RPAddBit(5);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DTB ::Record Index=%03u ::Row=%02u ::Number(2/2)=%s ::SeqWord=%u",
+				//RefName,RPNowRd.Uid,RP_curr_row,RPNowRd.Number2,RPNowRd.SeqWord);	
+				RPBitCheck();			
+			}
+			
+			CASE ('D')://Date GG/MM/AAAA
+		    {
+				//RPEntry[RP_curr_row].lcDate="";
+				If(nLen>0) nLen=nLen-1;
+				//RPEntry[RP_curr_row].lcDate=mid(commd$,2,nLen);
+				RPNowRd.lcDate=mid(commd$,2,nLen);
+				RPAddBit(6);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DTD ::Record Index=%03u ::Row=%02u ::Date=%s ::SeqWord=%u",
+				//RefName,RPNowRd.Uid,RP_curr_row,RPNowRd.lcDate,RPNowRd.SeqWord);
+				RPBitCheck();
+		    }
+		    CASE ('H')://Time HH:MM
+		    {
+				//RPEntry[RP_curr_row].lcTime="";
+				If(nLen>0) nLen=nLen-1;
+				//RPEntry[RP_curr_row].lcTime=mid(commd$,2,nLen);
+				RPNowRd.lcTime=mid(commd$,2,nLen);
+				RPAddBit(7);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DTH ::Record Index=%03u ::Row=%02u ::Time=%s ::SeqWord=%u",
+				//RefName,RPNowRd.Uid,RP_curr_row,RPNowRd.lcTime,RPNowRd.SeqWord);
+				RPBitCheck();
+		    }
+		    CASE ('T')://Duration HH:MM:SS
+		    {
+				//RPEntry[RP_curr_row].lcDuration="";
+				If(nLen>0) nLen=nLen-1;
+				//RPEntry[RP_curr_row].lcDuration=mid(commd$,2,nLen);
+				RPNowRd.lcDuration=mid(commd$,2,nLen);
+				RPAddBit(8);
+				//IF (XT_Mod_DebugLevel>2) makestring (XT_Test_ExtraDebug_Info$,"%s: DTT ::Record Index=%03u ::Row=%02u ::Duration=%s ::SeqWord=%u",
+				//RefName,RPNowRd.Uid,RP_curr_row,RPNowRd.lcDuration,RPNowRd.SeqWord);
+				RPBitCheck();
+		    }
+		}//end switch
+	}//end if
+	/* ft 02/11/2015 
+	Else
+	{
+		AckResponse(162);
+	}
+	*/
+}//end 'DT'
+
+
+FUNCTION ParseDstr()
+{STRING D_Packet$[100];
+ STRING Pcommd$[100];
+ INTEGER Cmd_SUB;
+ INTEGER nLen;
+	WHILE(ProcDon=1)
+	{ 
+ 		D_Packet$=GATHER("\x0D",Process_D_strings$);
+		nLen=len(D_Packet$);
+		Pcommd$=Left(D_Packet$,(nlen-1));//take out $0D
+		Cmd_SUB=GetC(Pcommd$);
+		nLen=len(Pcommd$);
+		
+		
+		SWITCH(Cmd_SUB)//byte 1
+		{					
+			CASE('F')://File Descriptor DF
+			{
+				RxCode_F(Pcommd$);
+			}
+			CASE('R')://File Descriptor DF
+			{
+				RxCode_RL(Pcommd$);
+			}
+			CASE('L')://File Descriptor DF
+			{
+				RxCode_RL(Pcommd$);
+			}
+			CASE('Q')://File Descriptor DF
+			{
+				RxCode_Q(Pcommd$);
+			}
+			CASE('T')://File Descriptor DF
+			{
+				RxCode_T(Pcommd$);
+			}
+			DEFAULT:
+			{
+				IF (XT_Mod_DebugLevel>3) makestring (XT_Test_ExtraDebug_Info$,"%s: Proc Def event(dbgnum=%u) : CMD=%s",RefName,dbgnum,Pcommd$);
+				//AckResponse(999);
+			}			
+		}//end main switch byte 1
+		
+	}//End while
+	ProcDon=0;
+	//IF (XT_Mod_DebugLevel>3) makestring (XT_Test_ExtraDebug_Info$,"%s: Pre Exit event(dbgnum=%u) : CMD=%s",RefName,dbgnum,commd$);
+	//IF (dbgnum>0) dbgnum=dbgnum-1;
+	//IF (XT_Mod_DebugLevel>3) makestring (XT_Test_ExtraDebug_Info$,"%s: After Exit event(dbgnum=%u) : CMD=%s",RefName,dbgnum,commd$);
+}//End ParseDstr() function
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH Enable
+{
+    InitializeVars();
+}
+
+RELEASE Enable
+{
+   InitializeVars();
+}
+
+PUSH Compose_number
+{
+	End_Read_All();
+	IF ((XT_RP_Selected_Entry>0)||(XT_DIR_Selected_Entry>0))
+	{
+		Makestring(XT_TE_Display_Number$," ");
+	}
+	XT_RP_Selected_Entry=0;
+	XT_DIR_Selected_Entry=0;
+}
+
+PUSH Dial
+{String Sinfo[3][2];
+	End_Read_All();
+	IF (XT_RP_Selected_Entry>0)
+	{
+		Makestring(XT_TE_HiSEND$,"AT[&CD1R1%03u\r",(RPEntry[XT_RP_Selected_Entry].Uid-1));
+		XT_RP_Selected_Entry=0;
+		XT_DIR_Selected_Entry=0;
+	}
+	ELSE IF (XT_DIR_Selected_Entry>0)
+	{
+		Makestring(XT_TE_HiSEND$,"AT[&CD1C1%03u\r",(DirEntry[XT_DIR_Selected_Entry].Uid-1));
+		XT_RP_Selected_Entry=0;
+		XT_DIR_Selected_Entry=0;
+	}
+	Else
+	{
+		XT_RP_Selected_Entry=0;
+		XT_DIR_Selected_Entry=0;
+		
+		IF (Len(NrToCall$)>0)
+		{	
+			IF(XT_TE_CallType=1)
+			{
+				Sinfo[1]="1";
+			}
+			Else IF(XT_TE_CallType=2)
+			{
+				Sinfo[1]="8";
+			}
+			Else
+			{
+				Sinfo[1]="8";
+			}
+			
+			IF(XT_TE_CallInterf=1)
+			{
+				Sinfo[2]="1";//IP
+			}
+			Else IF(XT_TE_CallInterf=2)
+			{
+				Sinfo[2]="6";//Sip
+			}
+			Else IF(XT_TE_CallInterf=3)
+			{
+				Sinfo[2]="7";//ISDN
+			}
+			Else IF(XT_TE_CallInterf=4)
+			{
+				Sinfo[2]="5";//MCU
+			}
+			Else
+			{
+				Sinfo[2]="1";//IP
+			}
+			
+			SWITCH(XT_TE_CallRate)
+			{
+				Case(1):Sinfo[3]="1";//64Kbps
+				Case(2):Sinfo[3]="2";//128Kbps
+				Case(3):Sinfo[3]="3";//192Kbps
+				Case(4):Sinfo[3]="4";//256Kbps
+				Case(5):Sinfo[3]="5";//320Kbps
+				Case(6):Sinfo[3]="6";//384Kbps
+				Case(7):Sinfo[3]="7";//448Kbps
+				Case(8):Sinfo[3]="8";//512Kbps
+				Case(9):Sinfo[3]="C";//768Kbps
+				Case(10):Sinfo[3]="R";//896Kbps
+				Case(11):Sinfo[3]="S";//1024Kbps
+				Case(12):Sinfo[3]="D";//1152Kbps
+				Case(13):Sinfo[3]="T";//1280Kbps
+				Case(14):Sinfo[3]="U";//1408Kbps
+				Case(15):Sinfo[3]="E";//1472Kbps
+				Case(16):Sinfo[3]="F";//1536Kbps
+				Case(17):Sinfo[3]="O";//1728Kbps
+				Case(18):Sinfo[3]="G";//1920Kbps
+				Case(19):Sinfo[3]="Q";//2048Kbps
+				Case(20):Sinfo[3]="H";//2560Kbps
+				Case(21):Sinfo[3]="I";//3072Kbps
+				Case(22):Sinfo[3]="J";//3584Kbps
+				Case(23):Sinfo[3]="K";//4096Kbps
+				Case(24):Sinfo[3]="P";//4608Kbps
+				Case(25):Sinfo[3]="L";//5120Kbps
+				Case(26):Sinfo[3]="M";//5632Kbps
+				Case(27):Sinfo[3]="N";//6144Kbps
+				DEFAULT:Sinfo[3]="K";//4096Kbps
+			}
+			IF (XT_TE_CallRate=0)//Auto
+			{
+				Makestring(XT_TE_HiSEND$,"AT[&CD1%s%s%s\r",Sinfo[1],Sinfo[2],NrToCall$);
+			}
+			Else
+			{
+				Makestring(XT_TE_HiSEND$,"AT[&CM%s%s%s0%s\r",Sinfo[1],Sinfo[2],Sinfo[3],NrToCall$);
+			}
+		}
+	}
+}
+
+CHANGE XT_TE_Nr_to_Call$
+{
+	Makestring(NrToCall$,"%s",XT_TE_Nr_to_Call$);
+	XT_RP_Selected_Entry=0;
+	XT_DIR_Selected_Entry=0;
+	Makestring(XT_TE_Display_Number$,"%s",NrToCall$);
+}
+
+PUSH XT_DIR_Start
+{
+   If (Enable>0)
+   		Start_Read_DIR();
+}
+
+PUSH XT_DIR_Stop
+{
+   	If ((Enable>0)&&(Dir_reading=1))
+   	{
+   		End_Read_Dir();
+   	}
+}
+
+PUSH XT_DIR_prev1_Page
+{
+   
+   		DIR_PAGE_dec(1);
+}
+
+PUSH XT_DIR_prev5_Page
+{
+   If (Enable>0)
+   		DIR_PAGE_dec(5);
+}
+
+PUSH XT_DIR_next1_Page
+{
+    If (Enable>0)    
+        DIR_PAGE_inc(1);
+}
+
+PUSH XT_DIR_next5_Page
+{
+    If (Enable>0)
+    	DIR_PAGE_inc(5);	
+}
+
+CHANGE XT_DIR_GoTo_Page
+{
+	If (Enable>0)
+	{
+		IF (XT_DIR_GoTo_Page>0)
+		{
+			DIR_PAGE_goto(XT_DIR_GoTo_Page);
+		}
+	}
+}
+
+CHANGE XT_DIR_MAX_Entries_p_Page
+{
+	If (XT_DIR_MAX_Entries_p_Page<=MAX_POSSIBLE_DIR_ENTRIES)
+	{
+		Dir_Tot_Entry_pp=XT_DIR_MAX_Entries_p_Page;		
+	}
+	Else
+	{
+		Dir_Tot_Entry_pp=9;
+	}
+}
+
+PUSH XT_RP_Start
+{
+   If (Enable>0)
+   		Start_Read_RP();
+}
+
+PUSH XT_RP_Stop
+{
+   	If ((Enable>0)&&(RP_reading=1))
+   	{
+   		End_Read_RP();
+   	}
+}
+
+PUSH XT_RP_prev1_Page
+{
+   If (Enable>0)
+   		RP_PAGE_dec(1);
+}
+
+PUSH XT_RP_prev3_Page
+{
+   If (Enable>0)
+   		RP_PAGE_dec(3);
+}
+
+PUSH XT_RP_next1_Page
+{
+   If (Enable>0)
+   		RP_PAGE_inc(1);
+}
+
+PUSH XT_RP_next3_Page
+{
+    If (Enable>0)
+    	RP_PAGE_inc(3);
+}
+
+CHANGE XT_RP_GoTo_Page
+{
+	If (Enable>0)
+	{
+		IF (XT_RP_GoTo_Page>0)
+		{
+			RP_PAGE_goto(XT_RP_GoTo_Page);
+		}
+	}
+}
+
+CHANGE XT_RP_MAX_Entries_p_Page
+{
+	If (XT_RP_MAX_Entries_p_Page<=MAX_POSSIBLE_RP_ENTRIES)
+	{
+		RP_Tot_Entry_pp=XT_RP_MAX_Entries_p_Page;		
+	}
+	Else
+	{
+		RP_Tot_Entry_pp=9;
+	}
+}
+
+
+PUSH XT_RPDIR_Entry_UnSel
+{
+    XT_DIR_Selected_Entry=0;
+	XT_RP_Selected_Entry=0;
+	Makestring(XT_TE_Display_Number$,"");
+}
+
+PUSH XT_RP_Entry_Sel
+{Integer esn;
+	esn=GetLastModifiedArrayIndex();
+	If (RPEntry[esn].Uid>0)
+	{
+		XT_DIR_Selected_Entry=0;
+		XT_RP_Selected_Entry=esn;
+		Makestring(XT_TE_Display_Number$,"Recall: %s%s",RPEntry[esn].Number1,RPEntry[esn].Number2);
+	}
+	Else
+	{
+		XT_DIR_Selected_Entry=0;
+		XT_RP_Selected_Entry=0;
+		Makestring(XT_TE_Display_Number$,"");
+	}
+}
+
+
+PUSH XT_DIR_Entry_Sel
+{Integer esn;
+	esn=GetLastModifiedArrayIndex();
+	If (DirEntry[esn].Uid>0)
+	{
+		XT_RP_Selected_Entry=0;
+		XT_DIR_Selected_Entry=esn;
+		Makestring(XT_TE_Display_Number$,"Call Contact: %s",DirEntry[esn].SName);
+	}
+	Else
+	{
+		XT_RP_Selected_Entry=0;
+		XT_DIR_Selected_Entry=0;
+		Makestring(XT_TE_Display_Number$,"");
+	}
+}
+
+
+THREADSAFE CHANGE Process_D_strings$
+{
+	If (ProcDon=0)
+	{
+		ProcDon=1;
+		ParseDstr();
+	}
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{      
+     RefName=GetSymbolReferenceName();
+     WaitForInitializationComplete();
+     	InitializeVars();    
+}
+
+

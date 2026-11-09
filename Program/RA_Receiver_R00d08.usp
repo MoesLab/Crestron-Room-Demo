@@ -1,0 +1,420 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Avaya
+System Name: Avaya XT5000 & Telepresence & MCU
+System Number:
+Programmer: Fabrizio Torbidoni www.automazionesale.it
+Comments: IP & RS232
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#SYMBOL_NAME "RA_Receiver_R00d08"
+#HINT "Avaya XT5000 & Telepresence RX module Rev. 00.08 by Fabrizio Torbidoni modified on 02/11/2015"
+#CATEGORY "46" "Avaya" // Custom 
+#PRINT_TO_TRACE 
+#DEFINE_CONSTANT InEnd_chars$ "\x0D"
+#DEFINE_CONSTANT CHR_threshold 8 // >8 char to be Rx minimum : AA AA 00 00 00 03 4F 4B 0D  (9 chr)
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+
+
+#DEFINE_CONSTANT  INI_TO_TIME 				600 //Initialization command timeout. raccomanded 600 = 6sec.
+#DEFINE_CONSTANT  HI_Prio_CMD_TO_TIME 		1000 //Hi Priority command timeout. raccomanded 1000 = 10sec.  
+#DEFINE_CONSTANT  HI_Prio_QRY_TO_TIME 		1000 //Hi Priority query timeout. raccomanded 1000 = 10sec.
+#DEFINE_CONSTANT  HI_Prio_DIRQRY_TO_TIME 	12000 //Hi Priority RP & Directory query timeout. raccomanded 12000 = 120sec.
+#DEFINE_CONSTANT  LO_Prio_CMDQRY_TO_TIME	150 //Lo Priority command&query timeout. raccomanded 150 = 1,5sec.  
+#DEFINE_CONSTANT  GENERIC_TO_TIME 			200 //Generic command timeout. raccomanded 200 = 2sec.
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT XT_Mod_ENABLE;			//0=module not active 1=module start connencting and working.
+DIGITAL_INPUT RS232_EN;					//0=IP Communication 1=RS232 Communication
+
+ANALOG_INPUT _SKIP_,XT_Mod_DebugLevel;		//Debug output level 0=no messages 99=all messages 
+ 
+BUFFER_INPUT _SKIP_,From_Device$[1024];	//Main RX buffer
+
+DIGITAL_OUTPUT XT_ToCTRLr_RX_OK_F;		//Impulsive Output to confirm the execution or rx of a set command (TIE it to CTRLr relative Input)
+DIGITAL_OUTPUT XT_ToCTRLr_RX_ERR_F; 	//Something was wrong receiving from RTE (TIE it to CTRLr relative Input)
+
+STRING_OUTPUT _SKIP_,XT_Decode_RX_I$;	//Output to decode AT[<I type commands
+STRING_OUTPUT XT_Decode_RX_C$;			//Output to decode AT[<C type commands
+STRING_OUTPUT XT_Decode_RX_D$;			//Output to decode AT[<D type commands
+STRING_OUTPUT XT_Decode_RX_S$;			//Output to decode AT[<S type commands
+STRING_OUTPUT XT_Decode_RX_T$;			//Output to decode AT[<T type commands
+STRING_OUTPUT XT_Decode_RX_M$;			//Output to decode AT[<M type commands
+STRING_OUTPUT XT_Decode_RX_OTHER$;		//Output to decode AT[< any other type commands 
+STRING_OUTPUT XT_Test_ExtraDebug_Info$;	//	Debug informations
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER InEnd_LEN;
+
+INTEGER Var_RX_OK,Var_RX_ERR;
+
+STRING RefName[60];
+
+STRING rxGotString[200];
+STRING tempStrA[200],tempStrJoin[6],temp_slong[4],tempStrB[20],trash[20];
+
+INTEGER nlen,Join_str_flag,calcLen,rxLen;
+LONG_INTEGER nlong;
+INTEGER Second_series_semaphore;
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+Function ResetVars()
+{
+    ClearBuffer(From_Device$);
+    ClearBuffer(rxGotString);
+    ClearBuffer(tempStrA);
+    ClearBuffer(tempStrJoin);
+    ClearBuffer(temp_slong);
+    ClearBuffer(tempStrB);
+    nlen=0;
+    Join_str_flag=0;
+    calcLen=0;
+    rxLen=0;
+    nlong=0;
+    
+    Var_RX_OK=1;
+    Var_RX_ERR=0;
+	XT_ToCTRLr_RX_OK_F=Var_RX_OK;
+	XT_ToCTRLr_RX_ERR_F=Var_RX_ERR;
+	
+	Second_series_semaphore=0;
+}
+
+Integer_Function DECODE()
+{INTEGER Cmd_GRP;
+    
+    IF (XT_Mod_DebugLevel>98) Print("DECODE: %s\x0D\x0A",tempStrA);
+	IF (find("AT[<", tempStrA) > 0)
+	{
+    	trash= remove("AT[<", tempStrA);
+		Cmd_GRP=GetC(tempStrA);//byte(commd$,1);			
+		SWITCH(Cmd_GRP)//byte 1
+		{
+			CASE ('C'):
+			{					
+				Makestring(XT_Decode_RX_C$,"%s",tempStrA);				
+			}//end CASE 'C'
+			CASE ('D'):
+			{
+				Makestring(XT_Decode_RX_D$,"%s\r",tempStrA);
+			}//end CASE 'D'			
+			CASE ('I'):
+			{
+             	Makestring(XT_Decode_RX_I$,"%s",tempStrA);
+			}//end CASE 'I'
+			CASE ('M'):
+			{
+				Makestring(XT_Decode_RX_M$,"%s",tempStrA);
+			}//end CASE 'M'
+			CASE ('S'):
+			{
+				Makestring(XT_Decode_RX_S$,"%s",tempStrA);
+			}//end CASE 'S'
+			CASE ('T'):
+			{
+			    Makestring(XT_Decode_RX_T$,"%s",tempStrA);
+			}//end CASE 'T'
+			DEFAULT:
+			{
+			   Makestring(XT_Decode_RX_OTHER$,"%c%s",Cmd_GRP,tempStrA);
+			}//end CASE DEFAULT
+		}//end switch
+		//Var_RX_OK=1;
+		//XT_ToCTRLr_RX_OK_F=Var_RX_OK;
+		Return(1);
+	}
+	Else IF (find("AT[&", tempStrA) > 0)
+	{
+		IF (XT_Mod_DebugLevel>0) Print("%s: Sent command echo detected !!",RefName);
+		Return(0);
+	}
+	Else IF (find("AT[?", tempStrA) > 0)
+	{
+		IF (XT_Mod_DebugLevel>0) Print("%s: Sent query echo detected !!",RefName);
+		Return(0);
+	}
+	Else IF (find("ATE", tempStrA) > 0)
+	{
+		IF (XT_Mod_DebugLevel>0) Print("%s: Echo command detected !!",RefName);
+		Return(0);
+	}
+	Else
+	{    					//should never happen..
+		IF (XT_Mod_DebugLevel>0) Print("%s: Nothing to decode !! (%s)",RefName,tempStrA);
+		//Var_RX_ERR=1;
+		//XT_ToCTRLr_RX_ERR_F=Var_RX_ERR;
+		Return(2);
+	}
+}
+
+Function GetDatasFnc()
+{Integer DecRetVal; 	
+	If(Join_str_flag=1)
+	{
+		Join_str_flag=0;
+		makestring (rxGotString,"%s%s",tempStrJoin,rxGotString);
+		tempStrJoin="";
+	}
+	
+	nlen=len(rxGotString);
+	
+	if (RS232_EN=1)
+	{
+		if (nlen>2)
+		{				
+			IF (XT_Mod_DebugLevel>98) makestring (XT_Test_ExtraDebug_Info$,"%s: OK,got a correct seq (rx len=%u) : %s",RefName,nlen,rxGotString);
+			tempStrA=Left(rxGotString,(nlen-1));//take out $0D
+			IF (find("\x0AOK", tempStrA) = 1)//Must be only at the begin ! Otherwise it could be part of the datas.
+			{
+				Var_RX_OK=1;
+				Var_RX_ERR=0;	
+			}
+			Else IF (find("OK", tempStrA) = 1)//Must be only at the begin ! Otherwise it could be part of the datas.
+			{
+				Var_RX_OK=1;
+				Var_RX_ERR=0;
+			}
+			Else
+			{
+				DecRetVal=DECODE();
+				IF(DecRetVal=1)
+				{
+					Var_RX_ERR=0;
+					Var_RX_OK=1;
+				}
+				ELSE IF(DecRetVal=2)
+				{
+					Var_RX_OK=0;
+					Var_RX_ERR=1;
+				}
+				ELSE
+				{
+					Var_RX_OK=0;
+					Var_RX_ERR=0;
+				}
+			}
+			
+			If(Var_RX_ERR>0)
+			{
+				//XT_ToCTRLr_RX_OK_F=0;
+				//XT_ToCTRLr_RX_ERR_F=Var_RX_ERR;
+				PULSE(2,XT_ToCTRLr_RX_ERR_F);
+			}
+			Else IF (Var_RX_OK>0)
+			{
+				//XT_ToCTRLr_RX_ERR_F=0;
+				//XT_ToCTRLr_RX_OK_F=Var_RX_OK;
+				PULSE(2,XT_ToCTRLr_RX_OK_F);
+			}
+			//Else
+			//{
+			//	XT_ToCTRLr_RX_ERR_F=0;
+			//	XT_ToCTRLr_RX_OK_F=0;
+			//}
+			Var_RX_OK=0;
+			Var_RX_ERR=0;				
+		}
+        else //nlen=1 or 2
+		{
+			IF (XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: bad data on RS232 rx Buff rx(len=%u) : %s",RefName,nlen,rxGotString);
+			Join_str_flag=0;
+			tempStrJoin="";
+			//rxGotString="";
+		}
+	}
+	Else //IP COMM
+	{
+		if (nlen>CHR_threshold)
+		{
+			If (find("\xAA\xAA", rxGotString) > 0)
+			{
+				trash=remove("\xAA\xAA", rxGotString);
+				temp_slong=removeByLength(4,rxGotString);
+                nlong=(byte(temp_slong,1)<<24)+(byte(temp_slong,2)<<16)+(byte(temp_slong,3)<<8)+byte(temp_slong,4);
+                calcLen=lowWord(nlong);
+				rxLen=len(rxGotString);
+				If(rxLen=calcLen)
+				{
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: OK,got a correct seq (rx len=%u) : %s",RefName,rxLen,rxGotString);
+					tempStrA=Left(rxGotString,(rxLen-1));
+					IF (find("\x0AOK", tempStrA) = 1)//Must be only at the begin ! Otherwise it could be part of the datas.
+					{
+						Var_RX_OK=1;
+						Var_RX_ERR=0;
+					}
+					Else IF (find("OK", tempStrA) = 1)//Must be only at the begin ! Otherwise it could be part of the datas.
+					{
+						Var_RX_OK=1;
+						Var_RX_ERR=0;
+					}
+					Else
+					{
+						DecRetVal=DECODE();
+						IF(DecRetVal=1)
+						{
+							Var_RX_ERR=0;
+							Var_RX_OK=1;
+						}
+						ELSE IF(DecRetVal=2)
+						{
+							Var_RX_OK=0;
+							Var_RX_ERR=1;
+						}
+						ELSE
+						{
+							Var_RX_OK=0;
+							Var_RX_ERR=0;
+						}
+					}
+					
+					If(Var_RX_ERR>0)
+					{
+						//XT_ToCTRLr_RX_OK_F=0;
+						//XT_ToCTRLr_RX_ERR_F=Var_RX_ERR;
+						PULSE(2,XT_ToCTRLr_RX_ERR_F);
+					}
+					Else IF (Var_RX_OK>0)
+					{
+						//XT_ToCTRLr_RX_ERR_F=0;
+						//XT_ToCTRLr_RX_OK_F=Var_RX_OK;
+						PULSE(2,XT_ToCTRLr_RX_OK_F);
+					}
+					//Else
+					//{
+						//XT_ToCTRLr_RX_ERR_F=0;
+						//XT_ToCTRLr_RX_OK_F=0;
+					//}
+					Var_RX_OK=0;
+					Var_RX_ERR=0;
+				}
+				Else
+				{
+					IF (XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: ERROR,bad length! (rx len=%u) : %s",RefName,rxLen,rxGotString);
+					Join_str_flag=0;
+					tempStrJoin="";
+					tempStrA=removeByLength(rxLen,rxGotString);
+				}
+			}
+			else
+			{
+                IF (XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: ERROR, Comm start not found! (rx len=%u) : %s",RefName,rxLen,rxGotString);
+				Join_str_flag=0;
+				tempStrJoin="";
+				tempStrA=removeByLength(rxLen,rxGotString);
+			}
+		}
+        else if (nlen<=CHR_threshold) 
+		{
+			if (find("\xAA\xAA\x00\x00", rxGotString) > 0)
+			{
+				trash=remove("\xAA\xAA\x00\x00", rxGotString);
+				tempStrB=Left(rxGotString,2);
+				If ((byte(tempStrB,1)=13) || (byte(tempStrB,2)=13))
+				{
+                   	makestring (tempStrJoin,"\xAA\xAA\x00\x00%s",tempStrB);
+					Join_str_flag=1;
+				}
+				Else
+				{
+					IF (XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: bad data on CHiBuff(no 0d) rx(len=%u) : %s",RefName,nlen,rxGotString);
+					Join_str_flag=0;
+					tempStrJoin="";
+					nlen=len(rxGotString);
+					tempStrA=removeByLength(nlen,rxGotString);
+				}
+			}
+			Else
+			{
+				IF (XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: bad data on CHiBuff(no AA) rx(len=%u) : %s",RefName,nlen,rxGotString);
+				Join_str_flag=0;
+				tempStrJoin="";
+				nlen=len(rxGotString);
+				tempStrA=removeByLength(nlen,rxGotString);
+			}
+		}//<= threshold
+	}//end else IP COMM
+	//}//end while
+	IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: Loop Ended :Proceed to process GetDatasFnc",RefName);
+}// End function GetDatasFnc
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+PUSH XT_Mod_ENABLE
+{
+   ResetVars();
+}
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+    RefName=GetSymbolReferenceName();
+    InEnd_LEN=len(InEnd_chars$);
+    ResetVars();
+    WaitForInitializationComplete();
+    #IF_SERIES3
+    
+		While(1)
+	 	{
+	 		Try
+	 		{
+	 			rxGotString=Gather(InEnd_chars$, From_Device$);// Warning: Avoid mistakes with strings containing AA AA 00 00 00 0D !!!!
+	 			If(XT_Mod_ENABLE=1)
+	 			{
+	 				GetDatasFnc();
+	 			}
+	 		}
+	 		Catch
+	 		{
+				TRACE("%s: Error [code:%d] Processing Data from Rx Loop Main !! \n",RefName,GetExceptionCode());
+	 		}
+	 	}
+	 	
+	#ELSE   //If 2nd series
+		
+		While(1)
+	 	{
+			IF(Second_series_semaphore=0)
+			{
+				Second_series_semaphore=1;	 		
+		 		rxGotString=Gather(InEnd_chars$, From_Device$);// Warning: Avoid mistakes with strings containing AA AA 00 00 00 0D !!!!
+	 			If(XT_Mod_ENABLE=1)
+	 			{
+	 				GetDatasFnc();
+	 			}
+	 			Second_series_semaphore=0;
+	 		}
+	 	}
+	 	
+	#ENDIF
+}
+
+

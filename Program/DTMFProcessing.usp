@@ -1,0 +1,55 @@
+#SYMBOL_NAME "Process DTMF"
+#HINT "Process returned DTMF for Usage"
+#DEFAULT_NONVOLATILE
+
+#HELP_BEGIN
+
+Process DTMF
+
+Process the returned DTMF Strings.
+
+#HELP_END
+
+STRING_INPUT DTMF_RX$[6];
+DIGITAL_OUTPUT Num0,Num1,Num2,Num3,Num4,Num5,Num6,Num7,Num8,Num9;
+ANALOG_OUTPUT DTMF_Digit;
+STRING_OUTPUT DTMF_ASCII$;
+
+STRING RightDigit$[1];
+
+CHANGE DTMF_RX$
+{
+RightDigit$ = RIGHT(DTMF_RX$, 1);
+DTMF_Digit = ATOI(RightDigit$);
+DTMF_ASCII$ = ITOA(DTMF_Digit);
+Num0 = 0;
+Num1 = 0;
+Num2 = 0;
+Num3 = 0;
+Num4 = 0;
+Num5 = 0;
+Num6 = 0;
+Num7 = 0;
+Num8 = 0;
+Num9 = 0;
+
+SWITCH (DTMF_Digit)
+{
+case (0): Num0 = 1;
+case (1): Num1 = 1;
+case (2): Num2 = 1;
+case (3): Num3 = 1;
+case (4): Num4 = 1;
+case (5): Num5 = 1;
+case (6): Num6 = 1;
+case (7): Num7 = 1;
+case (8): Num8 = 1;
+case (9): Num9 = 1;
+}
+}              
+
+FUNCTION MAIN()
+{
+WAITFORINITIALIZATIONCOMPLETE();
+}
+

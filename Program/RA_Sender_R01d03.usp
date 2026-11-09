@@ -1,0 +1,1244 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Avaya
+System Name: Avaya XT5000 & Telepresence
+System Number:
+Programmer: Fabrizio Torbidoni www.automazionesale.it on 02/08/2015
+Comments: IP & RS232 Added Hi buffer loop
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#SYMBOL_NAME "RA_Sender_R01d03"
+#HINT "Avaya XT5000 & Telepresence Controller module Rev. 01.03 by Fabrizio Torbidoni"
+#CATEGORY "46" "Avaya" // Custom
+#PRINT_TO_TRACE
+#DEFAULT_VOLATILE
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+#OUTPUT_SHIFT 3
+// #HELP_PDF_FILE ""
+// #DEFAULT_NONVOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+
+// ***************** CONSTANTS *******************************************************
+
+#DEFINE_CONSTANT MAX_TX_CHR		200	
+#DEFINE_CONSTANT MAX_TX_BUFF	100
+
+#DEFINE_CONSTANT KREG_IDLE		0
+#DEFINE_CONSTANT KREG_TCPTRY	1
+#DEFINE_CONSTANT KREG_TCPOK		2
+#DEFINE_CONSTANT KREG_ALLOK		3
+												
+// ***************** CONSTANTS *******************************************************
+
+
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Enable,Rst,DBG_PrintVars,_SKIP_;
+DIGITAL_INPUT RS232_EN,_SKIP_;					//RS232 Enable : IF=1 make the module working in RS232 mode and not IP.
+//DIGITAL_INPUT ReadData,Next,NextAndRead,GetNext,_SKIP_,dlydRTS;
+DIGITAL_INPUT _SKIP_,XT_TE_RTS;
+DIGITAL_INPUT _SKIP_,XT_FromCTRLr_DATA_OK,XT_FromCTRLr_DATA_ERR,XT_FromCTRLr_DATA_TO,_SKIP_,Trigg,_SKIP_;//,ReadyToRx;
+ANALOG_INPUT XT_Mod_DebugLevel,MaxSendRepeat,_SKIP_; 
+ANALOG_INPUT XT_TE_COMM_Reg_Status;				//0=not registered(idle) 1=1st STEP connecting via TCP/IP 2=2nd STEP registering(IPV) 3=connected and registered
+ANALOG_INPUT XT_UI_FastVolUpdate,_SKIP_;		//0..64=new vol to send  will be converted to -44..20
+BUFFER_INPUT bin_Hcmd$[512];
+STRING_INPUT bin_Lpoll$[100],_SKIP_;	//Commands,queries and Polls input buffer   H=High priority L=Low priority
+
+DIGITAL_OUTPUT BufferData;//0=buffer is empty 1=Buffer>0
+DIGITAL_OUTPUT BufferOver;//0=buffer is normal 1=Buffer Overflow
+DIGITAL_OUTPUT MaxResendFlag,_skip_;//Reset_Flags;//1=MAX number of readData reached
+ANALOG_OUTPUT XT_ToAll_ACK_WAITING;
+//DIGITAL_OUTPUT _SKIP_,TX_Bus_RTS_req;
+// ANALOG_OUTPUT 
+STRING_OUTPUT XT_Test_ExtraDebug_Info$;		// Debug informations
+STRING_OUTPUT To_Device$;					// TCP/IP Transission to XT device
+
+
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+STRUCTURE BufferVars
+{
+	Integer Stat;
+	Integer RD;
+	Integer WR;
+	//String BuffC[MAX_TX_BUFF][MAX_TXCHR];
+	Integer CmdID[MAX_TX_BUFF];
+	Integer Done[MAX_TX_BUFF];//1=inviato  0=non inviato o in attesa di risposta
+	Integer Prio[MAX_TX_BUFF];//0=low prio 1=High Prio
+};
+
+BufferVars B;
+
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+STRING RefName[60];
+String BuffC[MAX_TX_BUFF][MAX_TX_CHR];
+STRING GlobalTmpStringHi[MAX_TX_CHR];
+STRING GlobalTmpStringLo[MAX_TX_CHR];
+INTEGER LastRegStatus;
+INTEGER MaxResend,ResendCount;
+INTEGER LmsgHi;
+INTEGER LmsgLo;
+INTEGER GlobalCmdTypeHi;
+INTEGER GlobalCmdTypeLo;
+INTEGER var_RTS;
+INTEGER SECURE_count;
+//STRING Outgoing_Cmd[MAX_TX_CHR];
+//INTEGER Outgoing_Head;
+INTEGER Outgoing_index;
+INTEGER Remember_to_Flush_Buff;//,TriggWorking;
+INTEGER LastVolSent064,newVOLvalue064;
+INTEGER IPV_procedure;
+INTEGER Second_series_semaphore;
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+
+
+Function ResendReset()
+{
+	ResendCount=0;
+	MaxResendFlag=0;
+}
+
+Function ResetBuffer()
+{Integer cx;
+    B.Stat=0;
+	B.RD=1;
+	B.WR=1;
+	For (cx= 1 to MAX_TX_BUFF)
+	{
+    	BuffC[cx]="";
+    	B.CmdID[cx]=0;
+    	B.Done[cx]=0;
+    	B.Prio[cx]=0;
+	}
+	ResendReset();
+	GlobalCmdTypeHi=0;
+	Clearbuffer(GlobalTmpStringHi);
+	GlobalCmdTypeLo=0;
+	Clearbuffer(GlobalTmpStringLo);
+	Outgoing_index=0;
+	Remember_to_Flush_Buff=0;
+	BufferData=0;
+	BufferOver=0;
+}
+
+Function All_Reset()
+{
+	If(XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: -All Reset- function called...",RefName);
+	ClearBuffer(bin_Hcmd$);
+	ClearBuffer(bin_Lpoll$);
+	LastRegStatus=12345;	
+	ResetBuffer();
+	var_RTS=1;
+	SECURE_count=0;
+	XT_ToAll_ACK_WAITING=0;
+	IPV_procedure=0;
+	Second_series_semaphore=0;
+}
+
+Function CleanAllVars()
+{
+	If(XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: -Clean All Vars- function called...",RefName);
+	ClearBuffer(bin_Hcmd$);
+	ClearBuffer(bin_Lpoll$);	
+	ResetBuffer();
+	XT_ToAll_ACK_WAITING=0;
+	IPV_procedure=0;
+}
+/* ft 2/11/2015
+Function Reset_WAITING()
+{
+	If (XT_ToAll_ACK_WAITING>0)
+    	    	XT_ToAll_ACK_WAITING=0;
+}
+*/
+
+Function UpdateRTS()//x secure check
+{
+	IF((XT_TE_RTS=1)&&(var_RTS=0))
+	{
+		SECURE_count=SECURE_count+1;
+		IF(SECURE_count>4)
+		{
+			var_RTS=1;
+			SECURE_count=0;
+		}
+	}
+}
+
+Integer_Function RTS_status()
+{
+	UpdateRTS();
+	IF(var_RTS=0)
+	{
+		Return(0);//not ready to send
+	}
+	Else
+	{
+		If((XT_FromCTRLr_DATA_OK=0)&&(XT_FromCTRLr_DATA_ERR=0)&&(XT_FromCTRLr_DATA_TO=0))
+		{
+			Return(0);//not ready to send
+		}
+		Else
+		{
+			//  ft 2/11/2015 Reset_WAITING();
+			Return(1);
+		}
+	}
+}
+
+Function CheckResend()
+{
+	If (ResendCount<MaxResend)
+	{
+		ResendCount=ResendCount+1;
+	}
+	
+	If(ResendCount>=MaxResend)
+	{
+		MaxResendFlag=1;
+	}
+}
+
+Function IncRD()
+{
+	B.RD=B.RD+1;
+	IF (B.RD>MAX_TX_BUFF) B.RD=1;
+}
+
+Function IncWR()
+{
+	B.WR=B.WR+1;
+	IF (B.WR>MAX_TX_BUFF) B.WR=1;
+}
+
+
+Integer_Function searchARRAYLo()
+{Integer bx,ln,lb;
+	
+	ln=len(GlobalTmpStringLo);
+	For (bx= 1 to MAX_TX_BUFF)
+	{
+    	lb=len(BuffC[bx]);
+    	IF(lb)
+    	{
+	    	IF((lb=ln)&&(B.Prio[bx]=0))//only low priority commands are involved.
+	    	{
+	    		IF (Find(GlobalTmpStringLo, BuffC[bx], 1)>0)
+	    		{
+	                Return(bx);
+	            }
+	        }
+        }
+	}
+    Return(0);
+}
+
+Function FncPrintVars(string whostr)
+{Integer fx,rr;
+    makestring (XT_Test_ExtraDebug_Info$,"%s[by %s]: Buff Len=%u RDindex=%u WRindex=%u",RefName,whostr, B.Stat,B.RD,B.WR);
+    IF (B.Stat=0)
+    {
+    	makestring (XT_Test_ExtraDebug_Info$,"%s: Buff EMPTY!",RefName);
+    }
+    ELSE
+    {
+    	makestring (XT_Test_ExtraDebug_Info$,"%s: Buff=%u printing data....",RefName,B.Stat);
+    	rr=B.RD;
+    	For(fx=1 to B.Stat)
+    	{
+    		makestring (XT_Test_ExtraDebug_Info$,"%s: Pos %02u --> Type=%05X | CMD=%s ZZ.",RefName,rr,B.CmdID[rr],BuffC[rr]);
+    		rr=rr+1;
+    		If (rr>MAX_TX_BUFF) rr=1;
+    	}
+    	makestring (XT_Test_ExtraDebug_Info$,"%s: Buff END printing data.",RefName);
+    }
+}
+
+Function Sender()
+{INTEGER txlen;
+		
+	IF (IPV_procedure=1)
+	{
+		XT_ToAll_ACK_WAITING=500;
+		IF (RS232_EN=1)
+		{
+			makestring (To_Device$,"AT[&IPV\r");
+		}
+		Else
+		{
+			makestring (To_Device$,"\xAA\xAA\x00\x00\x00\x08AT[&IPV\r");
+		}
+	    var_RTS=0;
+	    SECURE_count=0;
+	}
+	ELSE
+	{
+		IF (Outgoing_index>0)
+		{
+			txlen=Len(BuffC[Outgoing_index]);
+			IF(txlen>0)
+			{ 
+			    XT_ToAll_ACK_WAITING=B.CmdID[Outgoing_index];
+			    IF (RS232_EN=1)
+				{
+					makestring (To_Device$,"%s",BuffC[Outgoing_index]);
+				}
+				Else
+				{
+					makestring (To_Device$,"\xAA\xAA\x00\x00%c%c%s",high(txlen),low(txlen),BuffC[Outgoing_index]);
+				}
+			    var_RTS=0;
+			    SECURE_count=0;
+			    B.Done[Outgoing_index]=1;
+			}
+			ELSE
+			{
+				B.Done[Outgoing_index]=1;
+				//  ft 2/11/2015 Reset_WAITING();
+			}
+		}
+		/*  ft 2/11/2015
+		Else
+		{
+			Reset_WAITING();
+		}
+		*/
+	}
+}
+
+Function SendFastVol()
+{INTEGER txlen,tmpVV;
+string LocalTmpStr[MAX_TX_CHR];
+		
+    IF(var_RTS=1)
+    {
+	    If(LastVolSent064<>newVOLvalue064)
+	    {
+	    	LastVolSent064=newVOLvalue064;
+			if(newVOLvalue064>=44)
+			{
+				tmpVV=LastVolSent064-44;
+				Makestring(LocalTmpStr,"AT[&SV%02u\r",tmpVV);
+			}
+			Else
+			{
+				tmpVV=44-LastVolSent064;
+				Makestring(LocalTmpStr,"AT[&SV-%02u\r",tmpVV);
+			}
+			
+			//  ft 2/11/2015 Reset_WAITING();
+		    IF (RS232_EN=1)
+			{
+				makestring (To_Device$,"%s",LocalTmpStr);
+			}
+			Else
+			{
+				txlen=Len(LocalTmpStr);
+				makestring (To_Device$,"\xAA\xAA\x00\x00%c%c%s",high(txlen),low(txlen),LocalTmpStr);
+			}
+		    var_RTS=0;
+		    SECURE_count=0;
+		}
+	}
+}
+ 
+Function AddItem()
+{
+	IF ( (Len(GlobalTmpStringHi)>0)&&(Enable>0) )
+	{
+		IF (GlobalCmdTypeHi=0)
+		{
+			If(XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: HiBuff >> Command = 0.....DISCARDED !!",RefName);
+		}
+		ELSE
+		{
+			IF (B.Stat>=MAX_TX_BUFF)//Overflow
+			{
+		    	B.Stat=MAX_TX_BUFF;
+				IncRD();
+				BufferOver=1;
+			}
+			ELSE
+			{
+		    	B.Stat=B.Stat+1;
+			}
+			
+			BuffC[B.WR]=GlobalTmpStringHi;
+			B.CmdID[B.WR]=GlobalCmdTypeHi;
+			B.Prio[B.WR]=1;//0=low prio 1=High Prio
+			B.Done[B.WR]=0;
+			If(XT_Mod_DebugLevel>10) makestring (XT_Test_ExtraDebug_Info$,"%s: HiBuff >> Added head = %02X  Len=%u index=%u buffSIZE(before)=%u",RefName,B.CmdID[B.WR],Len(BuffC[B.WR]),B.WR,B.Stat);
+			IncWR();
+			IF (BufferData=0) BufferData=1;
+		}
+	}
+}
+
+Function AddItemLo()
+{
+	IF ( (Len(GlobalTmpStringLo)>0)&&(Enable>0) )
+	{
+		IF (GlobalCmdTypeLo=0)
+		{
+			If(XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: LoBuff >> Command = 0.....DISCARDED !!",RefName);
+		}
+		ELSE
+		{
+			IF (B.Stat>=MAX_TX_BUFF)//Overflow
+			{
+		    	B.Stat=MAX_TX_BUFF;
+				IncRD();
+				BufferOver=1;
+			}
+			ELSE
+			{
+		    	B.Stat=B.Stat+1;
+			}
+			
+			BuffC[B.WR]=GlobalTmpStringLo;
+			B.CmdID[B.WR]=GlobalCmdTypeLo;
+			B.Prio[B.WR]=0;//0=low prio 1=High Prio
+			B.Done[B.WR]=0;
+			If(XT_Mod_DebugLevel>100) makestring (XT_Test_ExtraDebug_Info$,"%s: LoBuff >> Added head = %02X  Len=%u index=%u buffSIZE(before)=%u",RefName,B.CmdID[B.WR],Len(BuffC[B.WR]),B.WR,B.Stat);
+			IncWR();
+			IF (BufferData=0) BufferData=1;
+		}
+	}
+}
+
+Function AddUniqueItem()
+{
+	IF ( (Len(GlobalTmpStringLo)>0)&&(Enable>0) )
+	{
+		IF (searchARRAYLo()=0)
+		{
+			IF (GlobalCmdTypeLo=0)
+			{
+				If(XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: LoBuff >> Command = 0.....DISCARDED !!",RefName);
+			}
+			ELSE
+			{
+				AddItemLo();
+			}
+		}
+		ELSE
+		{
+			If(XT_Mod_DebugLevel>0) makestring (XT_Test_ExtraDebug_Info$,"%s: LoBuff >> Command already in.....DISCARDED !!",RefName);
+		}
+	}
+}
+
+Function BufferFlush()//Buffer reading process next step
+{
+   	IF(B.Stat>0)
+   	{
+		If(XT_Mod_DebugLevel>100) makestring (XT_Test_ExtraDebug_Info$,"%s: BufferFlush >> Start size was=%u index[RD]=%u index[WR]=%u",RefName,B.Stat,B.RD,B.WR);
+		If(B.Done[B.RD]>0)
+		{
+			BuffC[B.RD]="";
+			B.CmdID[B.RD]=0;
+			B.Done[B.WR]=0;
+			IncRD();
+			B.Stat=B.Stat-1;
+			IF (B.Stat=0) BufferData=0;
+			IF (BufferOver>0) BufferOver=0;
+		}
+	}
+	ELSE
+	{
+		If(XT_Mod_DebugLevel>100) makestring (XT_Test_ExtraDebug_Info$,"%s: BufferFlush >> Start size was=EMPTY! index[RD]=%u index[WR]=%u",RefName,B.RD,B.WR);
+	}
+	Remember_to_Flush_Buff=0;
+	If(XT_Mod_DebugLevel>100) makestring (XT_Test_ExtraDebug_Info$,"%s: BufferFlush >> AFTER size is=%u index[RD]=%u index[WR]=%u",RefName,B.Stat,B.RD,B.WR);
+}
+
+
+Function FNC_ReadData()
+{
+	IF(Outgoing_index>0)
+	{
+		Sender();//BuffC[B.RD],B.CmdID[B.RD]);
+		CheckResend();
+	}
+	Else
+	{
+		If(XT_Mod_DebugLevel>98) makestring (XT_Test_ExtraDebug_Info$,"%s: [RD]Try to send an empty data.....DISCARDED !! Used Buf IDX[RD]=%u BuffSize=%u",RefName,B.RD,B.Stat);
+	}
+}
+	
+
+Function FNC_ReadAndShift()
+{
+	ResendReset();
+	Outgoing_index=B.RD;
+ 	Remember_to_Flush_Buff=1;
+ 	If(XT_Mod_DebugLevel>100) makestring (XT_Test_ExtraDebug_Info$,"%s: [NEXT&RD] Start used Buf IDX[RD]=%u Outgoing_i=%u BuffSize=%u Done(outidx)=%u",RefName,B.RD,Outgoing_index,B.Stat,B.DONE[Outgoing_index]);
+ 	IF(Outgoing_index>0)
+	{
+		Sender();
+	}
+	Else
+	{
+		If(XT_Mod_DebugLevel>98) makestring (XT_Test_ExtraDebug_Info$,"%s: [NEXT&RD]Try to send an empty data.....DISCARDED !! Used Buf IDX[RD]=%u BuffSize=%u",RefName,B.RD,B.Stat);
+	}
+}
+
+
+Function FNC_SelfTrigg()
+{
+	If(XT_Mod_DebugLevel>100) makestring (XT_Test_ExtraDebug_Info$,"%s: [GET TRIG] ACK=%u ERR=%u TO=%u RememberTF=%u Outgoing_i=%u Done(RD)=%u Buf IDX[RD]=%u BuffSize=%u",RefName,XT_FromCTRLr_DATA_OK,XT_FromCTRLr_DATA_ERR,XT_FromCTRLr_DATA_TO,Remember_to_Flush_Buff,Outgoing_index,B.DONE[B.RD],B.RD,B.Stat);
+	IF ((XT_TE_COMM_Reg_Status=KREG_TCPOK)&&(IPV_procedure=1))//&&(XT_ToAll_ACK_WAITING=0))
+	{
+		Sender();
+	}
+	Else
+	{
+		IF(XT_FromCTRLr_DATA_OK=1)
+		{
+			//  ft 2/11/2015 Reset_WAITING();
+			IF(B.Stat>0)
+			{
+				IF(Outgoing_index>0)
+				{
+					IF(B.Done[Outgoing_index]=1)
+					{
+						BufferFlush();
+					}
+				}
+				FNC_ReadAndShift();
+			}
+		}
+		Else IF(XT_FromCTRLr_DATA_ERR=1)
+		{
+			//  ft 2/11/2015 Reset_WAITING();
+			IF(B.Stat>0)
+			{
+				IF ((ResendCount<MaxResend)&&(MaxResend>0)&&(Outgoing_index>0))
+				{
+					IF(B.Prio[Outgoing_index]>0)
+					{
+						FNC_ReadData();
+					}
+					Else
+					{
+						IF(Remember_to_Flush_Buff=1)
+						{
+							BufferFlush();
+						}
+						FNC_ReadAndShift();
+					}
+				}
+				ELSE
+				{
+					IF(Remember_to_Flush_Buff=1)
+					{
+						BufferFlush();
+					}
+					FNC_ReadAndShift();
+				}
+			}
+		}
+	    Else IF(XT_FromCTRLr_DATA_TO=1)
+		{
+			//  ft 2/11/2015 Reset_WAITING();
+			IF(B.Stat>0)
+			{
+				IF ((ResendCount<MaxResend)&&(MaxResend>0)&&(Outgoing_index>0))
+				{
+					IF(B.Prio[Outgoing_index]>0)
+					{
+						FNC_ReadData();
+					}
+					Else
+					{
+						IF(Remember_to_Flush_Buff=1)
+						{
+							BufferFlush();
+						}
+						FNC_ReadAndShift();
+					}
+				}
+				ELSE
+				{
+					IF(Remember_to_Flush_Buff=1)
+					{
+						BufferFlush();
+					}
+					FNC_ReadAndShift();
+				}
+			}
+		}
+	}
+}
+
+Function EvaluateRegStat()
+{
+//		0=not registered(idle) 1=1st STEP connecting via TCP/IP 2=2nd STEP registering(IPV) 3=connected and registered   
+    If(XT_TE_COMM_Reg_Status<>LastRegStatus)
+    {
+    	LastRegStatus=XT_TE_COMM_Reg_Status;
+    	IF(XT_TE_COMM_Reg_Status=KREG_TCPOK) //(2) 2nd STEP registering(IPV)
+    	{
+    		CleanAllVars();
+    		If(IPV_procedure=0)//0=idle 1=in progress 2=in progress waiting
+		    {
+		   	   IPV_procedure=1;  
+		    }
+    	}
+    	ELSE IF (XT_TE_COMM_Reg_Status=KREG_ALLOK) //(3) connected and registered  OK OK OK OK OK OK OK OK OK
+    	{
+    		CleanAllVars();
+    	    //  ft 2/11/2015 Reset_WAITING();
+    	}
+        ELSE IF (XT_TE_COMM_Reg_Status=KREG_TCPTRY) //(1) 1st STEP connecting via TCP/IP
+    	{
+    		CleanAllVars();
+    	}
+    	ELSE IF (XT_TE_COMM_Reg_Status=KREG_IDLE) //(0) not connected and not registered
+    	{
+    		CleanAllVars();
+    	}
+    }
+}
+
+// 999=not managed 0=empty 1..99=Hprio command - 101..199=Hprio query - 1001..1999=Lprio cmd/poll/query - 500=Initialization
+Integer_Function Identify_command(Integer BuffSel)//BuffSel 0 --> LoBuff  1 --> HiBuff
+{String newCmd$[6];
+    
+    If(BuffSel)
+    {
+    	newCmd$=left(GlobalTmpStringHi,6);	
+    }
+    Else
+    {
+    	newCmd$=left(GlobalTmpStringLo,6);
+    }
+    
+    
+    
+    If(find("&IP", newCmd$)>0)//activate RTE<->PC communication
+    {
+   		Return(500); 	
+    }
+    Else If (find("&IE", newCmd$)>0) //deactivate RTE<->PC communication
+    {
+    	Return(500);
+    }
+    
+    Else If (find("ATE", newCmd$)>0) //RS232 Echo off
+    {
+    	Return(99);  	
+    }
+    
+    Else If (find("&SM", newCmd$)>0) //mute
+    {
+    	Return(1);  	
+    }
+    Else If (find("?SM", newCmd$)>0)
+    {
+    	Return(101);     	
+    }
+    Else If (find("&SP", newCmd$)>0) //privacy
+    {
+    	Return(2);     	
+    }
+    Else If (find("?SP", newCmd$)>0)
+    {
+    	Return(102);  	
+    }
+    Else If (find("&SS", newCmd$)>0)  //selfview
+    {
+    	Return(3);     	
+    }
+    Else If (find("?SS", newCmd$)>0)
+    {
+    	Return(103);  	
+    }
+    Else If (find("&SV", newCmd$)>0) //volume
+    {
+    	Return(4);     	
+    }
+    Else If (find("?SV", newCmd$)>0) 
+    {
+    	Return(104);     	
+    }
+    Else If (find("&SF", newCmd$)>0) //camera select & move
+    {
+    	Return(5);     	
+    }
+    Else If (find("?SF", newCmd$)>0)
+    {
+    	Return(105);     	
+    }
+    Else If (find("&SL", newCmd$)>0) //screen saver
+    {
+    	Return(6);     	
+    }
+    Else If (find("?SL", newCmd$)>0)
+    {
+    	Return(106);     	
+    }
+    Else If (find("&SN", newCmd$)>0) //Recording
+    {
+    	Return(7);     	
+    }
+    Else If (find("?SN", newCmd$)>0)
+    {
+    	Return(107);     	
+    }
+    Else If (find("&SD", newCmd$)>0) //multi image mode
+    {
+    	Return(8);     	
+    }
+    Else If (find("?SD", newCmd$)>0)
+    {
+    	Return(108);     	
+    }
+    Else If (find("&ST", newCmd$)>0) //picture in picture  
+    {
+    	Return(9);     	
+    }
+    Else If (find("?ST", newCmd$)>0)
+    {
+    	Return(109);     	
+    }
+    Else If (find("&SG", newCmd$)>0)  //Reset / shutdown
+    {
+    	Return(10);     	
+    }
+    Else If (find("&SH", newCmd$)>0)  //conference control
+    {
+    	Return(11);     	
+    }
+    Else If (find("?SH", newCmd$)>0)
+    {
+    	Return(111);     	
+    }
+    Else If (find("&SY", newCmd$)>0) //camera move w/o change
+    {
+    	Return(12);     	
+    }
+    Else If (find("?SY", newCmd$)>0)
+    {
+    	Return(112);     	
+    }
+    Else If (find("&SW", newCmd$)>0) //infrared emulator
+    {
+    	Return(13);     	
+    }
+    Else If (find("&SB", newCmd$)>0) //Layout command
+    {
+    	Return(14);     	
+    }
+    Else If (find("?SB", newCmd$)>0)
+    {
+    	Return(114);     	
+    }
+    Else If (find("&SI", newCmd$)>0) //capture JPEG image
+    {
+    	Return(15);     	
+    }
+    Else If (find("&SQ", newCmd$)>0) //Local presentation command
+    {
+    	Return(16);     	
+    }
+    Else If (find("?SQ", newCmd$)>0)
+    {
+    	Return(116);     	
+    }
+    Else If (find("&SR", newCmd$)>0) //DoNotDisturb command
+    {
+    	Return(17);     	
+    }
+    Else If (find("?SR", newCmd$)>0)
+    {
+    	Return(117);     	
+    }
+    
+    
+    Else If (find("&CD", newCmd$)>0) //make a call
+    {
+        Return(20);
+    }
+    Else If (find("&CM", newCmd$)>0) //make a call w rate
+    {
+        Return(20);
+    }
+    Else If (find("&CF", newCmd$)>0) //send DTMF
+    {
+        Return(21);
+    }
+    Else If (find("&CA", newCmd$)>0) //Answer incoming call
+    {
+        Return(22);
+    }
+    Else If (find("&CG", newCmd$)>0) //Answer incoming call w extension
+    {
+        Return(22);
+    }
+    Else If (find("&CH", newCmd$)>0) //Discconnect a call
+    {
+        Return(23);
+    }
+    Else If (find("?CB", newCmd$)>0) //Connection Status
+    {
+    	Return(124);     	
+    }
+    Else If (find("?CL", newCmd$)>0) //Connection Status H323
+    {
+    	Return(125);     	
+    }
+    Else If (find("&CV", newCmd$)>0) //Dual video Managment
+    {
+        Return(26);
+    }
+    Else If (find("&CC", newCmd$)>0) //Dual video status
+    {
+    	Return(27);     	
+    }
+    Else If (find("?CC", newCmd$)>0) //Dual video status
+    {
+    	Return(127);     	
+    }
+     
+     
+    
+    Else If (find("?DF", newCmd$)>0) //File Descriptor
+    {
+    	Return(130);     	
+    }
+    Else If (find("?DR", newCmd$)>0) //Read Record
+    {
+    	Return(131);     	
+    }
+    Else If (find("?DL", newCmd$)>0) //Read Record
+    {
+    	Return(131);     	
+    }
+    Else If (find("&DD", newCmd$)>0) //Delete Record
+    {
+    	Return(32);     	
+    }
+    Else If (find("&DI", newCmd$)>0) //Insert Record
+    {
+    	Return(33);     	
+    } 
+    Else If (find("&DG", newCmd$)>0) //LDAP server info
+    {
+    	Return(34);     	
+    } 
+    Else If (find("&DS", newCmd$)>0) //LDAP Insert new server
+    {
+    	Return(35);     	
+    }
+    Else If (find("&DM", newCmd$)>0) //LDAP server config change
+    {
+    	Return(36);     	
+    } 
+    Else If (find("?DP", newCmd$)>0) //LDAP server config read
+    {
+    	Return(136);     	
+    }
+    Else If (find("&DB", newCmd$)>0) //LDAP server delete
+    {
+    	Return(36);     	
+    }
+    Else If (find("&DC", newCmd$)>0) //LDAP server connect
+    {
+    	Return(37);     	
+    }
+    Else If (find("?DQ", newCmd$)>0) //Recent Calls
+    {
+    	Return(161);     	
+    }  
+    Else If (find("?DT", newCmd$)>0) //Recent Calls
+    {
+    	Return(162);     	
+    }  
+    Else If (find("&DV", newCmd$)>0) //Recent Calls
+    {
+    	Return(63);     	
+    }
+    
+    
+    Else If (find("&TA", newCmd$)>0)  //system parameter (screen saver TAS)
+    {
+    	Return(40);     	
+    }
+    Else If (find("?TA", newCmd$)>0)
+    {
+    	Return(140);     	
+    }
+    Else If (find("&TC", newCmd$)>0)  //call answer parameter
+    {
+    	Return(41);     	
+    }
+    Else If (find("?TC", newCmd$)>0)
+    {
+    	Return(141);     	
+    }
+    Else If (find("&TU", newCmd$)>0)  //user parameter  (Ring vol)
+    {
+    	Return(42);     	
+    }
+    Else If (find("?TU", newCmd$)>0)
+    {
+    	Return(142);     	
+    }
+    Else If (find("&TG", newCmd$)>0)  //num of monitor sett...
+    {
+    	Return(43);     	
+    }
+    Else If (find("?TG", newCmd$)>0)
+    {
+    	Return(143);     	
+    }
+    Else If (find("&TP", newCmd$)>0)  //telepresence config
+    {
+    	Return(44);     	
+    }
+    Else If (find("?TP", newCmd$)>0)
+    {
+    	Return(144);     	
+    }
+    Else If (find("&TJ", newCmd$)>0)  //recording settings
+    {
+    	Return(45);     	
+    }
+    Else If (find("?TJ", newCmd$)>0)
+    {
+    	Return(145);     	
+    }
+    
+    
+    
+    Else If (find("&ML", newCmd$)>0)  //MCU layout
+    {
+    	Return(50);     	
+    }
+    Else If (find("?ML", newCmd$)>0)
+    {
+    	Return(150);     	
+    }
+    Else If (find("&MD", newCmd$)>0) //MCU Connect a terminal 
+    {
+    	Return(51);     	
+    }
+    Else If (find("&MH", newCmd$)>0) //MCU disconnect a terminal
+    {
+    	Return(52);     	
+    }
+    Else If (find("&MO", newCmd$)>0) //MCU close a conference
+    {
+    	Return(53);     	
+    }
+    Else If (find("?MT", newCmd$)>0) //MCU terminal status
+    {
+    	Return(154);     	
+    }
+    Else If (find("?MG", newCmd$)>0) //MCU terminal info
+    {
+    	Return(155);     	
+    }
+    Else If (find("&MA", newCmd$)>0) //MCU terminal set audio status
+    {
+    	Return(56);     	
+    }
+    Else If (find("&MV", newCmd$)>0) //MCU terminal set video status
+    {
+    	Return(57);     	
+    }
+    Else If (find("&MF", newCmd$)>0)  //MCU end time
+    {
+    	Return(58);     	
+    }
+    Else If (find("?MF", newCmd$)>0)
+    {
+    	Return(158);     	
+    }
+    Else
+    {
+		Return(999);
+    }
+    
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+PUSH Rst
+{
+    ResetBuffer();
+}
+
+CHANGE Enable
+{
+    ResetBuffer();
+}
+
+CHANGE MaxSendRepeat
+{
+	MaxResend=MaxSendRepeat;
+}
+
+PUSH DBG_PrintVars
+{
+	FncPrintVars("user");
+}
+
+CHANGE XT_TE_RTS
+{
+	var_RTS=XT_TE_RTS;
+	SECURE_count=0;
+}
+
+CHANGE XT_TE_COMM_Reg_Status
+{
+    EvaluateRegStat();
+}
+
+
+
+CHANGE XT_UI_FastVolUpdate
+{
+	IF ((Enable>0)&&(LastRegStatus=KREG_ALLOK))
+	{
+		newVOLvalue064=XT_UI_FastVolUpdate;
+		SendFastVol();
+	}
+}
+
+#IF_SERIES3
+	/* ft 2/11/2015
+	THREADSAFE PUSH XT_FromCTRLr_DATA_OK
+	{
+		Reset_WAITING();
+	}
+	
+	THREADSAFE PUSH XT_FromCTRLr_DATA_ERR
+	{
+		Reset_WAITING();
+	}
+	
+	THREADSAFE PUSH XT_FromCTRLr_DATA_TO
+	{
+		Reset_WAITING();
+	}
+	*/
+	THREADSAFE PUSH Trigg
+	{
+	    IF ((Enable>0)&&(LastRegStatus>KREG_TCPTRY))
+		{
+			IF(RTS_status()>0)
+			{
+				FNC_SelfTrigg();
+			}
+		}
+	}
+	
+#ELSE
+	/* ft 2/11/2015
+	PUSH XT_FromCTRLr_DATA_OK
+	{
+		Reset_WAITING();
+	}
+	
+	PUSH XT_FromCTRLr_DATA_ERR
+	{
+		Reset_WAITING();
+	}
+	
+	PUSH XT_FromCTRLr_DATA_TO
+	{
+		Reset_WAITING();
+	}
+	*/
+	PUSH Trigg
+	{
+	    IF ((Enable>0)&&(LastRegStatus>KREG_TCPTRY))
+		{
+			IF(RTS_status()>0)
+			{
+				FNC_SelfTrigg();
+			}
+		}
+	}
+	
+#ENDIF
+    
+/*
+CHANGE bin_Hcmd$// not THREADSAFE !!
+{
+	IF ((Enable>0)&&(LastRegStatus>KREG_TCPTRY))
+	{
+		#IF_SERIES3
+		
+			Try
+			{			
+				GlobalTmpStringHi = bin_Hcmd$;
+				
+				If (Len(GlobalTmpStringHi)) 
+				{
+					GlobalCmdTypeHi=Identify_command(1);
+					AddItem();
+				}
+			}
+			Catch
+			{
+				Print("%s: Hi buffer input CATCH ERROR: %s !!",RefName,GetExceptionMessage());
+			}
+		
+		#ELSE
+		
+			GlobalTmpStringHi = bin_Hcmd$;
+	
+			If (Len(GlobalTmpStringHi)) 
+			{
+				GlobalCmdTypeHi=Identify_command(1);
+				AddItem();
+			}
+			
+		#ENDIF
+	}
+}
+*/
+
+#IF_SERIES3
+
+	THREADSAFE CHANGE bin_Lpoll$
+	{
+	    IF ((Enable>0)&&(LastRegStatus=KREG_ALLOK))
+		{
+			Try
+			{
+				GlobalTmpStringLo=bin_Lpoll$;
+				
+				If (Len(GlobalTmpStringLo)) 
+				{
+					GlobalCmdTypeLo=Identify_command(0);
+					AddUniqueItem();
+				}
+			}
+			Catch
+			{
+				Print("%s: Lo buffer input CATCH ERROR: %s !!",RefName,GetExceptionMessage());
+			}			
+		}
+	}
+	
+#ELSE   //If 2nd series
+
+    CHANGE bin_Lpoll$
+	{
+	    IF ((Enable>0)&&(LastRegStatus=KREG_ALLOK))
+		{
+			GlobalTmpStringLo=bin_Lpoll$;
+			
+			If (Len(GlobalTmpStringLo)) 
+			{
+				GlobalCmdTypeLo=Identify_command(0);
+				AddUniqueItem();
+			}			
+		}
+	}
+
+#ENDIF
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+Function Main()
+{
+    RefName=GetSymbolReferenceName();
+	WaitForInitializationComplete();
+	All_Reset();
+    IF (Enable=1)
+    {
+   			EvaluateRegStat();
+    }
+    #IF_SERIES3
+
+	    While(1)
+	    {
+	    	Try
+	 		{
+	 			GlobalTmpStringHi=Gather("\x0D", bin_Hcmd$);
+				IF ((Enable>0)&&(LastRegStatus>KREG_TCPTRY))
+				{
+					If (Len(GlobalTmpStringHi)>2) 
+					{
+						GlobalCmdTypeHi=Identify_command(1);
+						AddItem();
+					}
+				}
+	 		}
+	 		Catch
+	 		{
+	 			Print("%s: Hi buffer input CATCH ERROR: %s !!",RefName,GetExceptionMessage());
+	 		}
+	    }
+	
+	#ELSE   //If 2nd series
+    
+    	While(1)
+	    {
+	    	If (Second_series_semaphore=0)
+	    	{
+	    		Second_series_semaphore=1;	
+		    	GlobalTmpStringHi=Gather("\x0D", bin_Hcmd$);
+				IF ((Enable>0)&&(LastRegStatus>KREG_TCPTRY))
+				{
+					If (Len(GlobalTmpStringHi)>2) 
+					{
+						GlobalCmdTypeHi=Identify_command(1);
+						AddItem();
+					}
+				}
+				Second_series_semaphore=0;
+			}
+	    }
+    
+	#ENDIF
+	
+}

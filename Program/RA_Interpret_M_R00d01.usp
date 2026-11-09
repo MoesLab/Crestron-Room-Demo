@@ -1,0 +1,878 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Avaya
+System Name: Avaya XT5000 & Telepresence
+System Number:
+Programmer: Fabrizio Torbidoni www.automazionesale.it
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+#SYMBOL_NAME "RA_Interpret_M_R00d01"
+// #HINT ""
+#DEFINE_CONSTANT kCONN 1
+#DEFINE_CONSTANT kDISC 0
+#CATEGORY "46" "Avaya" // Custom
+#PRINT_TO_TRACE
+
+
+// #DEFINE_CONSTANT  MAX_MCU_INDEX				50 //max number of terminals in DB. Max possible num =999
+#DEFINE_CONSTANT	MAX_TE	9//8+1  1=Local 2=Term01 ....9=Term08.
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+/*
+#HELP_BEGIN
+   (add additional lines of help lines)
+#HELP_END
+*/
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Enable;
+ANALOG_INPUT XT_Mod_DebugLevel;//			Debug output level 0=no messages 99=all messages 
+//ANALOG_INPUT XT_ACK_WAITING; 
+STRING_INPUT Process_M_strings$[100]; 
+
+ANALOG_OUTPUT Connected_Terms_an; //Number of total connected Teminals
+DIGITAL_OUTPUT _SKIP_,TE_Connection_Status_F[9]; //01=TE00...09=TE08
+STRING_OUTPUT _SKIP_,XT_Test_ExtraDebug_Info$;//Connected call number
+STRING_OUTPUT _SKIP_,_SKIP_,XT_TE_Name$[MAX_TE,MAX_TE];//Connected MCU terminal Name
+
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+// TCP_CLIENT
+// TCP_SERVER
+// UDP_SOCKET
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+// INTEGER_PARAMETER
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+// STRING_PARAMETER
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+/*
+#BEGIN_PARAMETER_PROPERTIES parameter_variable, parameter_variable, ...
+   // propValidUnits = // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   // propDefaultUnit = // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   // propBounds = lower_bound , upper_bound;
+   // propDefaultValue = ;  // or, propDefaultValue = "";
+   // propList = // { "value" , "label" } , { "value" , "label" } , ... ;
+   // propShortDescription = "status_bar_hint_text";
+   // #BEGIN_PROP_FULL_DESCRIPTION  line_1...  line_2...  line_n  #END_PROP_FULL_DESCRIPTION
+   // #BEGIN_PROP_NOTES line_1...  line_2...  line_n  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+*/
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+
+STRUCTURE MyTerm
+{
+	Integer Conn;//0=disc 1=connected 99=undefined
+	Integer MuteAudio;//0=disc 1=connected 2=muted
+	Integer VideoBrdc;//0=disc 1=connected 2=active_spk 3=Prev._spk 4=Chairman_Broadcast 
+	String TEname[30];
+	
+};
+
+MyTerm MCU_TE[MAX_TE];
+
+
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+//INTEGER LastWaitingFor;
+//INTEGER LastACKkind,NextACKkind;
+INTEGER Nop;
+STRING RefName[60];
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+//STRING CurrSending$[200];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+Function UpdateTEnames()
+{integer nmx;
+   /*
+   For(nmx=1 to MAX_TE)
+    {
+    	If (MCU_TE[nmx].Conn=kCONN)
+    	{
+	    	If(len(MCU_TE[nmx].TEname))
+	    	{
+	    		XT_TE_Name$[nmx]=MCU_TE[nmx].TEname;
+	    	}
+	    	Else
+	    	{
+	    		XT_TE_Name$[nmx]=" ";
+	    	}
+	    }
+	    Else If (MCU_TE[nmx].Conn=kDISC)
+	    {
+	    	XT_TE_Name$[nmx]="Disconnected";
+			MCU_TE[nmx].TEname="";
+	    }
+	    Else
+	    {
+	    	XT_TE_Name$[nmx]="--";
+			//MCU_TE[nmx].TEname="";
+	    }
+    }
+    */
+    
+    //Avoid loops
+    If (MCU_TE[1].Conn=kCONN)//TERMINAL 00 Local
+    {
+    	If(len(MCU_TE[1].TEname))
+    	{
+    		XT_TE_Name$[1]=MCU_TE[1].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[1]=" ";
+    	}
+    }
+    Else If (MCU_TE[1].Conn=kDISC)
+    {
+    	XT_TE_Name$[1]="Disconnected";
+		MCU_TE[1].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[1]="--";
+    }
+    
+    
+    
+    If (MCU_TE[2].Conn=kCONN)//TERMINAL 01
+    {
+    	If(len(MCU_TE[2].TEname))
+    	{
+    		XT_TE_Name$[2]=MCU_TE[2].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[2]=" ";
+    	}
+    }
+    Else If (MCU_TE[2].Conn=kDISC)
+    {
+    	XT_TE_Name$[2]="Disconnected";
+		MCU_TE[2].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[2]="--";
+    }
+    
+    
+    
+    If (MCU_TE[3].Conn=kCONN)
+    {
+    	If(len(MCU_TE[3].TEname))
+    	{
+    		XT_TE_Name$[3]=MCU_TE[3].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[3]=" ";
+    	}
+    }
+    Else If (MCU_TE[3].Conn=kDISC)
+    {
+    	XT_TE_Name$[3]="Disconnected";
+		MCU_TE[3].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[3]="--";
+    }
+    
+    
+    
+    If (MCU_TE[4].Conn=kCONN)
+    {
+    	If(len(MCU_TE[4].TEname))
+    	{
+    		XT_TE_Name$[4]=MCU_TE[4].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[4]=" ";
+    	}
+    }
+    Else If (MCU_TE[4].Conn=kDISC)
+    {
+    	XT_TE_Name$[4]="Disconnected";
+		MCU_TE[4].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[4]="--";
+    }
+    
+    
+    
+    If (MCU_TE[5].Conn=kCONN)
+    {
+    	If(len(MCU_TE[5].TEname))
+    	{
+    		XT_TE_Name$[5]=MCU_TE[5].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[5]=" ";
+    	}
+    }
+    Else If (MCU_TE[5].Conn=kDISC)
+    {
+    	XT_TE_Name$[5]="Disconnected";
+		MCU_TE[5].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[5]="--";
+    }
+    
+    
+    
+    If (MCU_TE[6].Conn=kCONN)
+    {
+    	If(len(MCU_TE[6].TEname))
+    	{
+    		XT_TE_Name$[6]=MCU_TE[6].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[6]=" ";
+    	}
+    }
+    Else If (MCU_TE[6].Conn=kDISC)
+    {
+    	XT_TE_Name$[6]="Disconnected";
+		MCU_TE[6].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[6]="--";
+    }
+    
+    
+    
+    If (MCU_TE[7].Conn=kCONN)
+    {
+    	If(len(MCU_TE[7].TEname))
+    	{
+    		XT_TE_Name$[7]=MCU_TE[7].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[7]=" ";
+    	}
+    }
+    Else If (MCU_TE[7].Conn=kDISC)
+    {
+    	XT_TE_Name$[7]="Disconnected";
+		MCU_TE[7].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[7]="--";
+    }
+    
+    
+    
+    If (MCU_TE[8].Conn=kCONN)
+    {
+    	If(len(MCU_TE[8].TEname))
+    	{
+    		XT_TE_Name$[8]=MCU_TE[8].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[8]=" ";
+    	}
+    }
+    Else If (MCU_TE[8].Conn=kDISC)
+    {
+    	XT_TE_Name$[8]="Disconnected";
+		MCU_TE[8].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[8]="--";
+    }
+    
+    
+    
+    If (MCU_TE[9].Conn=kCONN)
+    {
+    	If(len(MCU_TE[9].TEname))
+    	{
+    		XT_TE_Name$[9]=MCU_TE[9].TEname;
+    	}
+    	Else
+    	{
+    		XT_TE_Name$[9]=" ";
+    	}
+    }
+    Else If (MCU_TE[9].Conn=kDISC)
+    {
+    	XT_TE_Name$[9]="Disconnected";
+		MCU_TE[9].TEname="";
+    }
+    Else
+    {
+    	XT_TE_Name$[9]="--";
+    }
+}
+
+Function UpdateTEnum()
+{integer nmx,ntc;
+	ntc=0;
+	/*
+	For(nmx=1 to MAX_TE)
+    {
+    	If (MCU_TE[nmx].Conn=1)
+    	{
+        	ntc=ntc+1;
+        }
+		TE_Connection_Status_F[nmx]=MCU_TE[nmx].Conn;
+    }
+    */
+    
+    //Avoid loops
+    
+    ntc=0;
+    
+    
+    If (MCU_TE[1].Conn=kCONN)//TERMINAL 00 local 
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[1]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[1]=kDISC;
+    }
+    
+    If (MCU_TE[2].Conn=kCONN) //TERMINAL 01
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[2]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[2]=kDISC;
+    }
+    
+    If (MCU_TE[3].Conn=kCONN) 
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[3]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[3]=kDISC;
+    }
+    
+    If (MCU_TE[4].Conn=kCONN) 
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[4]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[4]=kDISC;
+    }
+    
+    If (MCU_TE[5].Conn=kCONN) 
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[5]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[5]=kDISC;
+    }
+    
+    If (MCU_TE[6].Conn=kCONN) 
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[6]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[6]=kDISC;
+    }
+    
+    If (MCU_TE[7].Conn=kCONN) 
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[7]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[7]=kDISC;
+    }
+    
+    If (MCU_TE[8].Conn=kCONN) 
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[8]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[8]=kDISC;
+    }
+    
+    If (MCU_TE[9].Conn=kCONN) 
+    {
+    	ntc=ntc+1;
+    	TE_Connection_Status_F[9]=kCONN;
+    }
+    Else
+    {
+    	TE_Connection_Status_F[9]=kDISC;
+    }
+    
+    
+    Connected_Terms_an=ntc;
+    
+}
+
+Function InitializeVars()
+{integer nx;
+ 	
+ 	
+ 	
+ 	//LastWaitingFor=0; 
+ 	
+    
+	//LastACKkind=0;
+	//NextACKkind=0;
+    //XT_DATA_ACK=0;
+    
+    For(nx=1 to MAX_TE)
+    {
+    	MCU_TE[nx].TEname="";
+    	MCU_TE[nx].Conn=99;//undefined
+    }
+    UpdateTEnames();
+    UpdateTEnum();
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+PUSH Enable
+{
+    InitializeVars();
+}
+
+RELEASE Enable
+{
+   InitializeVars();
+}
+
+
+/*
+CHANGE XT_ACK_WAITING //0=idle 1..99=Hprio command - 101..199=Hprio query - 1001..1999=Lprio cmd/poll/query - 500=Initialization  999=Generic command not managed
+{
+	LastWaitingFor=XT_ACK_WAITING;
+}
+*/
+CHANGE Process_M_strings$
+{INTEGER nLen,Cmd_SUB,nInfo[10];
+ INTEGER ikack,tmpack,testUPD,nrteUPD,holdSTAT;
+// STRING slong[4],appo[80],appo2[20],trash[20],sINTERF[6],sInfo[10][60];
+ STRING commd$[100];
+	commd$=Process_M_strings$;
+    Cmd_SUB=GetC(commd$);
+    nLen=len(commd$);
+    //ikack=999;
+    testUPD=0;
+    nrteUPD=0;			
+	SWITCH(Cmd_SUB)//byte 1
+	{					
+		CASE('T')://MCU Status MT
+		{
+   			nInfo[1]=1 + ATOI(MID(commd$, 3, 2));//01=TE nr 00 etc..
+   			makestring (XT_Test_ExtraDebug_Info$,"%s: MT : Term. Num=%d Max=%u",RefName,nInfo[1],MAX_TE);
+   			IF (nInfo[1] <= MAX_TE)
+   			{
+	   			IF	   (byte(commd$,5)='0')//MCU Terminal Connection Status
+				{
+	            	IF(MCU_TE[nInfo[1]].Conn>0)
+	            	{
+	            		makestring (XT_Test_ExtraDebug_Info$,"%s: MT : Term. Num=%d From Conn to Disc.",RefName,nInfo[1]);
+	            		MCU_TE[nInfo[1]].Conn=kDISC;
+	            		testUPD=1;
+	                	nrteUPD=1;
+	                }
+	                Else
+	                {
+	                	makestring (XT_Test_ExtraDebug_Info$,"%s: MT : Term. Num=%d DISCARDED disc msg",RefName,nInfo[1]);
+	                }
+	            }
+	            Else IF(byte(commd$,5)='1')//MCU Terminal Connection Status
+	            {
+	            	
+                	IF(nlen>19)
+                	{
+                		MCU_TE[nInfo[1]].TEname=right(commd$,(nLen-19));
+                	}
+                	Else
+                	{
+                		MCU_TE[nInfo[1]].TEname="";
+                	}
+
+            		testUPD=1;
+                	
+	                
+	                
+	                IF(MCU_TE[nInfo[1]].Conn<>1)
+	            	{
+	            		MCU_TE[nInfo[1]].Conn=kCONN;
+	            		makestring (XT_Test_ExtraDebug_Info$,"%s: MT : Term. Num=%d From Disc to Conn",RefName,nInfo[1]);
+	            		nrteUPD=1;
+	                }
+	                Else
+	                {
+	                	makestring (XT_Test_ExtraDebug_Info$,"%s: MT : Term. Num=%d DISCARDED Conn msg",RefName,nInfo[1]);
+	                }             
+				}
+			}
+			Else
+			{
+				IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: MT : Term. num. error.  Num=%d Max=%u",RefName,nInfo[1],MAX_TE);
+			}
+			
+			If(testUPD>0)
+			{
+				UpdateTEnames();
+			}
+			
+			If(nrteUPD>0)
+			{
+				UpdateTEnum();
+			}
+		}
+		CASE('S')://MCU Status MS
+		{
+   			IF	   (byte(commd$,1)='1')//MCU Terminal Name
+			{
+                nInfo[1]=1 + ATOI(MID(commd$, 4, 2));//01=TE nr 00 etc..
+                MCU_TE[nInfo[1]].TEname=right(commd$,(nLen-5));
+                //XT_TE_Name$[nInfo[1]]=MCU_TE[nInfo[1]].TEname; 
+                testUPD=1;         
+			}
+			Else IF(byte(commd$,1)='2')//MCU Terminal Video Status
+			{
+                nop=1;        
+			}
+            Else IF(byte(commd$,1)='3')//MCU Terminal Audio Status
+			{
+                nop=1;         
+			}
+            Else IF(byte(commd$,1)='4')//MCU Terminal Channels Status
+			{
+                nop=1;         
+			}
+            Else IF(byte(commd$,1)='5')//MCU Terminal Connection Status
+			{
+                 nInfo[1]=1+ ATOI(MID(commd$, 4, 2));//01=TE nr 00 etc..
+                 IF(byte(commd$,6)='0')
+                 {
+                 	MCU_TE[nInfo[1]].Conn=0;
+                 	makestring (XT_Test_ExtraDebug_Info$,"%s: MS : Term. Num=%d ==> Disc.",RefName,nInfo[1]);
+               	 }
+               	 Else IF(byte(commd$,6)='1')
+                 {
+                 	MCU_TE[nInfo[1]].Conn=1;
+                 	makestring (XT_Test_ExtraDebug_Info$,"%s: MS : Term. Num=%d ==> Conn.",RefName,nInfo[1]);
+               	 }
+               	 Else
+               	 {
+               	 	MCU_TE[nInfo[1]].Conn=99;
+               	 	makestring (XT_Test_ExtraDebug_Info$,"%s: MS : Term. Num=%d ==> Unkn.",RefName,nInfo[1]);
+               	 }   	
+                 testUPD=1;
+                 nrteUPD=1;        
+			}
+			Else IF(byte(commd$,1)='6')//MCU Terminal Encrypt Status
+			{
+                nop=1;         
+			}
+			Else IF(byte(commd$,1)='7')//MCU Terminal H243 Status
+			{
+                nop=1;         
+			}
+			Else IF(byte(commd$,1)='8')//MCU Terminal video switch Mode
+			{
+                nop=1;         
+			}
+			Else IF(byte(commd$,1)='9')//MCU Conference Status
+			{
+                MCU_TE[1].Conn=kDISC;
+                MCU_TE[2].Conn=kDISC;
+                MCU_TE[3].Conn=kDISC;
+                MCU_TE[4].Conn=kDISC;
+                MCU_TE[5].Conn=kDISC;
+                MCU_TE[6].Conn=kDISC;
+                MCU_TE[7].Conn=kDISC;
+                MCU_TE[8].Conn=kDISC;
+                MCU_TE[9].Conn=kDISC;
+                makestring (XT_Test_ExtraDebug_Info$,"%s: MS : Term. ALL ==> Disc.",RefName);
+                nrteUPD=1;
+                testUPD=1;         
+			}
+			Else
+			{
+				IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: MS : Unknown message !",RefName);
+			}
+		}
+        CASE('E')://ERROR
+		{
+			SWITCH(byte(commd$,3))
+			{
+				CASE('1'):
+				{
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: ME : Bad parameter !",RefName);
+					//ikack=60001;
+				}
+				CASE('2'):
+				{
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: ME : Unknown message !",RefName);
+					//ikack=60002;	
+				}
+				CASE('3'):
+				{
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: ME : Wrong message lenght !",RefName);
+					//ikack=60003;
+				}
+				CASE('4'):
+				{
+					//sInfo[1]=right(commd$,(nLen-1));
+					IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: ME : Bad mode on param ID: %s !",RefName,right(commd$,(nLen-1)));
+					//ikack=60004;
+				}
+				CASE('5'):
+				{
+					SWITCH(byte(commd$,4))
+					{
+						CASE('0'):
+						{
+							IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: ME : Unable to execute command (system timeout) !",RefName);
+							//ikack=60010;
+						}
+						CASE('1'):
+						{
+							IF (XT_Mod_DebugLevel>1) makestring (XT_Test_ExtraDebug_Info$,"%s: ME : Unable to execute command (system busy) !",RefName);
+							//ikack=60011;
+						}
+					}
+				}
+			}
+		}				
+	}//end main switch byte 1
+	
+	If(testUPD>0)
+	{
+		UpdateTEnames();
+	}
+	
+	If(nrteUPD>0)
+	{
+		UpdateTEnum();
+	}
+	
+	/*
+	If (LastWaitingFor>=60000)
+	{
+		nop=1;
+	}
+	Else If ((LastWaitingFor>0)&&(LastWaitingFor<100))
+	{
+		tmpack=LastWaitingFor+100;
+		if (tmpack=ikack)
+		{
+			XT_DATA_ACK=1;				
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+		}
+		Else
+		{
+			XT_DATA_ACK=2;
+		}
+		Delay(5);
+		XT_DATA_ACK=0;
+	}
+	Else If ((LastWaitingFor>100)&&(LastWaitingFor<200))
+	{
+		if (LastWaitingFor=ikack)
+		{
+			XT_DATA_ACK=1;				
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+		}
+		Else
+		{
+			XT_DATA_ACK=2;
+		}
+		Delay(5);
+		XT_DATA_ACK=0;
+	}
+	Else If (LastWaitingFor=500)
+	{
+		If(ikack=500)
+		{
+			XT_DATA_ACK=1;
+			Delay(5);
+			XT_DATA_ACK=0;		
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+			Delay(5);
+			XT_DATA_ACK=0;
+		}
+		Else
+		{
+			nop=1;
+		}				
+	}
+	Else If (LastWaitingFor=999)
+	{
+		If(ikack=999)
+		{
+			XT_DATA_ACK=1;
+			Delay(5);
+			XT_DATA_ACK=0;		
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+			Delay(5);
+			XT_DATA_ACK=0;
+		}
+		Else
+		{
+			nop=1;
+		}
+	}
+	Else If ((LastWaitingFor>1000)&&(LastWaitingFor<1100))
+	{
+		tmpack=LastWaitingFor-900;
+		if (tmpack=ikack)
+		{
+			XT_DATA_ACK=1;				
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+		}
+		Else
+		{
+			XT_DATA_ACK=2;
+		}
+		Delay(5);
+		XT_DATA_ACK=0;		
+	}
+	Else If ((LastWaitingFor>1100)&&(LastWaitingFor<1200))
+	{
+		tmpack=LastWaitingFor-1000;
+		if (tmpack=ikack)
+		{
+			XT_DATA_ACK=1;				
+		}
+		Else If (ikack>60000)
+		{
+			XT_DATA_ACK=ikack-60000+10;//11,12,13,14,20,21
+		}
+		Else
+		{
+			XT_DATA_ACK=2;
+		}
+		Delay(5);
+		XT_DATA_ACK=0;			
+	}
+	Else
+	{
+		nop=1;
+	}
+	*/
+}//End CHANGE event
+
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+     RefName=GetSymbolReferenceName();
+     InitializeVars();
+    // WaitForInitializationComplete();
+    
+}
+
+

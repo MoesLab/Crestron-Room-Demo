@@ -1,0 +1,33 @@
+#SYMBOL_NAME "FunctionToggle8"
+
+DIGITAL_INPUT ToggleIn;
+ANALOG_INPUT StatusIn;
+DIGITAL_OUTPUT SetOff; 
+DIGITAL_OUTPUT SetOn[8,8];
+  
+INTEGER Old_On_Status;
+Integer SampleStatus,SampleOld;
+
+CHANGE StatusIn
+{
+	If (StatusIn>0)
+	{
+		Old_On_Status=StatusIn;	
+	}
+}
+
+PUSH ToggleIn
+{ 
+    SampleStatus=StatusIn;
+    SampleOld=Old_On_Status;
+    
+    If (SampleStatus=0)
+    {
+   		If (SampleOld=0) SampleOld=1;
+   		PULSE(20,SetOn[SampleOld]);	 	
+    }
+    Else //If (SampleStatus=1)
+    {
+    	PULSE(20,SetOff);
+    }
+}

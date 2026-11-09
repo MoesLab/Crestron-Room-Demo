@@ -1,0 +1,4644 @@
+[
+Version=1
+]
+[
+ObjTp=FSgntr
+Sgntr=UserMacro
+RelVrs=4.02.53
+IntStrVrs=2
+MinSMWVrs=2.11.03
+MinTIOVrs=0
+SavedBy=SMW2.05.22
+]
+[
+ObjTp=Hd
+S0Nd=1
+S1Nd=2
+SLNd=3
+PrNm=Preset Selector.umc
+DbVr=47.05.002.01
+DvcDbVr=59.00.001.00
+McNm=C3 Channel Preset
+SmVr=902
+DvVr=902
+TpN1=1
+TpN2=2
+TpN3=3
+TpN4=4
+TpN5=5
+APg=1
+FltTmp=1
+FpCS=0
+EnType=0
+ZeroOnIoOk=0
+Cmn1=#BEGIN_TOOL_TIPS\\#I,Preset_1,Recalls Preset 1\\#I,Preset_2,Recalls||1
+Cmn2=Preset 2\\#I,Preset_3,Recalls Preset 3\\#I,Preset_4,Recalls Preset||1
+Cmn3=4\\#I,Preset_5,Recalls Preset 5\\#I,Preset_6,Recalls Preset 6\\#I,Preset_7,Recall
+Cmn4=s Preset 7\\#I,Preset_8,Recalls Preset 8\\#I,Preset_9,Recalls Preset||1
+Cmn5=9\\#I,Preset_10,Recalls Preset 10\\#I,Preset_11,Recalls Preset 11\\
+Cmn6=#I,Preset_12,Recalls Preset 12\\#I,Preset_13,Recalls Preset 13\\
+Cmn7=#I,Preset_14,Recalls Preset 14\\#I,Preset_15,Recalls Preset 15\\
+Cmn8=#I,Preset_16,Recalls Preset 16\\#I,Preset_17,Recalls Preset 17\\
+Cmn9=#I,Preset_18,Recalls Preset 18\\#I,Preset_19,Recalls Preset 19\\
+Cmn10=#I,Preset_20,Recalls Preset 20\\#I,Preset_21,Recalls Preset 21\\
+Cmn11=#I,Preset_22,Recalls Preset 22\\#I,Preset_23,Recalls Preset 23\\
+Cmn12=#I,Preset_24,Recalls Preset 24\\#I,Preset_25,Recalls Preset 25\\
+Cmn13=#I,Preset_26,Recalls Preset 26\\#I,Preset_27,Recalls Preset 27\\
+Cmn14=#I,Preset_28,Recalls Preset 28\\#I,Preset_29,Recalls Preset 29\\
+Cmn15=#I,Preset_30,Recalls Preset 30\\#I,Preset_31,Recalls Preset 31\\
+Cmn16=#I,Preset_32,Recalls Preset 32\\#I,Preset_33,Recalls Preset 33\\
+Cmn17=#I,Preset_34,Recalls Preset 34\\#I,Preset_35,Recalls Preset 35\\
+Cmn18=#I,Preset_36,Recalls Preset 36\\#I,Preset_37,Recalls Preset 37\\
+Cmn19=#I,Preset_38,Recalls Preset 38\\#I,Preset_39,Recalls Preset 39\\
+Cmn20=#I,Preset_40,Recalls Preset 40\\#I,Preset_41,Recalls Preset 41\\
+Cmn21=#I,Preset_42,Recalls Preset 42\\#I,Preset_43,Recalls Preset 43\\
+Cmn22=#I,Preset_44,Recalls Preset 44\\#I,Preset_45,Recalls Preset 45\\
+Cmn23=#I,Preset_46,Recalls Preset 46\\#I,Preset_47,Recalls Preset 47\\
+Cmn24=#I,Preset_48,Recalls Preset 48\\#I,Preset_49,Recalls Preset 49\\
+Cmn25=#I,Preset_50,Recalls Preset 50\\#I,Next_Preset,Selects the next||1
+Cmn26=preset\\#I,Previous_Preset,Selects the previous preset\\#I,Channel_Up,Moves||1
+Cmn27=to the next channel, and clears the preset feedback\\#I,Channel_Down,Moves||1
+Cmn28=to the previous channel, and clears the preset feedback\\#I,Analog_Input,Allows||1
+Cmn29=jumping to any channel, based on the value of the analog signal\\
+Cmn30=\\#O,Preset_1_fb,Indicates that Preset 1 is currently selected\\
+Cmn31=#O,Preset_2_fb,Indicates that Preset 2 is currently selected\\#O,Preset_3_fb,Indi
+Cmn32=cates that Preset 3 is currently selected\\#O,Preset_4_fb,Indicates||1
+Cmn33=that Preset 4 is currently selected\\#O,Preset_5_fb,Indicates that||1
+Cmn34=Preset 5 is currently selected\\#O,Preset_6_fb,Indicates that Preset||1
+Cmn35=6 is currently selected\\#O,Preset_7_fb,Indicates that Preset 7||1
+Cmn36=is currently selected\\#O,Preset_8_fb,Indicates that Preset 8 is||1
+Cmn37=currently selected\\#O,Preset_9_fb,Indicates that Preset 9 is currently||1
+Cmn38=selected\\#O,Preset_10_fb,Indicates that Preset 10 is currently||1
+Cmn39=selected\\#O,Preset_11_fb,Indicates that Preset 11 is currently||1
+Cmn40=selected\\#O,Preset_12_fb,Indicates that Preset 12 is currently||1
+Cmn41=selected\\#O,Preset_13_fb,Indicates that Preset 13 is currently||1
+Cmn42=selected\\#O,Preset_14_fb,Indicates that Preset 14 is currently||1
+Cmn43=selected\\#O,Preset_15_fb,Indicates that Preset 15 is currently||1
+Cmn44=selected\\#O,Preset_16_fb,Indicates that Preset 16 is currently||1
+Cmn45=selected\\#O,Preset_17_fb,Indicates that Preset 17 is currently||1
+Cmn46=selected\\#O,Preset_18_fb,Indicates that Preset 18 is currently||1
+Cmn47=selected\\#O,Preset_19_fb,Indicates that Preset 19 is currently||1
+Cmn48=selected\\#O,Preset_20_fb,Indicates that Preset 20 is currently||1
+Cmn49=selected\\#O,Preset_21_fb,Indicates that Preset 21 is currently||1
+Cmn50=selected\\#O,Preset_22_fb,Indicates that Preset 22 is currently||1
+Cmn51=selected\\#O,Preset_23_fb,Indicates that Preset 23 is currently||1
+Cmn52=selected\\#O,Preset_24_fb,Indicates that Preset 24 is currently||1
+Cmn53=selected\\#O,Preset_25_fb,Indicates that Preset 25 is currently||1
+Cmn54=selected\\#O,Preset_26_fb,Indicates that Preset 26 is currently||1
+Cmn55=selected\\#O,Preset_27_fb,Indicates that Preset 27 is currently||1
+Cmn56=selected\\#O,Preset_28_fb,Indicates that Preset 28 is currently||1
+Cmn57=selected\\#O,Preset_29_fb,Indicates that Preset 29 is currently||1
+Cmn58=selected\\#O,Preset_30_fb,Indicates that Preset 30 is currently||1
+Cmn59=selected\\#O,Preset_31_fb,Indicates that Preset 31 is currently||1
+Cmn60=selected\\#O,Preset_32_fb,Indicates that Preset 32 is currently||1
+Cmn61=selected\\#O,Preset_33_fb,Indicates that Preset 33 is currently||1
+Cmn62=selected\\#O,Preset_34_fb,Indicates that Preset 34 is currently||1
+Cmn63=selected\\#O,Preset_35_fb,Indicates that Preset 35 is currently||1
+Cmn64=selected\\#O,Preset_36_fb,Indicates that Preset 36 is currently||1
+Cmn65=selected\\#O,Preset_37_fb,Indicates that Preset 37 is currently||1
+Cmn66=selected\\#O,Preset_38_fb,Indicates that Preset 38 is currently||1
+Cmn67=selected\\#O,Preset_39_fb,Indicates that Preset 39 is currently||1
+Cmn68=selected\\#O,Preset_40_fb,Indicates that Preset 40 is currently||1
+Cmn69=selected\\#O,Preset_41_fb,Indicates that Preset 41 is currently||1
+Cmn70=selected\\#O,Preset_42_fb,Indicates that Preset 42 is currently||1
+Cmn71=selected\\#O,Preset_43_fb,Indicates that Preset 43 is currently||1
+Cmn72=selected\\#O,Preset_44_fb,Indicates that Preset 44 is currently||1
+Cmn73=selected\\#O,Preset_45_fb,Indicates that Preset 45 is currently||1
+Cmn74=selected\\#O,Preset_46_fb,Indicates that Preset 46 is currently||1
+Cmn75=selected\\#O,Preset_47_fb,Indicates that Preset 47 is currently||1
+Cmn76=selected\\#O,Preset_48_fb,Indicates that Preset 48 is currently||1
+Cmn77=selected\\#O,Preset_49_fb,Indicates that Preset 49 is currently||1
+Cmn78=selected\\#O,Preset_50_fb,Indicates that Preset 50 is currently||1
+Cmn79=selected\\\\#P,Preset 1 Value,The channel setting for preset 1 (use||1
+Cmn80='d' suffix)\\#P,Preset 2 Value,The channel setting for preset 2||1
+Cmn81=(use 'd' suffix)\\#P,Preset 3 Value,The channel setting for preset||1
+Cmn82=3 (use 'd' suffix)\\#P,Preset 4 Value,The channel setting for preset||1
+Cmn83=4 (use 'd' suffix)\\#P,Preset 5 Value,The channel setting for preset||1
+Cmn84=5 (use 'd' suffix)\\#P,Preset 6 Value,The channel setting for preset||1
+Cmn85=6 (use 'd' suffix)\\#P,Preset 7 Value,The channel setting for preset||1
+Cmn86=7 (use 'd' suffix)\\#P,Preset 8 Value,The channel setting for preset||1
+Cmn87=8 (use 'd' suffix)\\#P,Preset 9 Value,The channel setting for preset||1
+Cmn88=9 (use 'd' suffix)\\#P,Preset 10 Value,The channel setting for preset||1
+Cmn89=10 (use 'd' suffix)\\#P,Preset 11 Value,The channel setting for||1
+Cmn90=preset 11 (use 'd' suffix)\\#P,Preset 12 Value,The channel setting||1
+Cmn91=for preset 12 (use 'd' suffix)\\#P,Preset 13 Value,The channel setting||1
+Cmn92=for preset 13 (use 'd' suffix)\\#P,Preset 14 Value,The channel setting||1
+Cmn93=for preset 14 (use 'd' suffix)\\#P,Preset 15 Value,The channel setting||1
+Cmn94=for preset 15 (use 'd' suffix)\\#P,Preset 16 Value,The channel setting||1
+Cmn95=for preset 16 (use 'd' suffix)\\#P,Preset 17 Value,The channel setting||1
+Cmn96=for preset 17 (use 'd' suffix)\\#P,Preset 18 Value,The channel setting||1
+Cmn97=for preset 18 (use 'd' suffix)\\#P,Preset 19 Value,The channel setting||1
+Cmn98=for preset 19 (use 'd' suffix)\\#P,Preset 20 Value,The channel setting||1
+Cmn99=for preset 20 (use 'd' suffix)\\#P,Preset 21 Value,The channel setting||1
+Cmn100=for preset 21 (use 'd' suffix)\\#P,Preset 22 Value,The channel setting||1
+Cmn101=for preset 22 (use 'd' suffix)\\#P,Preset 23 Value,The channel setting||1
+Cmn102=for preset 23 (use 'd' suffix)\\#P,Preset 24 Value,The channel setting||1
+Cmn103=for preset 24 (use 'd' suffix)\\#P,Preset 25 Value,The channel setting||1
+Cmn104=for preset 25 (use 'd' suffix)\\#P,Preset 26 Value,The channel setting||1
+Cmn105=for preset 26 (use 'd' suffix)\\#P,Preset 27 Value,The channel setting||1
+Cmn106=for preset 27 (use 'd' suffix)\\#P,Preset 28 Value,The channel setting||1
+Cmn107=for preset 28 (use 'd' suffix)\\#P,Preset 29 Value,The channel setting||1
+Cmn108=for preset 29 (use 'd' suffix)\\#P,Preset 30 Value,The channel setting||1
+Cmn109=for preset 30 (use 'd' suffix)\\#P,Preset 31 Value,The channel setting||1
+Cmn110=for preset 31 (use 'd' suffix)\\#P,Preset 32 Value,The channel setting||1
+Cmn111=for preset 32 (use 'd' suffix)\\#P,Preset 33 Value,The channel setting||1
+Cmn112=for preset 33 (use 'd' suffix)\\#P,Preset 34 Value,The channel setting||1
+Cmn113=for preset 34 (use 'd' suffix)\\#P,Preset 35 Value,The channel setting||1
+Cmn114=for preset 35 (use 'd' suffix)\\#P,Preset 36 Value,The channel setting||1
+Cmn115=for preset 36 (use 'd' suffix)\\#P,Preset 37 Value,The channel setting||1
+Cmn116=for preset 37 (use 'd' suffix)\\#P,Preset 38 Value,The channel setting||1
+Cmn117=for preset 38 (use 'd' suffix)\\#P,Preset 39 Value,The channel setting||1
+Cmn118=for preset 39 (use 'd' suffix)\\#P,Preset 40 Value,The channel setting||1
+Cmn119=for preset 40 (use 'd' suffix)\\#P,Preset 41 Value,The channel setting||1
+Cmn120=for preset 41 (use 'd' suffix)\\#P,Preset 42 Value,The channel setting||1
+Cmn121=for preset 42 (use 'd' suffix)\\#P,Preset 43 Value,The channel setting||1
+Cmn122=for preset 43 (use 'd' suffix)\\#P,Preset 44 Value,The channel setting||1
+Cmn123=for preset 44 (use 'd' suffix)\\#P,Preset 45 Value,The channel setting||1
+Cmn124=for preset 45 (use 'd' suffix)\\#P,Preset 46 Value,The channel setting||1
+Cmn125=for preset 46 (use 'd' suffix)\\#P,Preset 47 Value,The channel setting||1
+Cmn126=for preset 47 (use 'd' suffix)\\#P,Preset 48 Value,The channel setting||1
+Cmn127=for preset 48 (use 'd' suffix)\\#P,Preset 49 Value,The channel setting||1
+Cmn128=for preset 49 (use 'd' suffix)\\#P,Preset 50 Value,The channel setting||1
+Cmn129=for preset 50 (use 'd' suffix)\\#P,Digit Pulse Time,How long the||1
+Cmn130=output digit commands will pulse for (use 's' suffix)\\#P,Time Between||1
+Cmn131=Digits,The delay between sending digit commands (use 's' suffix)\\
+Cmn132=#P,Num Digits,How many digits the unit expects (use 'd' suffix)\\
+Cmn133=#P,Leading Zeros,Set to '1' to always send the maximum number of||1
+Cmn134=digits, or '0' to omit leading zeros (use 's' suffix)\\#END_TOOL_TIPS
+]
+[
+ObjTp=Bk
+Nm1=\
+Sx1=0
+Sy1=0
+Mx1=0
+]
+[
+ObjTp=Bw
+H=1
+Lx=0
+Ly=0
+Rx=1053
+Ry=602
+Xm=-1
+Ym=-1
+SH=6
+Z=85
+Ht=3
+Hi=5
+]
+[
+ObjTp=Symbol
+Name=Preset Selector
+Code=1
+SmplCName=Preset Selector.umc
+Smpl-C=3
+CompilerTimePrecision=Single_Or_Double_Precision
+Exclusions=1,19,20,21,88,89,167,168,179,216,225,248,249,266,302,305,
+SMWRev=2.11.03
+TIORev=0
+HelpID=1055
+APg=1
+StdCmd=0
+FltTmp=1
+FpCS=0
+NumFixedInputs=64
+NumFixedOutputs=129
+NumFixedParams=105
+MinVariableInputs=0
+MinVariableInputsList2=0
+MinVariableInputsList3=0
+MinVariableOutputs=0
+MinVariableOutputsList2=0
+MinVariableOutputsList3=0
+MinVariableParams=0
+SymbolTree=39
+InputSigType1=Digital
+InputSigType2=Digital
+InputSigType3=Digital
+InputSigType4=Digital
+InputSigType5=Digital|Analog|Serial|String
+InputSigType6=Digital
+InputSigType7=Digital
+InputSigType8=Digital|Analog|Serial|String
+InputSigType9=Digital
+InputSigType10=Digital|Analog|Serial|String
+InputSigType11=Analog
+InputSigType12=Digital
+OutputSigType1=Digital|Analog|Serial|String
+OutputSigType2=Digital|Analog|Serial|String
+OutputSigType3=Digital|Analog|Serial|String
+OutputSigType4=Digital|Analog|Serial|String
+OutputSigType5=Digital|Analog|Serial|String
+OutputSigType6=Digital|Analog|Serial|String
+OutputSigType7=Serial
+OutputSigType8=Digital|Analog|Serial|String
+OutputSigType9=Digital
+OutputSigType10=Digital
+OutputSigType11=Digital
+OutputSigType12=Digital
+OutputSigType13=Digital
+OutputSigType14=Digital
+OutputSigType15=Digital
+OutputSigType16=Digital
+OutputSigType17=Digital
+OutputSigType18=Digital
+OutputSigType19=Digital
+OutputSigType20=Digital
+OutputSigType21=Digital
+OutputSigType22=Digital
+OutputSigType23=Digital
+OutputSigType24=Digital
+OutputSigType25=Digital
+OutputSigType26=Digital
+OutputSigType27=Digital
+OutputSigType28=Digital
+OutputSigType29=Digital
+OutputSigType30=Digital
+OutputSigType31=Digital
+OutputSigType32=Digital
+OutputSigType33=Digital
+OutputSigType34=Digital
+OutputSigType35=Digital
+OutputSigType36=Digital
+OutputSigType37=Digital
+OutputSigType38=Digital
+OutputSigType39=Digital
+OutputSigType40=Digital
+OutputSigType41=Digital
+OutputSigType42=Digital
+OutputSigType43=Digital
+OutputSigType44=Digital
+OutputSigType45=Digital
+OutputSigType46=Digital
+OutputSigType47=Digital
+OutputSigType48=Digital
+OutputSigType49=Digital
+OutputSigType50=Digital
+OutputSigType51=Digital
+OutputSigType52=Digital
+OutputSigType53=Digital
+OutputSigType54=Digital
+OutputSigType55=Digital
+OutputSigType56=Digital
+OutputSigType57=Digital
+OutputSigType58=Digital
+OutputSigType59=Digital
+OutputSigType60=Digital
+OutputSigType61=Digital|Analog|Serial|String
+OutputSigType62=Digital
+OutputSigType63=Serial
+OutputSigType64=Serial
+OutputSigType65=Serial
+OutputSigType66=Serial
+OutputSigType67=Serial
+OutputSigType68=Serial
+OutputSigType69=Serial
+OutputSigType70=Serial
+OutputSigType71=Serial
+OutputSigType72=Serial
+OutputSigType73=Serial
+OutputSigType74=Serial
+OutputSigType75=Serial
+OutputSigType76=Serial
+OutputSigType77=Serial
+OutputSigType78=Serial
+OutputSigType79=Serial
+OutputSigType80=Serial
+OutputSigType81=Serial
+OutputSigType82=Serial
+OutputSigType83=Serial
+OutputSigType84=Serial
+OutputSigType85=Serial
+OutputSigType86=Serial
+OutputSigType87=Serial
+OutputSigType88=Serial
+OutputSigType89=Serial
+OutputSigType90=Serial
+OutputSigType91=Serial
+OutputSigType92=Serial
+OutputSigType93=Serial
+OutputSigType94=Serial
+OutputSigType95=Serial
+OutputSigType96=Serial
+OutputSigType97=Serial
+OutputSigType98=Serial
+OutputSigType99=Serial
+OutputSigType100=Serial
+OutputSigType101=Serial
+OutputSigType102=Serial
+OutputSigType103=Serial
+OutputSigType104=Serial
+OutputSigType105=Serial
+OutputSigType106=Serial
+OutputSigType107=Serial
+OutputSigType108=Serial
+OutputSigType109=Serial
+OutputSigType110=Serial
+OutputSigType111=Serial
+OutputSigType112=Serial
+OutputSigType113=Digital
+OutputSigType114=Digital|Analog|Serial|String
+OutputSigType115=Digital
+ParamSigType1=Time|Constant
+ParamSigType2=Time|Constant
+ParamSigType3=Constant
+ParamSigType4=List
+ParamSigType5=Time|Percent|Constant
+ParamSigType6=Constant
+ParamSigType7=Constant
+ParamSigType8=Constant
+ParamSigType9=Constant
+ParamSigType10=Constant
+ParamSigType11=Constant
+ParamSigType12=Constant
+ParamSigType13=Constant
+ParamSigType14=Constant
+ParamSigType15=Constant
+ParamSigType16=Constant
+ParamSigType17=Constant
+ParamSigType18=Constant
+ParamSigType19=Constant
+ParamSigType20=Constant
+ParamSigType21=Constant
+ParamSigType22=Constant
+ParamSigType23=Constant
+ParamSigType24=Constant
+ParamSigType25=Constant
+ParamSigType26=Constant
+ParamSigType27=Constant
+ParamSigType28=Constant
+ParamSigType29=Constant
+ParamSigType30=Constant
+ParamSigType31=Constant
+ParamSigType32=Constant
+ParamSigType33=Constant
+ParamSigType34=Constant
+ParamSigType35=Constant
+ParamSigType36=Constant
+ParamSigType37=Constant
+ParamSigType38=Constant
+ParamSigType39=Constant
+ParamSigType40=Constant
+ParamSigType41=Constant
+ParamSigType42=Constant
+ParamSigType43=Constant
+ParamSigType44=Constant
+ParamSigType45=Constant
+ParamSigType46=Constant
+ParamSigType47=Constant
+ParamSigType48=Constant
+ParamSigType49=Constant
+ParamSigType50=Constant
+ParamSigType51=Constant
+ParamSigType52=Constant
+ParamSigType53=Constant
+ParamSigType54=Constant
+ParamSigType55=Constant
+ParamSigType56=String
+ParamSigType57=String
+ParamSigType58=String
+ParamSigType59=String
+ParamSigType60=String
+ParamSigType61=String
+ParamSigType62=String
+ParamSigType63=String
+ParamSigType64=String
+ParamSigType65=String
+ParamSigType66=String
+ParamSigType67=String
+ParamSigType68=String
+ParamSigType69=String
+ParamSigType70=String
+ParamSigType71=String
+ParamSigType72=String
+ParamSigType73=String
+ParamSigType74=String
+ParamSigType75=String
+ParamSigType76=String
+ParamSigType77=String
+ParamSigType78=String
+ParamSigType79=String
+ParamSigType80=String
+ParamSigType81=String
+ParamSigType82=String
+ParamSigType83=String
+ParamSigType84=String
+ParamSigType85=String
+ParamSigType86=String
+ParamSigType87=String
+ParamSigType88=String
+ParamSigType89=String
+ParamSigType90=String
+ParamSigType91=String
+ParamSigType92=String
+ParamSigType93=String
+ParamSigType94=String
+ParamSigType95=String
+ParamSigType96=String
+ParamSigType97=String
+ParamSigType98=String
+ParamSigType99=String
+ParamSigType100=String
+ParamSigType101=String
+ParamSigType102=String
+ParamSigType103=String
+ParamSigType104=String
+ParamSigType105=String
+InputCue1=Start_Module
+InputCue2=[~BeginGroup~]Module_Commands
+InputCue3=Next_Preset
+InputCue4=Previous_Preset
+InputCue5=[~UNUSED~]
+InputCue6=Channel_Up
+InputCue7=Channel_Down
+InputCue8=[~UNUSED~]
+InputCue9=any_num
+InputCue10=[~UNUSED~]
+InputCue11=Analog_Input
+InputCue12=[~EndGroup~]Module_Commands
+InputCue13=[~BeginGroup~]Preset_Select
+InputCue14=Preset_1
+InputCue15=Preset_2
+InputCue16=Preset_3
+InputCue17=Preset_4
+InputCue18=Preset_5
+InputCue19=Preset_6
+InputCue20=Preset_7
+InputCue21=Preset_8
+InputCue22=Preset_9
+InputCue23=Preset_10
+InputCue24=Preset_11
+InputCue25=Preset_12
+InputCue26=Preset_13
+InputCue27=Preset_14
+InputCue28=Preset_15
+InputCue29=Preset_16
+InputCue30=Preset_17
+InputCue31=Preset_18
+InputCue32=Preset_19
+InputCue33=Preset_20
+InputCue34=Preset_21
+InputCue35=Preset_22
+InputCue36=Preset_23
+InputCue37=Preset_24
+InputCue38=Preset_25
+InputCue39=Preset_26
+InputCue40=Preset_27
+InputCue41=Preset_28
+InputCue42=Preset_29
+InputCue43=Preset_30
+InputCue44=Preset_31
+InputCue45=Preset_32
+InputCue46=Preset_33
+InputCue47=Preset_34
+InputCue48=Preset_35
+InputCue49=Preset_36
+InputCue50=Preset_37
+InputCue51=Preset_38
+InputCue52=Preset_39
+InputCue53=Preset_40
+InputCue54=Preset_41
+InputCue55=Preset_42
+InputCue56=Preset_43
+InputCue57=Preset_44
+InputCue58=Preset_45
+InputCue59=Preset_46
+InputCue60=Preset_47
+InputCue61=Preset_48
+InputCue62=Preset_49
+InputCue63=Preset_50
+InputCue64=[~EndGroup~]Preset_Select
+OutputCue1=[~UNUSED~]
+OutputCue2=[~UNUSED~]
+OutputCue3=[~UNUSED~]
+OutputCue4=[~UNUSED~]
+OutputCue5=[~UNUSED~]
+OutputCue6=[~UNUSED~]
+OutputCue7=Last_Preset_Selected$
+OutputCue8=[~UNUSED~]
+OutputCue9=[~BeginGroup~]Preset_Feedback
+OutputCue10=Preset_1_fb
+OutputCue11=Preset_2_fb
+OutputCue12=Preset_3_fb
+OutputCue13=Preset_4_fb
+OutputCue14=Preset_5_fb
+OutputCue15=Preset_6_fb
+OutputCue16=Preset_7_fb
+OutputCue17=Preset_8_fb
+OutputCue18=Preset_9_fb
+OutputCue19=Preset_10_fb
+OutputCue20=Preset_11_fb
+OutputCue21=Preset_12_fb
+OutputCue22=Preset_13_fb
+OutputCue23=Preset_14_fb
+OutputCue24=Preset_15_fb
+OutputCue25=Preset_16_fb
+OutputCue26=Preset_17_fb
+OutputCue27=Preset_18_fb
+OutputCue28=Preset_19_fb
+OutputCue29=Preset_20_fb
+OutputCue30=Preset_21_fb
+OutputCue31=Preset_22_fb
+OutputCue32=Preset_23_fb
+OutputCue33=Preset_24_fb
+OutputCue34=Preset_25_fb
+OutputCue35=Preset_26_fb
+OutputCue36=Preset_27_fb
+OutputCue37=Preset_28_fb
+OutputCue38=Preset_29_fb
+OutputCue39=Preset_30_fb
+OutputCue40=Preset_31_fb
+OutputCue41=Preset_32_fb
+OutputCue42=Preset_33_fb
+OutputCue43=Preset_34_fb
+OutputCue44=Preset_35_fb
+OutputCue45=Preset_36_fb
+OutputCue46=Preset_37_fb
+OutputCue47=Preset_38_fb
+OutputCue48=Preset_39_fb
+OutputCue49=Preset_40_fb
+OutputCue50=Preset_41_fb
+OutputCue51=Preset_42_fb
+OutputCue52=Preset_43_fb
+OutputCue53=Preset_44_fb
+OutputCue54=Preset_45_fb
+OutputCue55=Preset_46_fb
+OutputCue56=Preset_47_fb
+OutputCue57=Preset_48_fb
+OutputCue58=Preset_49_fb
+OutputCue59=Preset_50_fb
+OutputCue60=[~EndGroup~]Preset_Feedback
+OutputCue61=[~UNUSED~]
+OutputCue62=[~BeginGroup~]Preset_Names
+OutputCue63=Preset_1_Name$
+OutputCue64=Preset_2_Name$
+OutputCue65=Preset_3_Name$
+OutputCue66=Preset_4_Name$
+OutputCue67=Preset_5_Name$
+OutputCue68=Preset_6_Name$
+OutputCue69=Preset_7_Name$
+OutputCue70=Preset_8_Name$
+OutputCue71=Preset_9_Name$
+OutputCue72=Preset_10_Name$
+OutputCue73=Preset_11_Name$
+OutputCue74=Preset_12_Name$
+OutputCue75=Preset_13_Name$
+OutputCue76=Preset_14_Name$
+OutputCue77=Preset_15_Name$
+OutputCue78=Preset_16_Name$
+OutputCue79=Preset_17_Name$
+OutputCue80=Preset_18_Name$
+OutputCue81=Preset_19_Name$
+OutputCue82=Preset_20_Name$
+OutputCue83=Preset_21_Name$
+OutputCue84=Preset_22_Name$
+OutputCue85=Preset_23_Name$
+OutputCue86=Preset_24_Name$
+OutputCue87=Preset_25_Name$
+OutputCue88=Preset_26_Name$
+OutputCue89=Preset_27_Name$
+OutputCue90=Preset_28_Name$
+OutputCue91=Preset_29_Name$
+OutputCue92=Preset_30_Name$
+OutputCue93=Preset_31_Name$
+OutputCue94=Preset_32_Name$
+OutputCue95=Preset_33_Name$
+OutputCue96=Preset_34_Name$
+OutputCue97=Preset_35_Name$
+OutputCue98=Preset_36_Name$
+OutputCue99=Preset_37_Name$
+OutputCue100=Preset_38_Name$
+OutputCue101=Preset_39_Name$
+OutputCue102=Preset_40_Name$
+OutputCue103=Preset_41_Name$
+OutputCue104=Preset_42_Name$
+OutputCue105=Preset_43_Name$
+OutputCue106=Preset_44_Name$
+OutputCue107=Preset_45_Name$
+OutputCue108=Preset_46_Name$
+OutputCue109=Preset_47_Name$
+OutputCue110=Preset_48_Name$
+OutputCue111=Preset_49_Name$
+OutputCue112=Preset_50_Name$
+OutputCue113=[~EndGroup~]Preset_Names
+OutputCue114=[~UNUSED~]
+OutputCue115=[~BeginGroup~]Device_Commands
+OutputCue116={{Channel_Up>>DEV}}
+OutputCue117={{Channel_Down>>DEV}}
+OutputCue118={{Keypad_0>>DEV}}
+OutputCue119={{Keypad_1>>DEV}}
+OutputCue120={{Keypad_2>>DEV}}
+OutputCue121={{Keypad_3>>DEV}}
+OutputCue122={{Keypad_4>>DEV}}
+OutputCue123={{Keypad_5>>DEV}}
+OutputCue124={{Keypad_6>>DEV}}
+OutputCue125={{Keypad_7>>DEV}}
+OutputCue126={{Keypad_8>>DEV}}
+OutputCue127={{Keypad_9>>DEV}}
+OutputCue128={{Keypad_Enter>>DEV}}
+OutputCue129=[~EndGroup~]Device_Commands
+ParamCue1=Digit Pulse Time==0.1s
+ParamCue2=Time Between Digits==0.25s
+ParamCue3=Num Digits==3d
+ParamCue4=Leading Zeros==1d,0d,1d
+ParamCue5=Maximum Name Length
+ParamCue6=Preset 1 Value==100d
+ParamCue7=Preset 2 Value==101d
+ParamCue8=Preset 3 Value==102d
+ParamCue9=Preset 4 Value==103d
+ParamCue10=Preset 5 Value==104d
+ParamCue11=Preset 6 Value==105d
+ParamCue12=Preset 7 Value==106d
+ParamCue13=Preset 8 Value==107d
+ParamCue14=Preset 9 Value==108d
+ParamCue15=Preset 10 Value==109d
+ParamCue16=Preset 11 Value==110d
+ParamCue17=Preset 12 Value==111d
+ParamCue18=Preset 13 Value==112d
+ParamCue19=Preset 14 Value==113d
+ParamCue20=Preset 15 Value==114d
+ParamCue21=Preset 16 Value==115d
+ParamCue22=Preset 17 Value==116d
+ParamCue23=Preset 18 Value==117d
+ParamCue24=Preset 19 Value==118d
+ParamCue25=Preset 20 Value==119d
+ParamCue26=Preset 21 Value==120d
+ParamCue27=Preset 22 Value==121d
+ParamCue28=Preset 23 Value==122d
+ParamCue29=Preset 24 Value==123d
+ParamCue30=Preset 25 Value==124d
+ParamCue31=Preset 26 Value==125d
+ParamCue32=Preset 27 Value==126d
+ParamCue33=Preset 28 Value==127d
+ParamCue34=Preset 29 Value==128d
+ParamCue35=Preset 30 Value==129d
+ParamCue36=Preset 31 Value==130d
+ParamCue37=Preset 32 Value==131d
+ParamCue38=Preset 33 Value==132d
+ParamCue39=Preset 34 Value==133d
+ParamCue40=Preset 35 Value==134d
+ParamCue41=Preset 36 Value==135d
+ParamCue42=Preset 37 Value==136d
+ParamCue43=Preset 38 Value==137d
+ParamCue44=Preset 39 Value==138d
+ParamCue45=Preset 40 Value==139d
+ParamCue46=Preset 41 Value==140d
+ParamCue47=Preset 42 Value==141d
+ParamCue48=Preset 43 Value==142d
+ParamCue49=Preset 44 Value==143d
+ParamCue50=Preset 45 Value==144d
+ParamCue51=Preset 46 Value==145d
+ParamCue52=Preset 47 Value==146d
+ParamCue53=Preset 48 Value==147d
+ParamCue54=Preset 49 Value==148d
+ParamCue55=Preset 50 Value==149d
+ParamCue56=Preset 1 Name
+ParamCue57=Preset 2 Name
+ParamCue58=Preset 3 Name
+ParamCue59=Preset 4 Name
+ParamCue60=Preset 5 Name
+ParamCue61=Preset 6 Name
+ParamCue62=Preset 7 Name
+ParamCue63=Preset 8 Name
+ParamCue64=Preset 9 Name
+ParamCue65=Preset 10 Name
+ParamCue66=Preset 11 Name
+ParamCue67=Preset 12 Name
+ParamCue68=Preset 13 Name
+ParamCue69=Preset 14 Name
+ParamCue70=Preset 15 Name
+ParamCue71=Preset 16 Name
+ParamCue72=Preset 17 Name
+ParamCue73=Preset 18 Name
+ParamCue74=Preset 19 Name
+ParamCue75=Preset 20 Name
+ParamCue76=Preset 21 Name
+ParamCue77=Preset 22 Name
+ParamCue78=Preset 23 Name
+ParamCue79=Preset 24 Name
+ParamCue80=Preset 25 Name
+ParamCue81=Preset 26 Name
+ParamCue82=Preset 27 Name
+ParamCue83=Preset 28 Name
+ParamCue84=Preset 29 Name
+ParamCue85=Preset 30 Name
+ParamCue86=Preset 31 Name
+ParamCue87=Preset 32 Name
+ParamCue88=Preset 33 Name
+ParamCue89=Preset 34 Name
+ParamCue90=Preset 35 Name
+ParamCue91=Preset 36 Name
+ParamCue92=Preset 37 Name
+ParamCue93=Preset 38 Name
+ParamCue94=Preset 39 Name
+ParamCue95=Preset 40 Name
+ParamCue96=Preset 41 Name
+ParamCue97=Preset 42 Name
+ParamCue98=Preset 43 Name
+ParamCue99=Preset 44 Name
+ParamCue100=Preset 45 Name
+ParamCue101=Preset 46 Name
+ParamCue102=Preset 47 Name
+ParamCue103=Preset 48 Name
+ParamCue104=Preset 49 Name
+ParamCue105=Preset 50 Name
+MPp=105
+Pp1=1
+Pp2=2
+Pp3=3
+Pp4=4
+Pp5=105
+Pp6=5
+Pp7=6
+Pp8=7
+Pp9=8
+Pp10=9
+Pp11=10
+Pp12=11
+Pp13=12
+Pp14=13
+Pp15=14
+Pp16=15
+Pp17=16
+Pp18=17
+Pp19=18
+Pp20=19
+Pp21=20
+Pp22=21
+Pp23=22
+Pp24=23
+Pp25=24
+Pp26=25
+Pp27=26
+Pp28=27
+Pp29=28
+Pp30=29
+Pp31=30
+Pp32=31
+Pp33=32
+Pp34=33
+Pp35=34
+Pp36=35
+Pp37=36
+Pp38=37
+Pp39=38
+Pp40=39
+Pp41=40
+Pp42=41
+Pp43=42
+Pp44=43
+Pp45=44
+Pp46=45
+Pp47=46
+Pp48=47
+Pp49=48
+Pp50=49
+Pp51=50
+Pp52=51
+Pp53=52
+Pp54=53
+Pp55=54
+Pp56=55
+Pp57=56
+Pp58=57
+Pp59=58
+Pp60=59
+Pp61=60
+Pp62=61
+Pp63=62
+Pp64=63
+Pp65=64
+Pp66=65
+Pp67=66
+Pp68=67
+Pp69=68
+Pp70=69
+Pp71=70
+Pp72=71
+Pp73=72
+Pp74=73
+Pp75=74
+Pp76=75
+Pp77=76
+Pp78=77
+Pp79=78
+Pp80=79
+Pp81=80
+Pp82=81
+Pp83=82
+Pp84=83
+Pp85=84
+Pp86=85
+Pp87=86
+Pp88=87
+Pp89=88
+Pp90=89
+Pp91=90
+Pp92=91
+Pp93=92
+Pp94=93
+Pp95=94
+Pp96=95
+Pp97=96
+Pp98=97
+Pp99=98
+Pp100=99
+Pp101=100
+Pp102=101
+Pp103=102
+Pp104=103
+Pp105=104
+CnxLogic1=S SER/Model:133
+CnxLogic2=C O 0119 I P:1
+CnxLogic3=C O 0120 I P:2
+CnxLogic4=C O 0121 I P:3
+CnxLogic5=C O 0122 I P:4
+CnxLogic6=C O 0123 I P:5
+CnxLogic7=C O 0124 I P:6
+CnxLogic8=C O 0125 I P:7
+CnxLogic9=C O 0126 I P:8
+CnxLogic10=C O 0127 I P:9
+CnxLogic11=C O 0118 I P:0
+CnxLogic12=C O 0128 I P:ENTER,ENT,OK
+CnxLogic13=C O 0116 I P:CH+,CH_UP,CHAN_UP,CHAN+
+CnxLogic14=C O 0117 I P:CH-,CH_DN,CH_DOWN,CHAN_DN,CHAN_DOWN,CHAN-
+FileName=Preset Selector.umc
+EncodingType=0
+ZeroOnIoOk=0
+]
+[
+ObjTp=Sm
+H=1
+SmC=157
+Nm=Central Control Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=2
+SmC=157
+Nm=Network Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=3
+SmC=157
+Nm=Ethernet
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=4
+SmC=156
+Nm=Logic
+ObjVer=1
+CF=2
+mC=2
+C1=7
+C2=21
+]
+[
+ObjTp=Sm
+H=5
+SmC=157
+Nm=DefineArguments
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mC=1
+C1=6
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=6
+SmC=55
+Nm=Argument Definition
+ObjVer=1
+PrH=5
+CF=2
+n1I=64
+n1O=129
+mI=64
+I1=191
+I2=187
+I3=12
+I4=13
+I5=129
+I6=14
+I7=15
+I8=129
+I9=130
+I10=129
+I11=39
+I12=190
+I13=131
+I14=4
+I15=5
+I16=6
+I17=7
+I18=8
+I19=9
+I20=10
+I21=11
+I22=43
+I23=44
+I24=45
+I25=46
+I26=48
+I27=49
+I28=50
+I29=52
+I30=53
+I31=54
+I32=55
+I33=56
+I34=57
+I35=58
+I36=59
+I37=60
+I38=61
+I39=62
+I40=63
+I41=64
+I42=65
+I43=66
+I44=67
+I45=68
+I46=69
+I47=70
+I48=71
+I49=72
+I50=73
+I51=74
+I52=75
+I53=76
+I54=77
+I55=78
+I56=79
+I57=80
+I58=81
+I59=82
+I60=83
+I61=84
+I62=85
+I63=86
+I64=132
+mO=129
+tO=129
+O1=129
+O2=129
+O3=129
+O4=129
+O5=129
+O6=129
+O7=188
+O8=129
+O9=133
+O10=29
+O11=30
+O12=31
+O13=32
+O14=33
+O15=34
+O16=35
+O17=36
+O18=87
+O19=88
+O20=89
+O21=90
+O22=91
+O23=92
+O24=93
+O25=94
+O26=95
+O27=96
+O28=97
+O29=98
+O30=99
+O31=100
+O32=101
+O33=102
+O34=103
+O35=104
+O36=105
+O37=106
+O38=107
+O39=108
+O40=109
+O41=110
+O42=111
+O43=112
+O44=113
+O45=114
+O46=115
+O47=116
+O48=117
+O49=118
+O50=119
+O51=120
+O52=121
+O53=122
+O54=123
+O55=124
+O56=125
+O57=126
+O58=127
+O59=128
+O60=135
+O61=129
+O62=134
+O63=136
+O64=138
+O65=139
+O66=140
+O67=141
+O68=142
+O69=143
+O70=144
+O71=145
+O72=146
+O73=147
+O74=148
+O75=149
+O76=150
+O77=151
+O78=152
+O79=153
+O80=154
+O81=155
+O82=156
+O83=157
+O84=158
+O85=159
+O86=160
+O87=161
+O88=162
+O89=163
+O90=164
+O91=165
+O92=166
+O93=167
+O94=168
+O95=169
+O96=170
+O97=171
+O98=172
+O99=173
+O100=174
+O101=175
+O102=176
+O103=177
+O104=178
+O105=179
+O106=180
+O107=181
+O108=182
+O109=183
+O110=184
+O111=185
+O112=186
+O113=137
+O114=129
+O115=189
+O116=25
+O117=26
+O118=27
+O119=28
+O120=37
+O121=16
+O122=17
+O123=18
+O124=19
+O125=20
+O126=21
+O127=22
+O128=23
+O129=192
+mP=105
+P1=Digit Pulse Time==0.1s
+P2=Time Between Digits==0.25s
+P3=Num Digits==3d
+P4=Leading Zeros==1d
+P5=Maximum Name Length
+P6=Preset 1 Value==100d
+P7=Preset 2 Value==101d
+P8=Preset 3 Value==102d
+P9=Preset 4 Value==103d
+P10=Preset 5 Value==104d
+P11=Preset 6 Value==105d
+P12=Preset 7 Value==106d
+P13=Preset 8 Value==107d
+P14=Preset 9 Value==108d
+P15=Preset 10 Value==109d
+P16=Preset 11 Value==110d
+P17=Preset 12 Value==111d
+P18=Preset 13 Value==112d
+P19=Preset 14 Value==113d
+P20=Preset 15 Value==114d
+P21=Preset 16 Value==115d
+P22=Preset 17 Value==116d
+P23=Preset 18 Value==117d
+P24=Preset 19 Value==118d
+P25=Preset 20 Value==119d
+P26=Preset 21 Value==120d
+P27=Preset 22 Value==121d
+P28=Preset 23 Value==122d
+P29=Preset 24 Value==123d
+P30=Preset 25 Value==124d
+P31=Preset 26 Value==125d
+P32=Preset 27 Value==126d
+P33=Preset 28 Value==127d
+P34=Preset 29 Value==128d
+P35=Preset 30 Value==129d
+P36=Preset 31 Value==130d
+P37=Preset 32 Value==131d
+P38=Preset 33 Value==132d
+P39=Preset 34 Value==133d
+P40=Preset 35 Value==134d
+P41=Preset 36 Value==135d
+P42=Preset 37 Value==136d
+P43=Preset 38 Value==137d
+P44=Preset 39 Value==138d
+P45=Preset 40 Value==139d
+P46=Preset 41 Value==140d
+P47=Preset 42 Value==141d
+P48=Preset 43 Value==142d
+P49=Preset 44 Value==143d
+P50=Preset 45 Value==144d
+P51=Preset 46 Value==145d
+P52=Preset 47 Value==146d
+P53=Preset 48 Value==147d
+P54=Preset 49 Value==148d
+P55=Preset 50 Value==149d
+P56=Preset 1 Name
+P57=Preset 2 Name
+P58=Preset 3 Name
+P59=Preset 4 Name
+P60=Preset 5 Name
+P61=Preset 6 Name
+P62=Preset 7 Name
+P63=Preset 8 Name
+P64=Preset 9 Name
+P65=Preset 10 Name
+P66=Preset 11 Name
+P67=Preset 12 Name
+P68=Preset 13 Name
+P69=Preset 14 Name
+P70=Preset 15 Name
+P71=Preset 16 Name
+P72=Preset 17 Name
+P73=Preset 18 Name
+P74=Preset 19 Name
+P75=Preset 20 Name
+P76=Preset 21 Name
+P77=Preset 22 Name
+P78=Preset 23 Name
+P79=Preset 24 Name
+P80=Preset 25 Name
+P81=Preset 26 Name
+P82=Preset 27 Name
+P83=Preset 28 Name
+P84=Preset 29 Name
+P85=Preset 30 Name
+P86=Preset 31 Name
+P87=Preset 32 Name
+P88=Preset 33 Name
+P89=Preset 34 Name
+P90=Preset 35 Name
+P91=Preset 36 Name
+P92=Preset 37 Name
+P93=Preset 38 Name
+P94=Preset 39 Name
+P95=Preset 40 Name
+P96=Preset 41 Name
+P97=Preset 42 Name
+P98=Preset 43 Name
+P99=Preset 44 Name
+P100=Preset 45 Name
+P101=Preset 46 Name
+P102=Preset 47 Name
+P103=Preset 48 Name
+P104=Preset 49 Name
+P105=Preset 50 Name
+MPp=105
+Pp1=1
+Pp2=2
+Pp3=3
+Pp4=4
+Pp5=105
+Pp6=5
+Pp7=6
+Pp8=7
+Pp9=8
+Pp10=9
+Pp11=10
+Pp12=11
+Pp13=12
+Pp14=13
+Pp15=14
+Pp16=15
+Pp17=16
+Pp18=17
+Pp19=18
+Pp20=19
+Pp21=20
+Pp22=21
+Pp23=22
+Pp24=23
+Pp25=24
+Pp26=25
+Pp27=26
+Pp28=27
+Pp29=28
+Pp30=29
+Pp31=30
+Pp32=31
+Pp33=32
+Pp34=33
+Pp35=34
+Pp36=35
+Pp37=36
+Pp38=37
+Pp39=38
+Pp40=39
+Pp41=40
+Pp42=41
+Pp43=42
+Pp44=43
+Pp45=44
+Pp46=45
+Pp47=46
+Pp48=47
+Pp49=48
+Pp50=49
+Pp51=50
+Pp52=51
+Pp53=52
+Pp54=53
+Pp55=54
+Pp56=55
+Pp57=56
+Pp58=57
+Pp59=58
+Pp60=59
+Pp61=60
+Pp62=61
+Pp63=62
+Pp64=63
+Pp65=64
+Pp66=65
+Pp67=66
+Pp68=67
+Pp69=68
+Pp70=69
+Pp71=70
+Pp72=71
+Pp73=72
+Pp74=73
+Pp75=74
+Pp76=75
+Pp77=76
+Pp78=77
+Pp79=78
+Pp80=79
+Pp81=80
+Pp82=81
+Pp83=82
+Pp84=83
+Pp85=84
+Pp86=85
+Pp87=86
+Pp88=87
+Pp89=88
+Pp90=89
+Pp91=90
+Pp92=91
+Pp93=92
+Pp94=93
+Pp95=94
+Pp96=95
+Pp97=96
+Pp98=97
+Pp99=98
+Pp100=99
+Pp101=100
+Pp102=101
+Pp103=102
+Pp104=103
+Pp105=104
+]
+[
+ObjTp=Sm
+H=7
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=4
+CF=2
+Cmn1=Preset Logic\\
+mC=13
+C1=13
+C2=14
+C3=12
+C4=11
+C5=10
+C6=8
+C7=9
+C8=15
+C9=16
+C10=17
+C11=18
+C12=19
+C13=20
+]
+[
+ObjTp=Sm
+H=8
+SmC=32
+Nm=Analog Initialize
+ObjVer=1
+PrH=7
+CF=2
+n1I=50
+n1O=1
+Cmn1=set preset values\\
+mI=50
+I1=29
+I2=30
+I3=31
+I4=32
+I5=33
+I6=34
+I7=35
+I8=36
+I9=87
+I10=88
+I11=89
+I12=90
+I13=91
+I14=92
+I15=93
+I16=94
+I17=95
+I18=96
+I19=97
+I20=98
+I21=99
+I22=100
+I23=101
+I24=102
+I25=103
+I26=104
+I27=105
+I28=106
+I29=107
+I30=108
+I31=109
+I32=110
+I33=111
+I34=112
+I35=113
+I36=114
+I37=115
+I38=116
+I39=117
+I40=118
+I41=119
+I42=120
+I43=121
+I44=122
+I45=123
+I46=124
+I47=125
+I48=126
+I49=127
+I50=128
+mO=1
+tO=1
+O1=51
+mP=50
+P1=#Preset 1 Value==100d
+P2=#Preset 2 Value==101d
+P3=#Preset 3 Value==102d
+P4=#Preset 4 Value==103d
+P5=#Preset 5 Value==104d
+P6=#Preset 6 Value==105d
+P7=#Preset 7 Value==106d
+P8=#Preset 8 Value==107d
+P9=#Preset 9 Value==108d
+P10=#Preset 10 Value==109d
+P11=#Preset 11 Value==110d
+P12=#Preset 12 Value==111d
+P13=#Preset 13 Value==112d
+P14=#Preset 14 Value==113d
+P15=#Preset 15 Value==114d
+P16=#Preset 16 Value==115d
+P17=#Preset 17 Value==116d
+P18=#Preset 18 Value==117d
+P19=#Preset 19 Value==118d
+P20=#Preset 20 Value==119d
+P21=#Preset 21 Value==120d
+P22=#Preset 22 Value==121d
+P23=#Preset 23 Value==122d
+P24=#Preset 24 Value==123d
+P25=#Preset 25 Value==124d
+P26=#Preset 26 Value==125d
+P27=#Preset 27 Value==126d
+P28=#Preset 28 Value==127d
+P29=#Preset 29 Value==128d
+P30=#Preset 30 Value==129d
+P31=#Preset 31 Value==130d
+P32=#Preset 32 Value==131d
+P33=#Preset 33 Value==132d
+P34=#Preset 34 Value==133d
+P35=#Preset 35 Value==134d
+P36=#Preset 36 Value==135d
+P37=#Preset 37 Value==136d
+P38=#Preset 38 Value==137d
+P39=#Preset 39 Value==138d
+P40=#Preset 40 Value==139d
+P41=#Preset 41 Value==140d
+P42=#Preset 42 Value==141d
+P43=#Preset 43 Value==142d
+P44=#Preset 44 Value==143d
+P45=#Preset 45 Value==144d
+P46=#Preset 46 Value==145d
+P47=#Preset 47 Value==146d
+P48=#Preset 48 Value==147d
+P49=#Preset 49 Value==148d
+P50=#Preset 50 Value==149d
+]
+[
+ObjTp=Sm
+H=9
+SmC=20
+Nm=Buffer
+ObjVer=1
+PrH=7
+CF=2
+n1I=3
+n1O=2
+Cmn1=send channel up/down commands to device\\
+mI=3
+I1=2
+I2=14
+I3=15
+mO=2
+tO=2
+O1=25
+O2=26
+]
+[
+ObjTp=Sm
+H=10
+SmC=32
+Nm=Analog Initialize
+ObjVer=1
+PrH=7
+CF=2
+n1I=53
+n1O=1
+Cmn1=set current preset number\\
+mI=53
+I1=4
+I2=5
+I3=6
+I4=7
+I5=8
+I6=9
+I7=10
+I8=11
+I9=43
+I10=44
+I11=45
+I12=46
+I13=48
+I14=49
+I15=50
+I16=52
+I17=53
+I18=54
+I19=55
+I20=56
+I21=57
+I22=58
+I23=59
+I24=60
+I25=61
+I26=62
+I27=63
+I28=64
+I29=65
+I30=66
+I31=67
+I32=68
+I33=69
+I34=70
+I35=71
+I36=72
+I37=73
+I38=74
+I39=75
+I40=76
+I41=77
+I42=78
+I43=79
+I44=80
+I45=81
+I46=82
+I47=83
+I48=84
+I49=85
+I50=86
+I51=14
+I52=15
+I53=130
+mO=1
+tO=1
+O1=38
+mP=53
+P1=1d
+P2=2d
+P3=3d
+P4=4d
+P5=5d
+P6=6d
+P7=7d
+P8=8d
+P9=9d
+P10=10d
+P11=11d
+P12=12d
+P13=13d
+P14=14d
+P15=15d
+P16=16d
+P17=17d
+P18=18d
+P19=19d
+P20=20d
+P21=21d
+P22=22d
+P23=23d
+P24=24d
+P25=25d
+P26=26d
+P27=27d
+P28=28d
+P29=29d
+P30=30d
+P31=31d
+P32=32d
+P33=33d
+P34=34d
+P35=35d
+P36=36d
+P37=37d
+P38=38d
+P39=39d
+P40=40d
+P41=41d
+P42=42d
+P43=43d
+P44=44d
+P45=45d
+P46=46d
+P47=47d
+P48=48d
+P49=49d
+P50=50d
+P51=0d
+P52=0d
+P53=0d
+]
+[
+ObjTp=Sm
+H=11
+SmC=39
+Nm=Numeric Keypad
+ObjVer=1
+PrH=7
+CF=2
+n1I=14
+n1O=2
+Cmn1=allow next/prev preset\\
+mI=14
+I1=1
+I2=1
+I3=1
+I4=1
+I5=1
+I6=1
+I7=1
+I8=1
+I9=1
+I10=1
+I11=1
+I12=12
+I13=13
+I14=1
+mO=2
+tO=2
+O1=38
+mP=2
+P1=51d
+P2=1d
+]
+[
+ObjTp=Sm
+H=12
+SmC=38
+Nm=Analog Equate
+ObjVer=1
+PrH=7
+CF=2
+n1I=2
+n1O=50
+Cmn1=determine which preset to send\\
+mI=2
+I1=38
+I2=2
+mO=50
+tO=50
+O1=29
+O2=30
+O3=31
+O4=32
+O5=33
+O6=34
+O7=35
+O8=36
+O9=87
+O10=88
+O11=89
+O12=90
+O13=91
+O14=92
+O15=93
+O16=94
+O17=95
+O18=96
+O19=97
+O20=98
+O21=99
+O22=100
+O23=101
+O24=102
+O25=103
+O26=104
+O27=105
+O28=106
+O29=107
+O30=108
+O31=109
+O32=110
+O33=111
+O34=112
+O35=113
+O36=114
+O37=115
+O38=116
+O39=117
+O40=118
+O41=119
+O42=120
+O43=121
+O44=122
+O45=123
+O46=124
+O47=125
+O48=126
+O49=127
+O50=128
+mP=50
+P1=1d
+P2=2d
+P3=3d
+P4=4d
+P5=5d
+P6=6d
+P7=7d
+P8=8d
+P9=9d
+P10=10d
+P11=11d
+P12=12d
+P13=13d
+P14=14d
+P15=15d
+P16=16d
+P17=17d
+P18=18d
+P19=19d
+P20=20d
+P21=21d
+P22=22d
+P23=23d
+P24=24d
+P25=25d
+P26=26d
+P27=27d
+P28=28d
+P29=29d
+P30=30d
+P31=31d
+P32=32d
+P33=33d
+P34=34d
+P35=35d
+P36=36d
+P37=37d
+P38=38d
+P39=39d
+P40=40d
+P41=41d
+P42=42d
+P43=43d
+P44=44d
+P45=45d
+P46=46d
+P47=47d
+P48=48d
+P49=49d
+P50=50d
+]
+[
+ObjTp=Sm
+H=13
+SmC=3
+Nm=OR
+ObjVer=1
+PrH=7
+CF=2
+n1I=53
+n1O=1
+Cmn1=when to send send the preset\\
+mI=53
+I1=4
+I2=5
+I3=6
+I4=7
+I5=8
+I6=9
+I7=10
+I8=11
+I9=43
+I10=44
+I11=45
+I12=46
+I13=48
+I14=49
+I15=50
+I16=52
+I17=53
+I18=54
+I19=55
+I20=56
+I21=57
+I22=58
+I23=59
+I24=60
+I25=61
+I26=62
+I27=63
+I28=64
+I29=65
+I30=66
+I31=67
+I32=68
+I33=69
+I34=70
+I35=71
+I36=72
+I37=73
+I38=74
+I39=75
+I40=76
+I41=77
+I42=78
+I43=79
+I44=80
+I45=81
+I46=82
+I47=83
+I48=84
+I49=85
+I50=86
+I51=12
+I52=13
+I53=40
+mO=1
+tO=1
+O1=24
+]
+[
+ObjTp=Sm
+H=14
+SmC=3
+Nm=OR
+ObjVer=1
+PrH=7
+CF=2
+n1I=1
+n1O=1
+Cmn1=single-wave delay\\
+mI=1
+I1=24
+mO=1
+tO=1
+O1=47
+]
+[
+ObjTp=Sm
+H=15
+SmC=284
+Nm=Virtual IR Device for Macro Connection
+ObjVer=1
+PrH=7
+CF=2
+n1I=14
+mI=14
+I2=28
+I3=37
+I4=16
+I5=17
+I6=18
+I7=19
+I8=20
+I9=21
+I10=22
+I11=27
+I12=23
+I13=25
+I14=26
+mP=13
+P1=1
+P2=2
+P3=3
+P4=4
+P5=5
+P6=6
+P7=7
+P8=8
+P9=9
+P10=0
+P11=ENTER,ENT,OK
+P12=CH+,CH_UP,CHAN_UP,CHAN+
+P13=CH-,CH_DN,CH_DOWN,CHAN_DN,CHAN_DOWN,CHAN-
+]
+[
+ObjTp=Sm
+H=16
+SmC=46
+Nm=Analog Buffer
+ObjVer=1
+PrH=7
+CF=2
+n1I=2
+n1O=1
+mI=2
+I1=2
+I2=39
+mO=1
+tO=1
+O1=51
+]
+[
+ObjTp=Sm
+H=17
+SmC=72
+Nm=Serial/Analog One-Shot
+ObjVer=1
+PrH=7
+CF=2
+n1I=1
+n1O=2
+mI=1
+I1=39
+mO=2
+tO=2
+O1=40
+mP=1
+P1=.01s
+]
+[
+ObjTp=Sm
+H=18
+SmC=32
+Nm=Analog Initialize
+ObjVer=1
+PrH=7
+CF=2
+n1I=1
+n1O=1
+mI=1
+I1=2
+mO=1
+tO=1
+O1=42
+mP=1
+P1=#Leading Zeros==1d
+]
+[
+ObjTp=Sm
+H=19
+SmC=38
+Nm=Analog Equate
+ObjVer=1
+PrH=7
+CF=2
+n1I=2
+n1O=1
+mI=2
+I1=42
+I2=2
+mO=1
+tO=1
+O1=41
+mP=1
+P1=1d
+]
+[
+ObjTp=Sm
+H=20
+SmC=155
+Nm=Keypad Decoder error fixed.umc
+ObjVer=1
+PrH=7
+CF=2
+n1I=3
+n1O=15
+mI=3
+I1=51
+I2=47
+I3=41
+mO=15
+tO=15
+O1=27
+O2=28
+O3=37
+O4=16
+O5=17
+O6=18
+O7=19
+O8=20
+O9=21
+O10=22
+O11=23
+O12=1
+O13=1
+O14=1
+O15=1
+mP=3
+P1=#Digit Pulse Time==0.1s
+P2=#Time Between Digits==0.25s
+P3=#Num Digits==3d
+]
+[
+ObjTp=Sm
+H=21
+SmC=156
+Nm=SUBSYSTEM
+ObjVer=1
+PrH=4
+CF=2
+Cmn1=Name Logic\\
+mC=4
+C1=22
+C2=24
+C3=26
+C4=23
+]
+[
+ObjTp=Sm
+H=22
+SmC=858
+Nm=Make String Permanent
+ObjVer=1
+PrH=21
+CF=2
+n1I=51
+Cmn1=All Serial outputs MSP\\
+mI=51
+I1=188
+I2=136
+I3=138
+I4=139
+I5=140
+I6=141
+I7=142
+I8=143
+I9=144
+I10=145
+I11=146
+I12=147
+I13=148
+I14=149
+I15=150
+I16=151
+I17=152
+I18=153
+I19=154
+I20=155
+I21=156
+I22=157
+I23=158
+I24=159
+I25=160
+I26=161
+I27=162
+I28=163
+I29=164
+I30=165
+I31=166
+I32=167
+I33=168
+I34=169
+I35=170
+I36=171
+I37=172
+I38=173
+I39=174
+I40=175
+I41=176
+I42=177
+I43=178
+I44=179
+I45=180
+I46=181
+I47=182
+I48=183
+I49=184
+I50=185
+I51=186
+mP=1
+P1=#Maximum Name Length
+]
+[
+ObjTp=Sm
+H=23
+SmC=9
+Nm=One Shot
+ObjVer=1
+PrH=21
+CF=2
+n1I=3
+n1O=2
+mI=3
+I1=191
+mO=2
+tO=2
+O1=193
+mP=1
+P1=1d
+]
+[
+ObjTp=Sm
+H=24
+SmC=101
+Nm=Serial I/O
+ObjVer=1
+PrH=21
+CF=2
+n1I=52
+n1O=2
+Cmn1=Last Channel Selected\\
+mI=52
+I3=29
+I4=30
+I5=31
+I6=32
+I7=33
+I8=34
+I9=35
+I10=36
+I11=87
+I12=88
+I13=89
+I14=90
+I15=91
+I16=92
+I17=93
+I18=94
+I19=95
+I20=96
+I21=97
+I22=98
+I23=99
+I24=100
+I25=101
+I26=102
+I27=103
+I28=104
+I29=105
+I30=106
+I31=107
+I32=108
+I33=109
+I34=110
+I35=111
+I36=112
+I37=113
+I38=114
+I39=115
+I40=116
+I41=117
+I42=118
+I43=119
+I44=120
+I45=121
+I46=122
+I47=123
+I48=124
+I49=125
+I50=126
+I51=127
+I52=128
+mO=2
+tO=2
+O1=188
+mP=52
+P1=
+P2=#Preset 1 Name
+P3=#Preset 2 Name
+P4=#Preset 3 Name
+P5=#Preset 4 Name
+P6=#Preset 5 Name
+P7=#Preset 6 Name
+P8=#Preset 7 Name
+P9=#Preset 8 Name
+P10=#Preset 9 Name
+P11=#Preset 10 Name
+P12=#Preset 11 Name
+P13=#Preset 12 Name
+P14=#Preset 13 Name
+P15=#Preset 14 Name
+P16=#Preset 15 Name
+P17=#Preset 16 Name
+P18=#Preset 17 Name
+P19=#Preset 18 Name
+P20=#Preset 19 Name
+P21=#Preset 20 Name
+P22=#Preset 21 Name
+P23=#Preset 22 Name
+P24=#Preset 23 Name
+P25=#Preset 24 Name
+P26=#Preset 25 Name
+P27=#Preset 26 Name
+P28=#Preset 27 Name
+P29=#Preset 28 Name
+P30=#Preset 29 Name
+P31=#Preset 30 Name
+P32=#Preset 31 Name
+P33=#Preset 32 Name
+P34=#Preset 33 Name
+P35=#Preset 34 Name
+P36=#Preset 35 Name
+P37=#Preset 36 Name
+P38=#Preset 37 Name
+P39=#Preset 38 Name
+P40=#Preset 39 Name
+P41=#Preset 40 Name
+P42=#Preset 41 Name
+P43=#Preset 42 Name
+P44=#Preset 43 Name
+P45=#Preset 44 Name
+P46=#Preset 45 Name
+P47=#Preset 46 Name
+P48=#Preset 47 Name
+P49=#Preset 48 Name
+P50=#Preset 49 Name
+P51=#Preset 50 Name
+P52=
+]
+[
+ObjTp=Sm
+H=26
+SmC=1477
+Nm=Multiple Serial Send
+ObjVer=1
+PrH=21
+CF=2
+n1I=1
+n1O=50
+Cmn1=Invoke Preset Names\\
+mI=1
+I1=193
+mO=50
+tO=50
+O1=136
+O2=138
+O3=139
+O4=140
+O5=141
+O6=142
+O7=143
+O8=144
+O9=145
+O10=146
+O11=147
+O12=148
+O13=149
+O14=150
+O15=151
+O16=152
+O17=153
+O18=154
+O19=155
+O20=156
+O21=157
+O22=158
+O23=159
+O24=160
+O25=161
+O26=162
+O27=163
+O28=164
+O29=165
+O30=166
+O31=167
+O32=168
+O33=169
+O34=170
+O35=171
+O36=172
+O37=173
+O38=174
+O39=175
+O40=176
+O41=177
+O42=178
+O43=179
+O44=180
+O45=181
+O46=182
+O47=183
+O48=184
+O49=185
+O50=186
+mP=50
+P1=#Preset 1 Name
+P2=#Preset 2 Name
+P3=#Preset 3 Name
+P4=#Preset 4 Name
+P5=#Preset 5 Name
+P6=#Preset 6 Name
+P7=#Preset 7 Name
+P8=#Preset 8 Name
+P9=#Preset 9 Name
+P10=#Preset 10 Name
+P11=#Preset 11 Name
+P12=#Preset 12 Name
+P13=#Preset 13 Name
+P14=#Preset 14 Name
+P15=#Preset 15 Name
+P16=#Preset 16 Name
+P17=#Preset 17 Name
+P18=#Preset 18 Name
+P19=#Preset 19 Name
+P20=#Preset 20 Name
+P21=#Preset 21 Name
+P22=#Preset 22 Name
+P23=#Preset 23 Name
+P24=#Preset 24 Name
+P25=#Preset 25 Name
+P26=#Preset 26 Name
+P27=#Preset 27 Name
+P28=#Preset 28 Name
+P29=#Preset 29 Name
+P30=#Preset 30 Name
+P31=#Preset 31 Name
+P32=#Preset 32 Name
+P33=#Preset 33 Name
+P34=#Preset 34 Name
+P35=#Preset 35 Name
+P36=#Preset 36 Name
+P37=#Preset 37 Name
+P38=#Preset 38 Name
+P39=#Preset 39 Name
+P40=#Preset 40 Name
+P41=#Preset 41 Name
+P42=#Preset 42 Name
+P43=#Preset 43 Name
+P44=#Preset 44 Name
+P45=#Preset 45 Name
+P46=#Preset 46 Name
+P47=#Preset 47 Name
+P48=#Preset 48 Name
+P49=#Preset 49 Name
+P50=#Preset 50 Name
+]
+[
+ObjTp=Sg
+H=4
+Nm=Preset_1
+]
+[
+ObjTp=Sg
+H=5
+Nm=Preset_2
+]
+[
+ObjTp=Sg
+H=6
+Nm=Preset_3
+]
+[
+ObjTp=Sg
+H=7
+Nm=Preset_4
+]
+[
+ObjTp=Sg
+H=8
+Nm=Preset_5
+]
+[
+ObjTp=Sg
+H=9
+Nm=Preset_6
+]
+[
+ObjTp=Sg
+H=10
+Nm=Preset_7
+]
+[
+ObjTp=Sg
+H=11
+Nm=Preset_8
+]
+[
+ObjTp=Sg
+H=12
+Nm=Next_Preset
+]
+[
+ObjTp=Sg
+H=13
+Nm=Previous_Preset
+]
+[
+ObjTp=Sg
+H=14
+Nm=Channel_Up
+]
+[
+ObjTp=Sg
+H=15
+Nm=Channel_Down
+]
+[
+ObjTp=Sg
+H=16
+Nm={{Keypad_3>>DEV}}
+]
+[
+ObjTp=Sg
+H=17
+Nm={{Keypad_4>>DEV}}
+]
+[
+ObjTp=Sg
+H=18
+Nm={{Keypad_5>>DEV}}
+]
+[
+ObjTp=Sg
+H=19
+Nm={{Keypad_6>>DEV}}
+]
+[
+ObjTp=Sg
+H=20
+Nm={{Keypad_7>>DEV}}
+]
+[
+ObjTp=Sg
+H=21
+Nm={{Keypad_8>>DEV}}
+]
+[
+ObjTp=Sg
+H=22
+Nm={{Keypad_9>>DEV}}
+]
+[
+ObjTp=Sg
+H=23
+Nm={{Keypad_Enter>>DEV}}
+]
+[
+ObjTp=Sg
+H=24
+Nm=send_preset
+]
+[
+ObjTp=Sg
+H=25
+Nm={{Channel_Up>>DEV}}
+]
+[
+ObjTp=Sg
+H=26
+Nm={{Channel_Down>>DEV}}
+]
+[
+ObjTp=Sg
+H=27
+Nm={{Keypad_0>>DEV}}
+]
+[
+ObjTp=Sg
+H=28
+Nm={{Keypad_1>>DEV}}
+]
+[
+ObjTp=Sg
+H=29
+Nm=Preset_1_fb
+]
+[
+ObjTp=Sg
+H=30
+Nm=Preset_2_fb
+]
+[
+ObjTp=Sg
+H=31
+Nm=Preset_3_fb
+]
+[
+ObjTp=Sg
+H=32
+Nm=Preset_4_fb
+]
+[
+ObjTp=Sg
+H=33
+Nm=Preset_5_fb
+]
+[
+ObjTp=Sg
+H=34
+Nm=Preset_6_fb
+]
+[
+ObjTp=Sg
+H=35
+Nm=Preset_7_fb
+]
+[
+ObjTp=Sg
+H=36
+Nm=Preset_8_fb
+]
+[
+ObjTp=Sg
+H=37
+Nm={{Keypad_2>>DEV}}
+]
+[
+ObjTp=Sg
+H=38
+Nm=preset_number
+SgTp=2
+]
+[
+ObjTp=Sg
+H=39
+Nm=Analog_Input
+SgTp=2
+]
+[
+ObjTp=Sg
+H=40
+Nm=analog_in_changed
+]
+[
+ObjTp=Sg
+H=41
+Nm=send_all_digits
+]
+[
+ObjTp=Sg
+H=42
+Nm=leading_zeros_an
+SgTp=2
+]
+[
+ObjTp=Sg
+H=43
+Nm=Preset_9
+]
+[
+ObjTp=Sg
+H=44
+Nm=Preset_10
+]
+[
+ObjTp=Sg
+H=45
+Nm=Preset_11
+]
+[
+ObjTp=Sg
+H=46
+Nm=Preset_12
+]
+[
+ObjTp=Sg
+H=47
+Nm=send_preset_swd
+]
+[
+ObjTp=Sg
+H=48
+Nm=Preset_13
+]
+[
+ObjTp=Sg
+H=49
+Nm=Preset_14
+]
+[
+ObjTp=Sg
+H=50
+Nm=Preset_15
+]
+[
+ObjTp=Sg
+H=51
+Nm=preset_value
+SgTp=2
+]
+[
+ObjTp=Sg
+H=52
+Nm=Preset_16
+]
+[
+ObjTp=Sg
+H=53
+Nm=Preset_17
+]
+[
+ObjTp=Sg
+H=54
+Nm=Preset_18
+]
+[
+ObjTp=Sg
+H=55
+Nm=Preset_19
+]
+[
+ObjTp=Sg
+H=56
+Nm=Preset_20
+]
+[
+ObjTp=Sg
+H=57
+Nm=Preset_21
+]
+[
+ObjTp=Sg
+H=58
+Nm=Preset_22
+]
+[
+ObjTp=Sg
+H=59
+Nm=Preset_23
+]
+[
+ObjTp=Sg
+H=60
+Nm=Preset_24
+]
+[
+ObjTp=Sg
+H=61
+Nm=Preset_25
+]
+[
+ObjTp=Sg
+H=62
+Nm=Preset_26
+]
+[
+ObjTp=Sg
+H=63
+Nm=Preset_27
+]
+[
+ObjTp=Sg
+H=64
+Nm=Preset_28
+]
+[
+ObjTp=Sg
+H=65
+Nm=Preset_29
+]
+[
+ObjTp=Sg
+H=66
+Nm=Preset_30
+]
+[
+ObjTp=Sg
+H=67
+Nm=Preset_31
+]
+[
+ObjTp=Sg
+H=68
+Nm=Preset_32
+]
+[
+ObjTp=Sg
+H=69
+Nm=Preset_33
+]
+[
+ObjTp=Sg
+H=70
+Nm=Preset_34
+]
+[
+ObjTp=Sg
+H=71
+Nm=Preset_35
+]
+[
+ObjTp=Sg
+H=72
+Nm=Preset_36
+]
+[
+ObjTp=Sg
+H=73
+Nm=Preset_37
+]
+[
+ObjTp=Sg
+H=74
+Nm=Preset_38
+]
+[
+ObjTp=Sg
+H=75
+Nm=Preset_39
+]
+[
+ObjTp=Sg
+H=76
+Nm=Preset_40
+]
+[
+ObjTp=Sg
+H=77
+Nm=Preset_41
+]
+[
+ObjTp=Sg
+H=78
+Nm=Preset_42
+]
+[
+ObjTp=Sg
+H=79
+Nm=Preset_43
+]
+[
+ObjTp=Sg
+H=80
+Nm=Preset_44
+]
+[
+ObjTp=Sg
+H=81
+Nm=Preset_45
+]
+[
+ObjTp=Sg
+H=82
+Nm=Preset_46
+]
+[
+ObjTp=Sg
+H=83
+Nm=Preset_47
+]
+[
+ObjTp=Sg
+H=84
+Nm=Preset_48
+]
+[
+ObjTp=Sg
+H=85
+Nm=Preset_49
+]
+[
+ObjTp=Sg
+H=86
+Nm=Preset_50
+]
+[
+ObjTp=Sg
+H=87
+Nm=Preset_9_fb
+]
+[
+ObjTp=Sg
+H=88
+Nm=Preset_10_fb
+]
+[
+ObjTp=Sg
+H=89
+Nm=Preset_11_fb
+]
+[
+ObjTp=Sg
+H=90
+Nm=Preset_12_fb
+]
+[
+ObjTp=Sg
+H=91
+Nm=Preset_13_fb
+]
+[
+ObjTp=Sg
+H=92
+Nm=Preset_14_fb
+]
+[
+ObjTp=Sg
+H=93
+Nm=Preset_15_fb
+]
+[
+ObjTp=Sg
+H=94
+Nm=Preset_16_fb
+]
+[
+ObjTp=Sg
+H=95
+Nm=Preset_17_fb
+]
+[
+ObjTp=Sg
+H=96
+Nm=Preset_18_fb
+]
+[
+ObjTp=Sg
+H=97
+Nm=Preset_19_fb
+]
+[
+ObjTp=Sg
+H=98
+Nm=Preset_20_fb
+]
+[
+ObjTp=Sg
+H=99
+Nm=Preset_21_fb
+]
+[
+ObjTp=Sg
+H=100
+Nm=Preset_22_fb
+]
+[
+ObjTp=Sg
+H=101
+Nm=Preset_23_fb
+]
+[
+ObjTp=Sg
+H=102
+Nm=Preset_24_fb
+]
+[
+ObjTp=Sg
+H=103
+Nm=Preset_25_fb
+]
+[
+ObjTp=Sg
+H=104
+Nm=Preset_26_fb
+]
+[
+ObjTp=Sg
+H=105
+Nm=Preset_27_fb
+]
+[
+ObjTp=Sg
+H=106
+Nm=Preset_28_fb
+]
+[
+ObjTp=Sg
+H=107
+Nm=Preset_29_fb
+]
+[
+ObjTp=Sg
+H=108
+Nm=Preset_30_fb
+]
+[
+ObjTp=Sg
+H=109
+Nm=Preset_31_fb
+]
+[
+ObjTp=Sg
+H=110
+Nm=Preset_32_fb
+]
+[
+ObjTp=Sg
+H=111
+Nm=Preset_33_fb
+]
+[
+ObjTp=Sg
+H=112
+Nm=Preset_34_fb
+]
+[
+ObjTp=Sg
+H=113
+Nm=Preset_35_fb
+]
+[
+ObjTp=Sg
+H=114
+Nm=Preset_36_fb
+]
+[
+ObjTp=Sg
+H=115
+Nm=Preset_37_fb
+]
+[
+ObjTp=Sg
+H=116
+Nm=Preset_38_fb
+]
+[
+ObjTp=Sg
+H=117
+Nm=Preset_39_fb
+]
+[
+ObjTp=Sg
+H=118
+Nm=Preset_40_fb
+]
+[
+ObjTp=Sg
+H=119
+Nm=Preset_41_fb
+]
+[
+ObjTp=Sg
+H=120
+Nm=Preset_42_fb
+]
+[
+ObjTp=Sg
+H=121
+Nm=Preset_43_fb
+]
+[
+ObjTp=Sg
+H=122
+Nm=Preset_44_fb
+]
+[
+ObjTp=Sg
+H=123
+Nm=Preset_45_fb
+]
+[
+ObjTp=Sg
+H=124
+Nm=Preset_46_fb
+]
+[
+ObjTp=Sg
+H=125
+Nm=Preset_47_fb
+]
+[
+ObjTp=Sg
+H=126
+Nm=Preset_48_fb
+]
+[
+ObjTp=Sg
+H=127
+Nm=Preset_49_fb
+]
+[
+ObjTp=Sg
+H=128
+Nm=Preset_50_fb
+]
+[
+ObjTp=Sg
+H=129
+Nm=[~UNUSED~]
+SgTp=31
+]
+[
+ObjTp=Sg
+H=130
+Nm=any_num
+]
+[
+ObjTp=Sg
+H=131
+Nm=[~BeginGroup~]Preset_Select
+]
+[
+ObjTp=Sg
+H=132
+Nm=[~EndGroup~]Preset_Select
+]
+[
+ObjTp=Sg
+H=133
+Nm=[~BeginGroup~]Preset_Feedback
+]
+[
+ObjTp=Sg
+H=134
+Nm=[~BeginGroup~]Preset_Names
+]
+[
+ObjTp=Sg
+H=135
+Nm=[~EndGroup~]Preset_Feedback
+]
+[
+ObjTp=Sg
+H=136
+Nm=Preset_1_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=137
+Nm=[~EndGroup~]Preset_Names
+]
+[
+ObjTp=Sg
+H=138
+Nm=Preset_2_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=139
+Nm=Preset_3_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=140
+Nm=Preset_4_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=141
+Nm=Preset_5_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=142
+Nm=Preset_6_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=143
+Nm=Preset_7_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=144
+Nm=Preset_8_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=145
+Nm=Preset_9_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=146
+Nm=Preset_10_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=147
+Nm=Preset_11_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=148
+Nm=Preset_12_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=149
+Nm=Preset_13_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=150
+Nm=Preset_14_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=151
+Nm=Preset_15_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=152
+Nm=Preset_16_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=153
+Nm=Preset_17_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=154
+Nm=Preset_18_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=155
+Nm=Preset_19_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=156
+Nm=Preset_20_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=157
+Nm=Preset_21_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=158
+Nm=Preset_22_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=159
+Nm=Preset_23_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=160
+Nm=Preset_24_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=161
+Nm=Preset_25_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=162
+Nm=Preset_26_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=163
+Nm=Preset_27_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=164
+Nm=Preset_28_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=165
+Nm=Preset_29_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=166
+Nm=Preset_30_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=167
+Nm=Preset_31_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=168
+Nm=Preset_32_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=169
+Nm=Preset_33_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=170
+Nm=Preset_34_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=171
+Nm=Preset_35_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=172
+Nm=Preset_36_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=173
+Nm=Preset_37_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=174
+Nm=Preset_38_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=175
+Nm=Preset_39_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=176
+Nm=Preset_40_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=177
+Nm=Preset_41_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=178
+Nm=Preset_42_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=179
+Nm=Preset_43_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=180
+Nm=Preset_44_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=181
+Nm=Preset_45_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=182
+Nm=Preset_46_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=183
+Nm=Preset_47_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=184
+Nm=Preset_48_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=185
+Nm=Preset_49_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=186
+Nm=Preset_50_Name$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=187
+Nm=[~BeginGroup~]Module_Commands
+]
+[
+ObjTp=Sg
+H=188
+Nm=Last_Preset_Selected$
+SgTp=4
+]
+[
+ObjTp=Sg
+H=189
+Nm=[~BeginGroup~]Device_Commands
+]
+[
+ObjTp=Sg
+H=190
+Nm=[~EndGroup~]Module_Commands
+]
+[
+ObjTp=Sg
+H=191
+Nm=Start_Module
+]
+[
+ObjTp=Sg
+H=192
+Nm=[~EndGroup~]Device_Commands
+]
+[
+ObjTp=Sg
+H=193
+Nm=Start_Module_OS
+]
+[
+ObjTp=Dp
+H=1
+Tp=1
+HD=TRUE
+DV=0.1s
+NF=48
+DNF=16
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0.01s
+HR=5s
+Sgn=0
+]
+[
+ObjTp=Dp
+H=2
+Tp=1
+HD=TRUE
+DV=0.25s
+NF=48
+DNF=16
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0s
+HR=5s
+Sgn=0
+]
+[
+ObjTp=Dp
+H=3
+Tp=1
+HD=TRUE
+DV=3d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=1d
+HR=4d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=4
+Tp=1
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=2
+Val1=0d
+Lbl1=No
+Val2=1d
+Lbl2=Yes
+Sgn=0
+]
+[
+ObjTp=Dp
+H=5
+Tp=1
+HD=TRUE
+DV=100d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=6
+Tp=1
+HD=TRUE
+DV=101d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=7
+Tp=1
+HD=TRUE
+DV=102d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=8
+Tp=1
+HD=TRUE
+DV=103d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=9
+Tp=1
+HD=TRUE
+DV=104d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=10
+Tp=1
+HD=TRUE
+DV=105d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=11
+Tp=1
+HD=TRUE
+DV=106d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=12
+Tp=1
+HD=TRUE
+DV=107d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=13
+Tp=1
+HD=TRUE
+DV=108d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=14
+Tp=1
+HD=TRUE
+DV=109d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=15
+Tp=1
+HD=TRUE
+DV=110d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=16
+Tp=1
+HD=TRUE
+DV=111d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=17
+Tp=1
+HD=TRUE
+DV=112d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=18
+Tp=1
+HD=TRUE
+DV=113d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=19
+Tp=1
+HD=TRUE
+DV=114d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=20
+Tp=1
+HD=TRUE
+DV=115d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=21
+Tp=1
+HD=TRUE
+DV=116d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=22
+Tp=1
+HD=TRUE
+DV=117d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=23
+Tp=1
+HD=TRUE
+DV=118d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=24
+Tp=1
+HD=TRUE
+DV=119d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=25
+Tp=1
+HD=TRUE
+DV=120d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=26
+Tp=1
+HD=TRUE
+DV=121d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=27
+Tp=1
+HD=TRUE
+DV=122d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=28
+Tp=1
+HD=TRUE
+DV=123d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=29
+Tp=1
+HD=TRUE
+DV=124d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=30
+Tp=1
+HD=TRUE
+DV=125d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=31
+Tp=1
+HD=TRUE
+DV=126d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=32
+Tp=1
+HD=TRUE
+DV=127d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=33
+Tp=1
+HD=TRUE
+DV=128d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=34
+Tp=1
+HD=TRUE
+DV=129d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=35
+Tp=1
+HD=TRUE
+DV=130d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=36
+Tp=1
+HD=TRUE
+DV=131d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=37
+Tp=1
+HD=TRUE
+DV=132d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=38
+Tp=1
+HD=TRUE
+DV=133d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=39
+Tp=1
+HD=TRUE
+DV=134d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=40
+Tp=1
+HD=TRUE
+DV=135d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=41
+Tp=1
+HD=TRUE
+DV=136d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=42
+Tp=1
+HD=TRUE
+DV=137d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=43
+Tp=1
+HD=TRUE
+DV=138d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=44
+Tp=1
+HD=TRUE
+DV=139d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=45
+Tp=1
+HD=TRUE
+DV=140d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=46
+Tp=1
+HD=TRUE
+DV=141d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=47
+Tp=1
+HD=TRUE
+DV=142d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=48
+Tp=1
+HD=TRUE
+DV=143d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=49
+Tp=1
+HD=TRUE
+DV=144d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=50
+Tp=1
+HD=TRUE
+DV=145d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=51
+Tp=1
+HD=TRUE
+DV=146d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=52
+Tp=1
+HD=TRUE
+DV=147d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=53
+Tp=1
+HD=TRUE
+DV=148d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=54
+Tp=1
+HD=TRUE
+DV=149d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=9999d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=55
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=56
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=57
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=58
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=59
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=60
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=61
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=62
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=63
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=64
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=65
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=66
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=67
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=68
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=69
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=70
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=71
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=72
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=73
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=74
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=75
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=76
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=77
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=78
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=79
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=80
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=81
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=82
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=83
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=84
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=85
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=86
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=87
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=88
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=89
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=90
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=91
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=92
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=93
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=94
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=95
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=96
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=97
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=98
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=99
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=100
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=101
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=102
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=103
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=104
+Tp=1
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=105
+Tp=1
+HD=TRUE
+DV=30d
+NF=63
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=1d
+HR=30d
+Sgn=0
+]

@@ -1,0 +1,3346 @@
+/***********************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+***********************************************************************/
+/*
+Dealer Name: Crestron Electronics
+System Name:
+System Number:
+Programmer: PAC
+Comments:
+*/
+/***********************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+***********************************************************************/
+#SYMBOL_NAME "Polycom HDX Driver v3.5"
+// #HINT ""
+#DEFINE_CONSTANT	ciCALLTYPEPOTS	1
+#DEFINE_CONSTANT	ciCALLTYPEISDN	2
+#DEFINE_CONSTANT	ciCALLTYPESIP	3
+
+#DEFINE_CONSTANT	ciKEYSTAR		11
+#DEFINE_CONSTANT	ciKEYPOUND		12
+#DEFINE_CONSTANT	ciKEYPAUSE		13
+#DEFINE_CONSTANT	ciKEYCLEAR		14
+#DEFINE_CONSTANT	ciKEYBACKSPACE	15
+
+#DEFINE_CONSTANT	ciHANGUPALL		5
+#ENABLE_TRACE
+
+#DEFINE_CONSTANT	ciMAXCHARS		30
+#DEFINE_CONSTANT	ciMAXDIRCHARS	50
+#DEFINE_CONSTANT	ciNUM1			1
+#DEFINE_CONSTANT	ciNUM2			2
+#DEFINE_CONSTANT	ciHEADERLENGTH	25
+#DEFINE_CONSTANT	ciNUMSEPLENGTH	10
+#DEFINE_CONSTANT	ciFOOTERLENGTH	25
+#DEFINE_CONSTANT	ciENTERINGNUM1  1
+#DEFINE_CONSTANT	ciENTERINGNUM2  2
+#DEFINE_CONSTANT	ciENTERINGNAME  3
+#DEFINE_CONSTANT	ciENTERINGNONE  0
+
+#DEFINE_CONSTANT	ciDEFAULTADDRENTRIES	200
+#DEFINE_CONSTANT	ciDEFAULTGADDRENTRIES	500
+#DEFINE_CONSTANT	ciDEFAULTGROUPENTRIES	25
+#DEFINE_CONSTANT	ciDEFAULTGROUPS			50
+
+#DEFINE_CONSTANT	ciMAXDIALCHARS	250
+#DEFINE_CONSTANT	ciMAXBATCH		60
+
+#DEFINE_CONSTANT	ciCHARARRAYSIZE	43
+#DEFINE_CONSTANT	ciMAXREQUEST	20
+
+#DEFINE_CONSTANT	csCR			"\x0D"
+#DEFINE_CONSTANT	csGROUPPREFIX	"[+] "
+
+#DEFAULT_VOLATILE
+#ENABLE_DYNAMIC
+
+#HELP_BEGIN
+For use only within the Polycom HDX suite of Crestron modules
+#HELP_END
+/***********************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+***********************************************************************/
+ANALOG_INPUT	Audio_Call_Type, Max_Characters, MaxCharactersName,
+				MaxCharactersSpeed, MaxCharactersNumber,
+				EntriesPerScreen, max_phone_number_characters;
+STRING_INPUT	header$[ciHEADERLENGTH],
+				number_separater$[ciNUMSEPLENGTH],
+				footer$[ciFOOTERLENGTH];
+STRING_INPUT	num_1$[ciMAXCHARS], num_2$[ciMAXCHARS],
+				text$[ciMAXCHARS];
+BUFFER_INPUT	Polycom_Rx$[2000];
+DIGITAL_INPUT	Enable_DTMF_In_Dial_String, Process_Receive_String,
+				Enable_Local_Addressbook, Enable_Global_Addressbook,
+				Get_Addressbooks,
+				Audio_Dial, Ignore_Video, select_num_1, select_num_2,
+				select_none, clear_num_1_num_2, copy_num_1_to_num_2,
+				dial, Local_Addressbook_Top, Local_Addressbook_Return,
+				Local_Addressbook_First, Local_Addressbook_Prev,
+				Local_Addressbook_Next, Local_Addressbook_Last,
+				Local_Addressbook_Dial,
+				Local_Addressbook_Clear_Selected,
+				Global_Addressbook_Top, Global_Addressbook_Return,
+				Global_Addressbook_First, Global_Addressbook_Prev,
+				Global_Addressbook_Next, Global_Addressbook_Last,
+				Global_Addressbook_Dial,
+				Global_Addressbook_Clear_Selected,
+				GDS_Available, LDAP_Available, Enable_Debug,
+				Hang_Up_Video[5], Audio_Keypad[15],
+				Local_Addressbook_Select[25],
+				Global_Addressbook_Select[25];
+DIGITAL_OUTPUT	Incoming_Audio_Call, Incoming_Video_Call,
+				Audio_Call_Active, Auto_FB,
+				Local_Addressbook_Busy, Global_Addressbook_Busy,
+				Get_Addressbooks_Busy;
+ANALOG_OUTPUT	Audio_Hook_State,
+				Local_Addressbook_CurrentPage,
+				Local_Addressbook_TotalPages,
+				Global_Addressbook_CurrentPage,
+				Global_Addressbook_TotalPages;
+STRING_OUTPUT	Audio_Caller_ID_Phone_Number_Text,
+				Audio_Caller_ID_Name_Text,
+				Audio_Call_Status_Text,
+				Dial_String, ToDevice$,
+				Incoming_Video_Caller_ID_Phone_Number_Text,
+				Incoming_Video_Caller_ID_Name_Text,
+				Incoming_Video_Call_Status_Text,
+				Local_Addressbook_NameSelected$,
+				Local_Addressbook_NumberSelected$,
+				Local_Addressbook_SpeedSelected$,
+				Global_Addressbook_NameSelected$,
+				Global_Addressbook_NumberSelected$,
+				Global_Addressbook_SpeedSelected$,
+				num_1_fb$, num_2_fb$, text_fb$,
+				Local_Addressbook_List_Name_Text,
+				Global_Addressbook_List_Name_Text,
+				Video_Caller_ID_Phone_Number_Text[4],
+				Video_Caller_ID_Name_Text[4],
+				Video_Call_Status_Text[4],
+				Local_Addressbook_Name$[25],
+				Local_Addressbook_Number$[25],
+				Global_Addressbook_Name$[25],
+				Global_Addressbook_Number$[25];
+/***********************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+***********************************************************************************/
+STRUCTURE Address_Book
+{
+	STRING	sName[ciMAXDIRCHARS];
+	string sLabel[ciMAXDIRCHARS];
+	STRING	sType[ciMAXCHARS];
+	string sId[ciMAXDIRCHARS];
+	string sPhoneNum[ciMAXDIRCHARS];
+	INTEGER	iGroupPointer;
+};
+
+DYNAMIC Address_Book LocalAddressBook[ciDEFAULTADDRENTRIES];
+DYNAMIC Address_Book GlobalAddressBook[ciDEFAULTGADDRENTRIES];
+
+STRUCTURE LGroup_Entries
+{
+	STRING	sName[ciMAXDIRCHARS];
+	INTEGER	iNumberOfEntries;
+	DYNAMIC INTEGER iEntryPointer[ciDEFAULTGROUPENTRIES];
+};
+
+DYNAMIC LGroup_Entries Local_Groups[ciDEFAULTGROUPS];
+
+STRUCTURE GGroup_Entries
+{
+	STRING	sName[ciMAXDIRCHARS];
+	INTEGER	iNumberOfEntries;
+	DYNAMIC INTEGER iEntryPointer[ciDEFAULTGROUPENTRIES];
+};
+
+DYNAMIC GGroup_Entries Global_Groups[ciDEFAULTGROUPS];
+/***********************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+***********************************************************************/
+INTEGER	RxOk, mark1, mark2, junk, iMarker1, iMarker2, iMarker3,
+		iMarker4, iMarker5, iMarker6, iMarker7, iMarker8, iMarker9,
+		iMaxChars, iTempCallID, iAudioCallID, a, iVideoCallID[4],
+		iVideoActive[4], iVideoCall, iAudioHookState, iTempKey,
+		iTempHangUp, iIncomingCallID, iIncomingVideoCallID, iFlag2,
+		LocalAddressBookEntry, Marker0, Marker1, Marker2, Marker3,
+		LocalTotalrecords, LocalWaitingForAbk, LocalEntryValid[26],
+		i, Marker, LocalFirstEntry, LocalLastEntry, LocalRangeStart, b,
+		LocalRangeEnd, LocalSelected, LocalEntriesRequested, Marker7,
+		LocalSiteRequested, LocalRemappedEntry, iLocalOffSet, Marker4,
+		Marker5, Marker6, iLocalRequest, GlobalAddressBookEntry,
+		GlobalTotalrecords, GlobalWaitingForAbk, GlobalEntryValid[26],
+		GlobalFirstEntry, GlobalLastEntry, GlobalRangeStart, iTemp,
+		GlobalRangeEnd, GlobalSelected, GlobalEntriesRequested,
+		GlobalSiteRequested, GlobalRemappedEntry, iGlobalOffSet,
+		iGlobalRequest, iMaxVideoChars, iIncomingText, iTempPointer,
+		iAddrbkBusy, iGAddrbkBusy, iEnableLocal, iEnableGlobal,
+		iAddressBookRequestBusy, iAddrBookSize, iAddrNumGroups,
+		iRequestGroup, iTempEntryNum, iAddrGroupSize, iTempGroupNum,
+		iLocalAddrTotalPages, iLocalPage, iLocalReturnStack[5][2],
+		iCurrentLocalPage, iCurrentLocalLevel, iTempLevel, iTempPage,
+		iAddrRequestedEntry, iGAddressbookSize, iGAddrGroupSize,
+		iGAddrGroupRequestedEntry, iGlobalGroupRequested,
+		iGlobalGroupEntriesRequested, iGlobalReturnStack[5][2],
+		iTempGlobalBatch, iCurrentGlobalPage, iCurrentGlobalLevel,
+		iGlobalAddrTotalPages, nextSearchChar, ldapRangeMin, ldapRangeMax,
+		ldapCharacterCount, iEntryCounter;
+SIGNED_INTEGER	siError;
+STRING	TempString$[500], sTempDialString[100], sCommandSent[250],
+		sAudioStatus[50], sAudioFEName[50], sAudioFENumber[50],
+		sVideoStatus[4][50], sVideoFEName[4][50], sVideoFENumber[4][50],
+		sTempDirection[50], sTempFEName[50], sTempFENumber[50],
+		sTempStatus[50], sTempCallType[50], LocalNameInt$[50],
+		sTempLocalCurrent$[50], sTempLocalPrevious$[50],
+		sTempLocalDialString[100], GlobalNameInt$[50],
+		sTempGlobalCurrent$[50], sTempGlobalPrevious$[50],
+		sTempGlobalDialString[100], sNum1[ciMAXCHARS],
+		sNum2[ciMAXCHARS], sHeader[ciHEADERLENGTH], sTemp2[ciMAXDIRCHARS],
+		sFooter[ciFOOTERLENGTH], sSeparater[ciNUMSEPLENGTH],
+		sActiveCallList[100][ciMAXCHARS], sDialString[ciMAXDIALCHARS],
+		sTempName[100], sTemp[ciMAXDIALCHARS], sTemp1[ciMAXDIRCHARS],
+		sSelectedLocalNum[ciMAXDIALCHARS], sSelectedLocalType[25],
+		sSelectedLocalSpeed[50], sSelectedGlobalNum[ciMAXDIRCHARS],
+		sSelectedGlobalType[25], sSelectedGlobalSpeed[50],
+		sTemp3[ciMAXDIRCHARS], sTemp4[ciMAXDIRCHARS], sTempSend[100],
+		sTempType[25], sCharacterArray[ciCHARARRAYSIZE][1];
+/***********************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+***********************************************************************/
+Function fGetAddressBookTimeOut()
+{
+	wait(1000, wGetAddressBookTimeOut)
+	{
+		iAddressBookRequestBusy = 0;
+		Get_Addressbooks_Busy = iAddressBookRequestBusy;
+	}
+}
+
+Function fAddToLocalReturnStack(INTEGER fiLevel, INTEGER fiPage)
+{
+	if(fiLevel > 0)
+	{
+		for(a = 5 to 2 step -1)
+		{
+			iLocalReturnStack[a][1] = iLocalReturnStack[a - 1][1];
+			iLocalReturnStack[a][2] = iLocalReturnStack[a - 1][2];
+		}
+		iLocalReturnStack[1][1] = fiLevel;
+		iLocalReturnStack[1][2] = fiPage;
+	}
+	else if(fiLevel = 0)
+	{
+		iLocalReturnStack[0][1] = fiLevel;
+		iLocalReturnStack[0][2] = fiPage;
+	}
+}
+
+Integer_Function fRemoveFromLocalReturnStack()
+{
+	INTEGER fiLevel, fiPage, fiStackEmpty, fiReturnValue;
+	
+	fiStackEmpty = 1;
+	for(a = 1 to 5)
+	{
+		if((iLocalReturnStack[a][1] <> 0) || (iLocalReturnStack[a][2] <> 0))
+		{
+			fiStackEmpty = 0;
+			break;
+		}
+	}
+	if(fiStackEmpty = 0)
+	{
+		fiLevel = iLocalReturnStack[1][1];
+		fiPage = iLocalReturnStack[1][2];
+		for(a = 1 to 4)
+		{
+			iLocalReturnStack[a][1] = iLocalReturnStack[a + 1][1];
+			iLocalReturnStack[a][2] = iLocalReturnStack[a + 1][2];
+		}
+		iLocalReturnStack[5][1] = 0;
+		iLocalReturnStack[5][2] = 0;
+	}
+	else
+	{
+		fiLevel = iLocalReturnStack[0][1];
+		fiPage = iLocalReturnStack[0][2];
+	}
+	fiReturnValue = (fiLevel * 100) + fiPage;
+	return(fiReturnValue);
+}
+
+Function fAddToGlobalReturnStack(INTEGER fiLevel, INTEGER fiPage)
+{
+	if(fiLevel > 0)
+	{
+		for(a = 5 to 2 step -1)
+		{
+			iGlobalReturnStack[a][1] = iGlobalReturnStack[a - 1][1];
+			iGlobalReturnStack[a][2] = iGlobalReturnStack[a - 1][2];
+		}
+		iGlobalReturnStack[1][1] = fiLevel;
+		iGlobalReturnStack[1][2] = fiPage;
+	}
+	else if(fiLevel = 0)
+	{
+		iGlobalReturnStack[0][1] = fiLevel;
+		iGlobalReturnStack[0][2] = fiPage;
+	}
+}
+
+Integer_Function fRemoveFromGlobalReturnStack()
+{
+	INTEGER fiLevel, fiPage, fiStackEmpty, fiReturnValue;
+	
+	fiStackEmpty = 1;
+	for(a = 1 to 5)
+	{
+		if((iGlobalReturnStack[a][1] <> 0) || (iGlobalReturnStack[a][2] <> 0))
+		{
+			fiStackEmpty = 0;
+			break;
+		}
+	}
+	if(fiStackEmpty = 0)
+	{
+		fiLevel = iGlobalReturnStack[1][1];
+		fiPage = iGlobalReturnStack[1][2];
+		for(a = 1 to 4)
+		{
+			iGlobalReturnStack[a][1] = iGlobalReturnStack[a + 1][1];
+			iGlobalReturnStack[a][2] = iGlobalReturnStack[a + 1][2];
+		}
+		iGlobalReturnStack[5][1] = 0;
+		iGlobalReturnStack[5][2] = 0;
+	}
+	else
+	{
+		fiLevel = iGlobalReturnStack[0][1];
+		fiPage = iGlobalReturnStack[0][2];
+	}
+	fiReturnValue = (fiLevel * 100) + fiPage;
+	return(fiReturnValue);
+}
+
+Function fAudioCallEndedTimeOut()
+{
+	wait(1000)
+	{
+		sAudioStatus = "";
+		Audio_Call_Status_Text = sAudioStatus;
+	}
+}
+
+Function fLocalAddressbookRequestTimeOut()
+{
+	wait(1000, wLocalRequest)
+	{
+		iAddrbkBusy = 0;
+		Local_Addressbook_Busy = iAddrbkBusy;
+	}
+}
+
+Function fGlobalAddressbookRequestTimeOut()
+{
+	wait(1000, wGlobalRequest)
+	{
+		iGAddrbkBusy = 0;
+		Global_Addressbook_Busy = iGAddrbkBusy;
+	}
+}
+
+Function fVideoCallEndedTimeOut(INTEGER fiCall)
+{
+	
+	switch(fiCall)
+	{
+		case(1):
+		{
+			wait(1000, wVideoCall1)
+			{
+				sVideoStatus[1] = "";
+				Video_Call_Status_Text[1] = sVideoStatus[1];
+			}
+		}
+		case(2):
+		{
+			wait(1000, wVideoCall2)
+			{
+				sVideoStatus[2] = "";
+				Video_Call_Status_Text[2] = sVideoStatus[2];
+			}
+		}
+		case(3):
+		{
+			wait(1000, wVideoCall3)
+			{
+				sVideoStatus[3] = "";
+				Video_Call_Status_Text[3] = sVideoStatus[3];
+			}
+		}
+		case(4):
+		{
+			wait(1000, wVideoCall4)
+			{
+				sVideoStatus[4] = "";
+				Video_Call_Status_Text[4] = sVideoStatus[4];
+			}
+		}
+	}
+}
+
+function fProcessNotification(STRING fsCallType)
+{
+	if(sTempCallType = "voiceonly")
+	{
+		if(iTempCallID = iAudioCallID)
+		{
+			if(sAudioFEName <> sTempFEName)
+			{
+				sAudioFEName = sTempFEName;
+				Audio_Caller_ID_Name_Text = sAudioFEName;
+			}
+			if(sAudioFENumber <> sTempFENumber)
+			{
+				sAudioFENumber = sTempFENumber;
+				Audio_Caller_ID_Phone_Number_Text = sAudioFENumber;
+			}
+			if(sAudioStatus <> sTempStatus)
+			{
+				sAudioStatus = sTempStatus;
+				Audio_Call_Status_Text = sAudioStatus;
+			}
+			if((sTempDirection = "incoming") && (sTempStatus = "ringing"))
+			{
+				Incoming_Audio_Call = 1;
+				iAudioHookState = 1;
+				Audio_Hook_State = iAudioHookState;
+			}
+			else if(sTempStatus = "opened")
+			{
+				Incoming_Audio_Call = 0;
+				iAudioHookState = 1;
+				Audio_Hook_State = iAudioHookState;
+			}
+			else if(sTempStatus = "connecting")
+			{
+				Incoming_Audio_Call = 0;
+				Audio_Call_Active = 1;
+			}
+			else if(sTempStatus = "connected")
+			{
+				Incoming_Audio_Call = 0;
+				Audio_Call_Active = 1;
+			}
+			else if(sTempStatus = "disconnecting")
+			{
+				Incoming_Audio_Call = 0;
+				Audio_Call_Active = 1;
+			}
+			else if(sTempStatus = "disconnected")
+			{
+				Incoming_Audio_Call = 0;
+				iAudioHookState = 0;
+				Audio_Hook_State = iAudioHookState;
+				Audio_Call_Active = 0;
+				iAudioCallID = 0;
+				sAudioFEName = "";
+				Audio_Caller_ID_Name_Text = sAudioFEName;
+				sAudioFENumber = "";
+				Audio_Caller_ID_Phone_Number_Text = sAudioFENumber;
+				fAudioCallEndedTimeOut();
+			}
+		}
+		else if(iAudioCallID = 0)
+		{
+			iAudioCallID = iTempCallID;
+			if(sAudioFEName <> sTempFEName)
+			{
+				sAudioFEName = sTempFEName;
+				Audio_Caller_ID_Name_Text = sAudioFEName;
+			}
+			if(sAudioFENumber <> sTempFENumber)
+			{
+				sAudioFENumber = sTempFENumber;
+				Audio_Caller_ID_Phone_Number_Text = sAudioFENumber;
+			}
+			if(sAudioStatus <> sTempStatus)
+			{
+				sAudioStatus = sTempStatus;
+				Audio_Call_Status_Text = sAudioStatus;
+			}
+			if((sTempDirection = "incoming") && (sTempStatus = "ringing"))
+			{
+				Incoming_Audio_Call = 1;
+				iAudioHookState = 1;
+				Audio_Hook_State = iAudioHookState;
+			}
+			else if(sTempStatus = "opened")
+			{
+				Incoming_Audio_Call = 0;
+				iAudioHookState = 1;
+				Audio_Hook_State = iAudioHookState;
+			}
+			else if(sTempStatus = "connecting")
+			{
+				Incoming_Audio_Call = 0;
+				Audio_Call_Active = 1;
+			}
+			else if(sTempStatus = "connected")
+			{
+				Incoming_Audio_Call = 0;
+				Audio_Call_Active = 1;
+			}
+			else if(sTempStatus = "disconnecting")
+			{
+				Incoming_Audio_Call = 0;
+				Audio_Call_Active = 1;
+			}
+			else if(sTempStatus = "disconnected")
+			{
+				Incoming_Audio_Call = 0;
+				iAudioHookState = 0;
+				Audio_Hook_State = iAudioHookState;
+				Audio_Call_Active = 0;
+				iAudioCallID = 0;
+				sAudioFEName = "";
+				Audio_Caller_ID_Name_Text = sAudioFEName;
+				sAudioFENumber = "";
+				Audio_Caller_ID_Phone_Number_Text = sAudioFENumber;
+				fAudioCallEndedTimeOut();
+			}
+		}
+		sTempDirection = "";
+		sTempFEName = "";
+		sTempFENumber = "";
+		sTempStatus = "";
+		sTempCallType = "";
+	}
+	else//VIDEO CALL **There could be up to four video calls at the same time.**
+	{
+		iVideoCall = 0;
+		for(a = 1 to 4)
+		{
+			if(iTempCallID = iVideoCallID[a])
+			{
+				iVideoCall = a;
+				break;
+			}
+		}
+		if(iVideoCall = 0)
+		{
+			for(a = 1 to 4)
+			{
+				if(iVideoCallID[a] = 0)
+				{
+					iVideoCall = a;
+					iVideoCallID[a] = iTempCallID;
+					break;
+				}
+			}
+		}
+		if(iVideoCall > 0)
+		{
+			if((sTempDirection = "incoming") && (sTempStatus = "ringing"))
+			{
+				Incoming_Video_Call = 1;
+				iIncomingVideoCallID = iTempCallID;
+				Incoming_Video_Caller_ID_Name_Text = sTempFEName;
+				Incoming_Video_Caller_ID_Phone_Number_Text = sTempFENumber;
+				Incoming_Video_Call_Status_Text = sTempStatus;
+			}
+			else if(sTempStatus = "opened")
+			{
+				Incoming_Video_Call = 0;
+				iIncomingVideoCallID = 0;
+				Incoming_Video_Caller_ID_Name_Text = "";
+				Incoming_Video_Caller_ID_Phone_Number_Text = "";
+				Incoming_Video_Call_Status_Text = "";
+				if(sVideoFEName[iVideoCall] <> sTempFEName)
+				{
+					sVideoFEName[iVideoCall] = sTempFEName;
+					Video_Caller_ID_Name_Text[iVideoCall] = sVideoFEName[iVideoCall];
+				}
+				if(sVideoFENumber[iVideoCall] <> sTempFENumber)
+				{
+					sVideoFENumber[iVideoCall] = sTempFENumber;
+					Video_Caller_ID_Phone_Number_Text[iVideoCall] = sVideoFENumber[iVideoCall];
+				}
+				if(sVideoStatus[iVideoCall] <> sTempStatus)
+				{
+					sVideoStatus[iVideoCall] = sTempStatus;
+					Video_Call_Status_Text[iVideoCall] = sVideoStatus[iVideoCall];
+				}
+			}
+			else if(sTempStatus = "connecting")
+			{
+				Incoming_Video_Call = 0;
+				iIncomingVideoCallID = 0;
+				Incoming_Video_Caller_ID_Name_Text = "";
+				Incoming_Video_Caller_ID_Phone_Number_Text = "";
+				Incoming_Video_Call_Status_Text = "";
+				if(sVideoFEName[iVideoCall] <> sTempFEName)
+				{
+					sVideoFEName[iVideoCall] = sTempFEName;
+					Video_Caller_ID_Name_Text[iVideoCall] = sVideoFEName[iVideoCall];
+				}
+				if(sVideoFENumber[iVideoCall] <> sTempFENumber)
+				{
+					sVideoFENumber[iVideoCall] = sTempFENumber;
+					Video_Caller_ID_Phone_Number_Text[iVideoCall] = sVideoFENumber[iVideoCall];
+				}
+				if(sVideoStatus[iVideoCall] <> sTempStatus)
+				{
+					sVideoStatus[iVideoCall] = sTempStatus;
+					Video_Call_Status_Text[iVideoCall] = sVideoStatus[iVideoCall];
+				}
+			}
+			else if(sTempStatus = "connected")
+			{
+				Incoming_Video_Call = 0;
+				iIncomingVideoCallID = 0;
+				Incoming_Video_Caller_ID_Name_Text = "";
+				Incoming_Video_Caller_ID_Phone_Number_Text = "";
+				Incoming_Video_Call_Status_Text = "";
+				if(sVideoFEName[iVideoCall] <> sTempFEName)
+				{
+					sVideoFEName[iVideoCall] = sTempFEName;
+					Video_Caller_ID_Name_Text[iVideoCall] = sVideoFEName[iVideoCall];
+				}
+				if(sVideoFENumber[iVideoCall] <> sTempFENumber)
+				{
+					sVideoFENumber[iVideoCall] = sTempFENumber;
+					Video_Caller_ID_Phone_Number_Text[iVideoCall] = sVideoFENumber[iVideoCall];
+				}
+				if(sVideoStatus[iVideoCall] <> sTempStatus)
+				{
+					sVideoStatus[iVideoCall] = sTempStatus;
+					Video_Call_Status_Text[iVideoCall] = sVideoStatus[iVideoCall];
+				}
+			}
+			else if(sTempStatus = "disconnecting")
+			{
+				Incoming_Video_Call = 0;
+				iIncomingVideoCallID = 0;
+				Incoming_Video_Caller_ID_Name_Text = "";
+				Incoming_Video_Caller_ID_Phone_Number_Text = "";
+				Incoming_Video_Call_Status_Text = "";
+				if(sVideoFEName[iVideoCall] <> sTempFEName)
+				{
+					sVideoFEName[iVideoCall] = sTempFEName;
+					Video_Caller_ID_Name_Text[iVideoCall] = sVideoFEName[iVideoCall];
+				}
+				if(sVideoFENumber[iVideoCall] <> sTempFENumber)
+				{
+					sVideoFENumber[iVideoCall] = sTempFENumber;
+					Video_Caller_ID_Phone_Number_Text[iVideoCall] = sVideoFENumber[iVideoCall];
+				}
+				if(sVideoStatus[iVideoCall] <> sTempStatus)
+				{
+					sVideoStatus[iVideoCall] = sTempStatus;
+					Video_Call_Status_Text[iVideoCall] = sVideoStatus[iVideoCall];
+				}
+			}
+			else if(sTempStatus = "disconnected")
+			{
+				Incoming_Video_Call = 0;
+				iIncomingVideoCallID = 0;
+				Incoming_Video_Caller_ID_Name_Text = "";
+				Incoming_Video_Caller_ID_Phone_Number_Text = "";
+				Incoming_Video_Call_Status_Text = "";
+				iVideoCallID[iVideoCall] = 0;
+				sVideoFEName[iVideoCall] = "";
+				Video_Caller_ID_Name_Text[iVideoCall] = sVideoFEName[iVideoCall];
+				sVideoFENumber[iVideoCall] = "";
+				Video_Caller_ID_Phone_Number_Text[iVideoCall] = sVideoFENumber[iVideoCall];
+				fVideoCallEndedTimeOut(iVideoCall);
+			}
+		}
+		sTempDirection = "";
+		sTempFEName = "";
+		sTempFENumber = "";
+		sTempStatus = "";
+		sTempCallType = "";
+	}
+}
+
+function fProcessLocalAddressBook()
+{
+	iMarker1 = 0;
+	iMarker2 = 0;
+	iMarker3 = 0;
+	iMarker4 = 0;
+	iMarker5 = 0;
+	iMarker6 = 0;
+	iMarker7 = 0;
+	iMarker8 = 0;
+	iMarker1 = find("\x20", Tempstring$);
+	iMarker2 = find("\x20", Tempstring$, iMarker1 + 1);
+	iMarker3 = find("\x20", Tempstring$, iMarker2 + 1);
+	iMarker4 = find("\x20", Tempstring$, iMarker3 + 1);
+	iMarker5 = reversefind("\x20", Tempstring$);
+	if((iMarker1 <> 0) && (iMarker2 <> 0))
+	{
+		sTemp1 = mid(Tempstring$, iMarker1 + 1, iMarker2 - iMarker1 - 1);
+/*************************************************************************************************
+Response samples
+        1     2   3    4
+addrbook names all size 21
+        1     2   3 4
+addrbook names all 0 9
+        1     2  3         4    5               6
+addrbook names 0. name:"Eng RPX" sys_label:"HDX" type:multicodec
+        1     2   3 4 5
+addrbook names all 0 9 done
+        1     2  3         4    5   
+addrbook group 0. name:"Eng RPX" sys_label:"HDX"
+        1     2       3     4    5
+addrbook group "Monday Staff Mtg" done
+        1     2    3
+addrbook group size 10
+        1       2  3          4       5            6       7            8                       9
+addrbook address 0. name:"Geno Alissi" sys_label:"" codec:1 h323_spd:384 h323_num:172.25.137.101 h323_ext:
+        1       2          3       4            5
+addrbook address name:"Geno Alissi" sys_label:"" done
+*************************************************************************************************/
+		if(sTemp1 = "names")
+		{
+			if(iMarker3 <> 0)
+			{
+				sTemp2 = mid(Tempstring$, iMarker2 + 1, iMarker3 - iMarker2 - 1);
+//	addrbook names all size 21
+//	addrbook names all 0 9
+//	addrbook names all 0 9 done
+				if(sTemp2 = "all")
+				{
+					if(iMarker4 <> 0)
+					{
+						sTemp3 = mid(Tempstring$, iMarker3 + 1, iMarker4 - iMarker3 - 1);
+						if(sTemp3 = "size")
+						{
+							iAddrbookSize = atoi(Tempstring$);
+							if((iAddrbookSize mod EntriesPerScreen) = 0)
+							{
+								iLocalAddrTotalPages = iAddrbookSize / EntriesPerScreen;
+							}
+							else
+							{
+								iLocalAddrTotalPages = (iAddrbookSize / EntriesPerScreen) + 1;
+							}
+							if(iAddrbookSize > 0)
+							{
+								siError = resizestructurearray(LocalAddressBook, iAddrbookSize);
+							}
+							if(iAddrbookSize > 20)
+							{
+								iAddrRequestedEntry = 20;
+								sTempSend = "addrbook names all 0 19\n";
+							}
+							else
+							{
+								sTempSend = "addrbook names all\n";
+							}
+						}
+						else
+						{
+							if(iMarker5 <> 0)
+							{
+								sTemp4 = right(Tempstring$, len(Tempstring$) - iMarker5);
+								if(sTemp4 = "done")
+								{
+									if(iAddrRequestedEntry < iAddrbookSize)
+									{
+										makestring(sTempSend, "addrbook names all %d %d\n", iAddrRequestedEntry, (iAddrRequestedEntry - 1) + 20);
+										iAddrRequestedEntry = iAddrRequestedEntry + 20;
+									}
+									else if(iAddrNumGroups > 0)
+									{
+										iRequestGroup = 1;
+										makestring(sTempSend, "addrbook group \x22%s\x22\n", Local_Groups[iRequestGroup].sName);
+									}
+									else if(iEnableGLobal = 1)
+									{
+										if((!GDS_Available) && (LDAP_Available))
+										{
+											iEntryCounter = 0;
+											nextSearchChar = 0;
+											makestring(ToDevice$, "gaddrbook names search \x22%s\x22 size\n", sCharacterArray[nextSearchChar]);
+										}
+										else if(GDS_Available)
+										{
+											iTempGlobalBatch = 1;
+											ToDevice$ = "gaddrbook batch 0\n";
+										}
+									}
+									else
+									{
+										iAddressBookRequestBusy = 0;
+										Get_Addressbooks_Busy = iAddressBookRequestBusy;
+									}
+								}
+							}
+						}
+					}
+				}
+//	addrbook names 0. name:"Eng RPX" sys_label:"HDX" type:multicodec
+				else if((len(sTemp2) >= 2) && (byte(sTemp2, len(sTemp2)) = 0x2E))
+				{
+					iTempEntryNum = atoi(sTemp2);
+					iMarker6 = find("name:", Tempstring$);
+					iMarker7 = find("\x22", Tempstring$, iMarker6); //Find the " character
+					iMarker8 = find("\x22", Tempstring$, iMarker7 + 1); //Find the next " character
+					sTempName = mid(Tempstring$, iMarker7 + 1, iMarker8 - iMarker7 - 1);
+					iMarker6 = find("type:", Tempstring$);
+					sTempType = right(Tempstring$, len(Tempstring$) - (iMarker6 + len("type:") - 1));
+					if(sTempType = "group")
+					{
+						iAddrNumGroups = iAddrNumGroups + 1;
+						if(iAddrNumGroups > iAddrGroupSize)
+						{
+							iAddrGroupSize = iAddrNumGroups;
+							siError = resizestructurearray(Local_Groups, iAddrGroupSize);
+						}
+						Local_Groups[iAddrNumGroups].sName = sTempName;
+						LocalAddressBook[iTempEntryNum].iGroupPointer = iAddrNumGroups;
+					}
+					else
+					{
+						LocalAddressBook[iTempEntryNum].iGroupPointer = 0;
+					}
+					LocalAddressBook[iTempEntryNum].sName = sTempName;
+					LocalAddressBook[iTempEntryNum].sType = sTempType;
+				}
+			}
+		}
+//	addrbook group 0. name:"Eng RPX" sys_label:"HDX"
+//	addrbook group "Monday Staff Mtg" done
+//	addrbook group size 10
+		else if(sTemp1 = "group")
+		{
+			if(iMarker3 <> 0)
+			{
+				sTemp2 = mid(Tempstring$, iMarker2 + 1, iMarker3 - iMarker2 - 1);
+				if((len(sTemp2) >= 2) && (byte(sTemp2, len(sTemp2)) = 0x2E))
+				{
+					iTempEntryNum = atoi(sTemp2);
+					iMarker6 = find("name:", Tempstring$);
+					iMarker7 = find("\x22", Tempstring$, iMarker6); //Find the " character
+					iMarker8 = find("\x22", Tempstring$, iMarker7 + 1); //Find the next " character
+					sTempName = mid(Tempstring$, iMarker7 + 1, iMarker8 - iMarker7 - 1);
+					for(a = 1 to iAddrbookSize)
+					{
+						if(sTempName = LocalAddressBook[a].sName)
+						{
+							Local_Groups[iRequestGroup].iEntryPointer[iTempEntryNum] = a;
+							break;
+						}
+					}
+				}
+				else if(byte(sTemp2, 1) = 0x22)
+				{
+					if(iMarker5 <> 0)
+					{
+						sTemp4 = right(Tempstring$, len(Tempstring$) - iMarker5);
+						if(sTemp4 = "done")
+						{
+							Local_Groups[iRequestGroup].iNumberOfEntries = iTempEntryNum + 1;
+							iRequestGroup = iRequestGroup + 1;
+							if(iRequestGRoup <= iAddrNumGroups)
+							{
+								makestring(sTempSend, "addrbook group \x22%s\x22\n", Local_Groups[iRequestGroup].sName);
+							}
+							else if(iEnableGlobal = 1)
+							{
+								if((!GDS_Available) && (LDAP_Available))
+								{
+									iEntryCounter = 0;
+									nextSearchChar = 0;
+									makestring(ToDevice$, "gaddrbook names search \x22%s\x22 size\n", sCharacterArray[nextSearchChar]);
+								}
+								else if(GDS_Available)
+								{
+									iTempGlobalBatch = 1;
+									ToDevice$ = "gaddrbook batch 0\n";
+								}
+							}
+							else
+							{
+								iAddressBookRequestBusy = 0;
+								Get_Addressbooks_Busy = iAddressBookRequestBusy;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+Function fProcessGroup(string fsTempString$)
+{
+	integer fiMarker1, fiMarker2, fiMarker3, fiMarker4, fiMarker5, fiMarker6;
+	string fsTemp1[ciMAXCHARS], fsTemp2[ciMAXCHARS];
+	fiMarker1 = 0;
+	fiMarker2 = 0;
+	fiMarker3 = 0;
+	fiMarker4 = 0;
+	fiMarker5 = 0;
+	fiMarker6 = 0;
+	fiMarker1 = find("\x20", fsTempString$);
+	fiMarker2 = find("\x20", fsTempString$, fiMarker1 + 1);
+	if((fiMarker1 <> 0) && (fiMarker2 <> 0))
+	{
+		fsTemp1 = mid(fsTempString$, fiMarker1 + 1, fiMarker2 - fiMarker1 - 1);
+		if(fsTemp1 = "grouplist")
+		{
+			fiMarker3 = find("\x20", fsTempString$, fiMarker2 + 1);
+			if(fiMarker3 <> 0)
+			{
+				fsTemp2 = mid(fsTempString$, fiMarker2 + 1, fiMarker3 - fiMarker2 - 1);
+//	gaddrbook grouplist size 6
+				if(fsTemp2 = "size")
+				{
+					iGAddrGroupSize = atoi(fsTempString$);
+					if(iGAddrGroupSize > ciDEFAULTGROUPS)
+					{
+						siError = resizestructurearray(Global_Groups, iGAddrGroupSize);
+					}
+					if(iGAddrGroupSize >= 20)
+					{
+						iGAddrGroupRequestedEntry = 20;
+						sTempSend = "gaddrbook grouplist 0 19\n";
+					}
+					else if(iGAddrGroupSize > 0)
+					{
+						iGAddrGroupRequestedEntry = iGAddrGroupSize;
+						makestring(sTempSend, "gaddrbook grouplist 0 %d\n", iGAddrGroupSize - 1);
+					}
+					else
+					{
+						iAddressBookRequestBusy = 0;
+						Get_Addressbooks_Busy = iAddressBookRequestBusy;
+					}
+				}
+//	gaddrbook grouplist 3. group:"SW Group"
+				else if((len(fsTemp2) >= 2) && (byte(fsTemp2, len(fsTemp2)) = 0x2E))
+				{
+					iTempGroupNum = atoi(fsTemp2);
+					fiMarker4 = find("group:", fsTempString$);
+					fiMarker5 = find("\x22", fsTempString$, fiMarker4);
+					fiMarker6 = find("\x22", fsTempString$, fiMarker5 + 1);
+					sTempName = mid(Tempstring$, fiMarker5 + 1, fiMarker6 - (fiMarker5 + 1));
+					if(iTempGroupNum <= iGAddrGroupSize)
+					{
+						for(a = 0 to iGAddressbookSize)
+						{
+							if(GlobalAddressbook[a].sName = sTempName)
+							{
+								GlobalAddressbook[a].sType = "group";
+								GlobalAddressbook[a].iGroupPointer = iTempGroupNum;
+								break;
+							}
+						}
+						Global_Groups[iTempGroupNum].sName = sTempName;
+					}
+				}
+//	gaddrbook grouplist 0 3 done
+				else
+				{
+					fiMarker3 = reversefind("\x20", fsTempString$);
+					fsTemp2 = mid(fsTempString$, fiMarker3 + 1, len(fsTempString$) - fiMarker2);
+					if(fsTemp2 = "done")
+					{
+						if((iGAddrGroupRequestedEntry + 20) < iGAddrGroupSize)
+						{
+							makestring(sTempSend, "gaddrbook grouplist %d %d\n", iGAddrGroupRequestedEntry, (iGAddrGroupRequestedEntry - 1) + 20);
+							iGAddrGroupRequestedEntry = iGAddrGroupRequestedEntry + 20;
+						}
+						else if(iGAddrGroupRequestedEntry < iGAddrGroupSize)
+						{
+							makestring(sTempSend, "gaddrbook grouplist %d %d\n", iGAddrGroupRequestedEntry, iGAddrGroupRequestedEntry + (iGAddrGroupSize - iGAddrGroupRequestedEntry));
+							iGAddrGroupRequestedEntry = iGAddrGroupSize;
+						}
+						else if(iGAddrGroupSize > 0)
+						{
+							iGlobalGroupRequested = 0;
+							makestring(sTempSend, "gaddrbook group \x22%s\x22 size\n", Global_Groups[iGlobalGroupRequested].sName);
+						}
+						else
+						{
+							iAddressBookRequestBusy = 0;
+							Get_Addressbooks_Busy = iAddressBookRequestBusy;
+						}
+					}
+				}
+			}
+		}
+/*************************************************************************************************
+	This section will process the groups from the global address book.
+
+gaddrbook group "Andover ITP" size 5
+gaddrbook group "Andover ITP" 0 3 done
+*************************************************************************************************/
+		else if(fsTemp1 = "group")
+		{
+			fiMarker3 = reversefind("\x20", fsTempString$);
+			fsTemp2 = mid(fsTempString$, fiMarker3 + 1, len(fsTempString$) - fiMarker3);
+			if(fsTemp2 = "done")
+			{
+				if((iGlobalGroupEntriesRequested + 20) < Global_Groups[iGlobalGroupRequested].iNumberOfEntries)
+				{
+					makestring(sTempSend, "gaddrbook group \x22%s\x22 %d %d\n", Global_Groups[iGlobalGroupRequested].sName, iGlobalGroupEntriesRequested, (iGlobalGroupEntriesRequested - 1) + 20);
+					iGlobalGroupEntriesRequested = iGlobalGroupEntriesRequested + 20;
+				}
+				else if(iGlobalGroupEntriesRequested < Global_Groups[iGlobalGroupRequested].iNumberOfEntries)
+				{
+					makestring(sTempSend, "gaddrbook group \x22%s\x22 %d %d\n", Global_Groups[iGlobalGroupRequested].sName, iGlobalGroupEntriesRequested, Global_Groups[iGlobalGroupRequested].iNumberOfEntries);
+					iGlobalGroupEntriesRequested = Global_Groups[iGlobalGroupRequested].iNumberOfEntries;
+				}
+				else if(iGlobalGroupEntriesRequested = Global_Groups[iGlobalGroupRequested].iNumberOfEntries)
+				{
+					if(iGAddrGroupSize > (iGlobalGroupRequested + 1))
+					{
+						iGlobalGroupRequested = iGlobalGroupRequested + 1;
+						makestring(sTempSend, "gaddrbook group \x22%s\x22 size\n", Global_Groups[iGlobalGroupRequested].sName);
+					}
+					else
+					{
+						iAddressBookRequestBusy = 0;
+						Get_Addressbooks_Busy = iAddressBookRequestBusy;
+					}
+				}
+			}
+			else
+			{
+				Global_Groups[iGlobalGroupRequested].iNumberOfEntries = atoi(fsTemp2);
+				if(Global_Groups[iGlobalGroupRequested].iNumberOfEntries > ciDEFAULTGROUPENTRIES)
+				{
+					siError = resizearray(Global_Groups[iGlobalGroupRequested].iEntryPointer, iTempEntryNum);
+				}
+				if((Global_Groups[iGlobalGroupRequested].iNumberOfEntries > 0) && (Global_Groups[iGlobalGroupRequested].iNumberOfEntries >= 20))
+				{
+					iGlobalGroupEntriesRequested = 20;
+					makestring(sTempSend, "gaddrbook group \x22%s\x22 0 19\n", Global_Groups[iGlobalGroupRequested].sName);
+				}
+				else if((Global_Groups[iGlobalGroupRequested].iNumberOfEntries > 0) && (Global_Groups[iGlobalGroupRequested].iNumberOfEntries < 20))
+				{
+					iGlobalGroupEntriesRequested = Global_Groups[iGlobalGroupRequested].iNumberOfEntries;
+					makestring(sTempSend, "gaddrbook group \x22%s\x22 0 %d\n", Global_Groups[iGlobalGroupRequested].sName, Global_Groups[iGlobalGroupRequested].iNumberOfEntries - 1);
+				}
+			}
+		}
+	}
+}
+
+function fProcessGlobalAddressBook()
+{
+	iMarker1 = 0;
+	iMarker2 = 0;
+	iMarker3 = 0;
+	iMarker4 = 0;
+	iMarker5 = 0;
+	iMarker6 = 0;
+	iMarker7 = 0;
+	iMarker8 = 0;
+	iMarker1 = find("\x20", Tempstring$);
+	iMarker2 = find("\x20", Tempstring$, iMarker1 + 1);
+	if((iMarker1 <> 0) && (iMarker2 <> 0))
+	{
+		sTemp1 = mid(Tempstring$, iMarker1 + 1, iMarker2 - iMarker1 - 1);
+/*************************************************************************************************
+Response samples
+
+gaddrbook 19. “Polycom HDX Demo 20” h323_spd:384 h323_num:192.168.1.120 h323_ext:
+gaddrbook batch 0 done
+
+gaddrbook grouplist size 6
+
+gaddrbook grouplist 3. group:"SW Group"
+gaddrbook grouplist 0 3 done
+
+gaddrbook group "Andover ITP" size 5
+
+gaddrbook system 3. name:"Support 400" sys_label:"HDX" sys_id:"10058#10059#10060#10061" phone_num:""type:multicodec
+gaddrbook group "Andover ITP" 0 3 done
+*************************************************************************************************/
+/*************************************************************************************************
+	This section will process the list of groups from the global address book.
+
+gaddrbook grouplist size 6
+
+gaddrbook grouplist 3. group:"SW Group"
+gaddrbook grouplist 0 3 done
+*************************************************************************************************/
+		if(sTemp1 = "grouplist")
+		{
+			fProcessGroup(Tempstring$);
+/*			iMarker3 = find("\x20", Tempstring$, iMarker2 + 1);
+			if(iMarker3 <> 0)
+			{
+				sTemp2 = mid(Tempstring$, iMarker2 + 1, iMarker3 - iMarker2 - 1);
+//	gaddrbook grouplist size 6
+				if(sTemp2 = "size")
+				{
+					iGAddrGroupSize = atoi(Tempstring$);
+					if(iGAddrGroupSize > ciDEFAULTGROUPS)
+					{
+						siError = resizestructurearray(Global_Groups, iGAddrGroupSize);
+					}
+					if(iGAddrGroupSize >= 20)
+					{
+						iGAddrGroupRequestedEntry = 20;
+						sTempSend = "gaddrbook grouplist 0 19\n";
+					}
+					else if(iGAddrGroupSize > 0)
+					{
+						iGAddrGroupRequestedEntry = iGAddrGroupSize;
+						makestring(sTempSend, "gaddrbook grouplist 0 %d\n", iGAddrGroupSize - 1);
+					}
+					else
+					{
+						iAddressBookRequestBusy = 0;
+						Get_Addressbooks_Busy = iAddressBookRequestBusy;
+					}
+				}
+//	gaddrbook grouplist 3. group:"SW Group"
+				else if((len(sTemp2) >= 2) && (byte(sTemp2, len(sTemp2)) = 0x2E))
+				{
+					iTempGroupNum = atoi(sTemp2);
+					iMarker4 = find("group:", Tempstring$);
+					iMarker5 = find("\x22", Tempstring$, iMarker4);
+					iMarker6 = find("\x22", Tempstring$, iMarker5 + 1);
+					sTempName = mid(Tempstring$, iMarker5 + 1, iMarker6 - (iMarker5 + 1));
+					if(iTempGroupNum <= iGAddrGroupSize)
+					{
+						for(a = 0 to iGAddressbookSize)
+						{
+							if(GlobalAddressbook[a].sName = sTempName)
+							{
+								GlobalAddressbook[a].sType = "group";
+								GlobalAddressbook[a].iGroupPointer = iTempGroupNum;
+								break;
+							}
+						}
+						Global_Groups[iTempGroupNum].sName = sTempName;
+					}
+				}
+//	gaddrbook grouplist 0 3 done
+				else
+				{
+					iMarker3 = reversefind("\x20", Tempstring$);
+					sTemp2 = mid(Tempstring$, iMarker3 + 1, len(Tempstring$) - iMarker2);
+					if(sTemp2 = "done")
+					{
+						if((iGAddrGroupRequestedEntry + 20) < iGAddrGroupSize)
+						{
+							makestring(sTempSend, "gaddrbook grouplist %d %d\n", iGAddrGroupRequestedEntry, (iGAddrGroupRequestedEntry - 1) + 20);
+							iGAddrGroupRequestedEntry = iGAddrGroupRequestedEntry + 20;
+						}
+						else if(iGAddrGroupRequestedEntry < iGAddrGroupSize)
+						{
+							makestring(sTempSend, "gaddrbook grouplist %d %d\n", iGAddrGroupRequestedEntry, iGAddrGroupRequestedEntry + (iGAddrGroupSize - iGAddrGroupRequestedEntry));
+							iGAddrGroupRequestedEntry = iGAddrGroupSize;
+						}
+						else if(iGAddrGroupSize > 0)
+						{
+							iGlobalGroupRequested = 0;
+							makestring(sTempSend, "gaddrbook group \x22%s\x22 size\n", Global_Groups[iGlobalGroupRequested].sName);
+						}
+						else
+						{
+							iAddressBookRequestBusy = 0;
+							Get_Addressbooks_Busy = iAddressBookRequestBusy;
+						}
+					}
+				}
+			}*/
+		}
+/*************************************************************************************************
+	This section will process the groups from the global address book.
+
+gaddrbook group "Andover ITP" size 5
+gaddrbook group "Andover ITP" 0 3 done
+*************************************************************************************************/
+		else if(sTemp1 = "group")
+		{
+			fProcessGroup(Tempstring$);
+/*			iMarker3 = reversefind("\x20", Tempstring$);
+			sTemp2 = mid(Tempstring$, iMarker3 + 1, len(Tempstring$) - iMarker3);
+			if(sTemp2 = "done")
+			{
+				if((iGlobalGroupEntriesRequested + 20) < Global_Groups[iGlobalGroupRequested].iNumberOfEntries)
+				{
+					makestring(sTempSend, "gaddrbook group \x22%s\x22 %d %d\n", Global_Groups[iGlobalGroupRequested].sName, iGlobalGroupEntriesRequested, (iGlobalGroupEntriesRequested - 1) + 20);
+					iGlobalGroupEntriesRequested = iGlobalGroupEntriesRequested + 20;
+				}
+				else if(iGlobalGroupEntriesRequested < Global_Groups[iGlobalGroupRequested].iNumberOfEntries)
+				{
+					makestring(sTempSend, "gaddrbook group \x22%s\x22 %d %d\n", Global_Groups[iGlobalGroupRequested].sName, iGlobalGroupEntriesRequested, Global_Groups[iGlobalGroupRequested].iNumberOfEntries);
+					iGlobalGroupEntriesRequested = Global_Groups[iGlobalGroupRequested].iNumberOfEntries;
+				}
+				else if(iGlobalGroupEntriesRequested = Global_Groups[iGlobalGroupRequested].iNumberOfEntries)
+				{
+					if(iGAddrGroupSize > (iGlobalGroupRequested + 1))
+					{
+						iGlobalGroupRequested = iGlobalGroupRequested + 1;
+						makestring(sTempSend, "gaddrbook group \x22%s\x22 size\n", Global_Groups[iGlobalGroupRequested].sName);
+					}
+					else
+					{
+						iAddressBookRequestBusy = 0;
+						Get_Addressbooks_Busy = iAddressBookRequestBusy;
+					}
+				}
+			}
+			else
+			{
+				Global_Groups[iGlobalGroupRequested].iNumberOfEntries = atoi(sTemp2);
+				if(Global_Groups[iGlobalGroupRequested].iNumberOfEntries > ciDEFAULTGROUPENTRIES)
+				{
+					siError = resizearray(Global_Groups[iGlobalGroupRequested].iEntryPointer, iTempEntryNum);
+				}
+				if((Global_Groups[iGlobalGroupRequested].iNumberOfEntries > 0) && (Global_Groups[iGlobalGroupRequested].iNumberOfEntries >= 20))
+				{
+					iGlobalGroupEntriesRequested = 20;
+					makestring(sTempSend, "gaddrbook group \x22%s\x22 0 19\n", Global_Groups[iGlobalGroupRequested].sName);
+				}
+				else if((Global_Groups[iGlobalGroupRequested].iNumberOfEntries > 0) && (Global_Groups[iGlobalGroupRequested].iNumberOfEntries < 20))
+				{
+					iGlobalGroupEntriesRequested = Global_Groups[iGlobalGroupRequested].iNumberOfEntries;
+					makestring(sTempSend, "gaddrbook group \x22%s\x22 0 %d\n", Global_Groups[iGlobalGroupRequested].sName, Global_Groups[iGlobalGroupRequested].iNumberOfEntries - 1);
+				}
+			}*/
+		}
+/*************************************************************************************************
+	This section will process the list of entries for a group from the global address book.
+
+gaddrbook system 3. name:"Support 400" sys_label:"HDX" sys_id:"10058#10059#10060#10061" phone_num:""type:multicodec
+gaddrbook group "Andover ITP" 0 3 done
+*************************************************************************************************/
+		else if(sTemp1 = "system")
+		{
+			iMarker3 = find("\x20", Tempstring$, iMarker2 + 1);
+			sTemp2 = mid(Tempstring$, iMarker2 + 1, iMarker3 - iMarker2 - 1);
+			if(iMarker3 > 0)
+			{
+				if((len(sTemp2) >= 2) && (byte(sTemp2, len(sTemp2)) = 0x2E))
+				{
+					iTempEntryNum = atoi(sTemp2);
+					iMarker6 = find("name:", Tempstring$);
+					iMarker7 = find("\x22", Tempstring$, iMarker6); //Find the " character
+					iMarker8 = find("\x22", Tempstring$, iMarker7 + 1); //Find the next " character
+					sTempName = mid(Tempstring$, iMarker7 + 1, iMarker8 - iMarker7 - 1);
+					if(iTempEntryNum <= Global_Groups[iGlobalGroupRequested].iNumberOfEntries)
+					{
+						for(a = 1 to iGAddressbookSize)
+						{
+							if(GlobalAddressbook[a].sName = sTempName)
+							{
+								Global_Groups[iGlobalGroupRequested].iEntryPointer[iTempEntryNum] = a;
+								break;
+							}
+						}
+					}
+					else
+					{
+						siError = resizearray(Global_Groups[iGlobalGroupRequested].iEntryPointer, iTempEntryNum);
+						for(a = 1 to iGAddressbookSize)
+						{
+							if(GlobalAddressbook[a].sName = sTempName)
+							{
+								Global_Groups[iGlobalGroupRequested].iEntryPointer[iTempEntryNum] = a;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+/*************************************************************************************************
+	This section will send the next command to get the global address book.
+
+gaddrbook batch 0 done
+*************************************************************************************************/
+		else if(sTemp1 = "batch")
+		{
+			iMarker4 = reversefind("\x20", Tempstring$);
+			if(iMarker4 <> 0)
+			{
+				sTemp2 = mid(Tempstring$, iMarker4 + 1, len(Tempstring$) - iMarker4);
+				if(sTemp2 = "range")
+				{
+					sTempSend = "gaddrbook grouplist size\n";
+				}
+				else if(sTemp2 = "done")
+				{
+					if(iTempGlobalBatch < ciMAXBATCH)
+					{
+						iTempGlobalBatch = iTempGlobalBatch + 1;
+						makestring(sTempSend, "gaddrbook batch %d\n", iTempGlobalBatch - 1);
+					}
+					else
+					{
+						sTempSend = "gaddrbook grouplist size\n";
+					}
+				}
+			}
+		}
+/*************************************************************************************************
+	This section will process the list of entries for the global address book.
+
+gaddrbook 19. “Polycom HDX Demo 20” h323_spd:384 h323_num:192.168.1.120 h323_ext:
+gaddrbook batch 0 done
+*************************************************************************************************/
+		else if((len(sTemp1) >= 2) && (byte(sTemp1, len(sTemp1)) = 0x2E))
+		{
+			iTempEntryNum = atoi(sTemp1);
+			iMarker7 = find("\x22", Tempstring$); //Find the " character
+			iMarker8 = find("\x22", Tempstring$, iMarker7 + 1); //Find the next " character
+			sTempName = mid(Tempstring$, iMarker7 + 1, iMarker8 - iMarker7 - 1);
+			if(iTempEntryNum <= iGAddressbookSize)
+			{
+				GlobalAddressbook[iTempEntryNum].sName = sTempName;
+				GlobalAddressbook[iTempEntryNum].sType = "";
+				GlobalAddressbook[iTempEntryNum].iGroupPointer = 0;
+			}
+			else
+			{
+				siError = resizestructurearray(GlobalAddressbook, iTempEntryNum);
+				GlobalAddressbook[iTempEntryNum].sName = sTempName;
+				GlobalAddressbook[iTempEntryNum].sType = "";
+				GlobalAddressbook[iTempEntryNum].iGroupPointer = 0;
+			}
+			iGAddressbookSize = iTempEntryNum;
+		}
+	}
+}
+
+function fProcessLdapGlobalAddressBook(string fsResponse)
+{
+	integer fiMarker1, fiMarker2, fiMarker3, fiMarker4, fiMarker5, fiMarker6, fiMarker7, fiMarker8;
+	integer fiMarkerQuote1, fiMarkerQuote2, a, fiTemp;
+	string fsTemp1[ciMAXCHARS], fsTemp2[ciMAXCHARS], fsTempName[ciMAXDIRCHARS], fsTempLabel[ciMAXDIRCHARS];
+	string fsTempId[ciMAXDIRCHARS], fsTempPhoneNum[ciMAXDIRCHARS], fsTempType[ciMAXDIRCHARS];
+	//gaddrbook names search s size 5
+	if(Enable_Debug)
+	{
+		trace("fProcessLdapGlobalAddressBook: fsResponse = %s;", fsResponse);
+	}
+	fiMarker1 = 0;
+	fiMarker2 = 0;
+	fiMarker3 = 0;
+	fiMarker4 = 0;
+	fiMarker5 = 0;
+	fiMarker6 = 0;
+	fiMarker7 = 0;
+	fiMarker8 = 0;
+	fiMarkerQuote1 = 0;
+	fiMarkerQuote2 = 0;
+	fiMarker1 = find("\x20", fsResponse);
+	fiMarker2 = find("\x20", fsResponse, fiMarker1 + 1);
+	if((fiMarker1 <> 0) && (fiMarker2 <> 0))
+	{
+		fsTemp1 = mid(fsResponse, fiMarker1 + 1, fiMarker2 - fiMarker1 - 1);
+		if(Enable_Debug)
+		{
+			trace("fProcessLdapGlobalAddressBook: fsTemp1 = %s;", fsTemp1);
+		}
+		if(fsTemp1 = "grouplist")
+		{
+			fProcessGroup(fsResponse);
+		}
+		else if(fsTemp1 = "group")
+		{
+			fProcessGroup(fsResponse);
+		}
+		else if(fsTemp1 = "names")
+		{
+			fiMarker3 = reversefind("\x20", fsResponse);
+			fsTemp2 = right(fsResponse, len(fsResponse) - fiMarker3);
+			if(Enable_Debug)
+			{
+				trace("fProcessLdapGlobalAddressBook: names: fsTemp2 = %s;", fsTemp2);
+			}
+			if(fsTemp2 = "done")
+			{
+				if(Enable_Debug)
+				{
+					trace("fProcessLdapGlobalAddressBook: names: done: ldapRangeMax = %d, ldapCharacterCount = %d;", ldapRangeMax, ldapCharacterCount);
+				}
+				if(ldapRangeMax < ldapCharacterCount)
+				{
+					ldapRangeMin = ldapRangeMin + ciMAXREQUEST;
+					ldapRangeMax = ldapRangeMax + ciMAXREQUEST;
+					if(Enable_Debug)
+					{
+						trace("fProcessLdapGlobalAddressBook: names: done: ldapRangeMax < ldapCharacterCount: ldapRangeMin = %d; ldapRangeMax = %d;", ldapRangeMin, ldapRangeMax);
+					}
+					if(ldapRangeMax > ldapCharacterCount)
+					{
+						ldapRangeMax = ldapCharacterCount;
+						makestring(sTempSend, "gaddrbook names search \x22%s\x22 %d %d\n", sCharacterArray[nextSearchChar], ldapRangeMin, ldapRangeMax);
+					}
+				}
+				else
+				{
+					if(Enable_Debug)
+					{
+						trace("fProcessLdapGlobalAddressBook: names: done: nextSearchChar = %d, ciCHARARRAYSIZE = %d;", nextSearchChar, ciCHARARRAYSIZE);
+					}
+					nextSearchChar = nextSearchChar + 1;
+					if(nextSearchChar < ciCHARARRAYSIZE)
+					{
+						makestring(sTempSend, "gaddrbook names search \x22%s\x22 size\n", sCharacterArray[nextSearchChar]);
+					}
+					else
+					{
+						sTempSend = "gaddrbook grouplist size\n";
+					}
+				}
+			}
+			else
+			{
+				if((atoi(fsTemp2) > 0) || ((atoi(fsTemp2) = 0) && (fsTemp2 = "0")))
+				{
+					ldapCharacterCount = atoi(fsTemp2);
+					if(Enable_Debug)
+					{
+						trace("fProcessLdapGlobalAddressBook: names: not done: ldapCharacterCount = %d;", ldapCharacterCount);
+					}
+					if(ldapCharacterCount > 0)
+					{
+						ldapRangeMin = 0;
+						if(ldapCharacterCount > ciMAXREQUEST)
+						{
+							ldapRangeMax = ciMAXREQUEST;
+						}
+						else
+						{
+							ldapRangeMax = ldapCharacterCount;
+						}
+						if(Enable_Debug)
+						{
+							trace("fProcessLdapGlobalAddressBook: names: not done: ldapRangeMax = %d;", ldapRangeMax);
+						}
+						makestring(sTempSend, "gaddrbook names search \x22%s\x22 %d %d\n", sCharacterArray[nextSearchChar], ldapRangeMin, ldapRangeMax);
+					}
+					else if(ldapCharacterCount = 0)
+					{
+						nextSearchChar = nextSearchChar + 1;
+						if(Enable_Debug)
+						{
+							trace("fProcessLdapGlobalAddressBook: names: not done: nextSearchChar = %d;", nextSearchChar);
+						}
+						if(nextSearchChar < ciCHARARRAYSIZE)
+						{
+							makestring(sTempSend, "gaddrbook names search \x22%s\x22 size\n", sCharacterArray[nextSearchChar]);
+						}
+						else
+						{
+							sTempSend = "gaddrbook grouplist size\n";
+						}
+					}
+				}
+			}
+		}
+		else if(fsTemp1 = "search")
+		{
+			fiMarker3 = find("\x20", fsResponse, fiMarker2 + 1);
+			fiTemp = atoi(mid(fsResponse, fiMarker2, fiMarker3 - fiMarker2 - 1));
+			if(Enable_Debug)
+			{
+				trace("fProcessLdapGlobalAddressBook: search: fiTemp = %d;", fiTemp);
+			}
+			fiMarker4 = find("sys_name:", fsResponse);
+			if(Enable_Debug)
+			{
+				trace("fProcessLdapGlobalAddressBook: search: fiMarker4(sys_name:) = %d;", fiMarker4);
+			}
+			if(fiMarker4 = 0)
+			{
+				fiMarker4 = find("name:", fsResponse);
+				if(Enable_Debug)
+				{
+					trace("fProcessLdapGlobalAddressBook: search: fiMarker4(name:) = %d;", fiMarker4);
+				}
+			}
+			fiMarker5 = find("sys_label:", fsResponse);
+			if(Enable_Debug)
+			{
+				trace("fProcessLdapGlobalAddressBook: search: fiMarker5(sys_label:) = %d;", fiMarker5);
+			}
+			fiMarker6 = find("sys_id:", fsResponse);
+			if(Enable_Debug)
+			{
+				trace("fProcessLdapGlobalAddressBook: search: fiMarker6(sys_id:) = %d;", fiMarker6);
+			}
+			fiMarker7 = find("phone_num:", fsResponse);
+			if(Enable_Debug)
+			{
+				trace("fProcessLdapGlobalAddressBook: search: fiMarker7(phone_num:) = %d;", fiMarker7);
+			}
+			fiMarker8 = find("type:", fsResponse);
+			if(Enable_Debug)
+			{
+				trace("fProcessLdapGlobalAddressBook: search: fiMarker8(type:) = %d;", fiMarker8);
+			}
+			if(fiMarker4 > 0)
+			{
+				fiMarkerQuote1 = find("\x22", fsResponse, fiMarker4);
+				if(fiMarkerQuote1 > 0)
+				{
+					fiMarkerQuote2 = find("\x22", fsResponse, fiMarkerQuote1 + 1);
+				}
+				else
+				{
+					fiMarkerQuote1 = find(":", fsResponse, fiMarker4);
+					fiMarkerQuote2 = find("\x20", fsResponse);
+				}
+				fsTempName = mid(fsResponse, fiMarkerQuote1 + 1, fiMarkerQuote2 - (fiMarkerQuote1 + 1));
+				if(Enable_Debug)
+				{
+					trace("fProcessLdapGlobalAddressBook: search: fsTempName = %s;", fsTempName);
+				}
+			}
+			fiMarkerQuote1 = 0;
+			fiMarkerQuote2 = 0;
+			if(fiMarker5 > 0)
+			{
+				fiMarkerQuote1 = find("\x22", fsResponse, fiMarker5);
+				if(fiMarkerQuote1 > 0)
+				{
+					fiMarkerQuote2 = find("\x22", fsResponse, fiMarkerQuote1 + 1);
+				}
+				else
+				{
+					fiMarkerQuote1 = find(":", fsResponse, fiMarker5);
+					fiMarkerQuote2 = find("\x20", fsResponse);
+				}
+				fsTempLabel = mid(fsResponse, fiMarkerQuote1 + 1, fiMarkerQuote2 - (fiMarkerQuote1 + 1));
+				if(Enable_Debug)
+				{
+					trace("fProcessLdapGlobalAddressBook: search: fsTemplabel = %s;", fsTempLabel);
+				}
+			}
+			fiMarkerQuote1 = 0;
+			fiMarkerQuote2 = 0;
+			if(fiMarker6 > 0)
+			{
+				fiMarkerQuote1 = find("\x22", fsResponse, fiMarker6);
+				if(fiMarkerQuote1 > 0)
+				{
+					fiMarkerQuote2 = find("\x22", fsResponse, fiMarkerQuote1 + 1);
+				}
+				else
+				{
+					fiMarkerQuote1 = find(":", fsResponse, fiMarker6);
+					fiMarkerQuote2 = find("\x20", fsResponse);
+				}
+				fsTempId = mid(fsResponse, fiMarkerQuote1 + 1, fiMarkerQuote2 - (fiMarkerQuote1 + 1));
+				if(Enable_Debug)
+				{
+					trace("fProcessLdapGlobalAddressBook: search: fsTempId = %s;", fsTempId);
+				}
+			}
+			fiMarkerQuote1 = 0;
+			fiMarkerQuote2 = 0;
+			if(fiMarker7 > 0)
+			{
+				fiMarkerQuote1 = find("\x22", fsResponse, fiMarker7);
+				if(fiMarkerQuote1 > 0)
+				{
+					fiMarkerQuote2 = find("\x22", fsResponse, fiMarkerQuote1 + 1);
+				}
+				else
+				{
+					fiMarkerQuote1 = find(":", fsResponse, fiMarker7);
+					fiMarkerQuote2 = find("\x20", fsResponse);
+				}
+				fsTempPhoneNum = mid(fsResponse, fiMarkerQuote1 + 1, fiMarkerQuote2 - (fiMarkerQuote1 + 1));
+				if(Enable_Debug)
+				{
+					trace("fProcessLdapGlobalAddressBook: search: fsTempPhoneNum = %s;", fsTempPhoneNum);
+				}
+			}
+			fiMarkerQuote1 = 0;
+			fiMarkerQuote2 = 0;
+			if(fiMarker8 > 0)
+			{
+				fiMarkerQuote1 = find("\x22", fsResponse, fiMarker8);
+				if(fiMarkerQuote1 > 0)
+				{
+					fiMarkerQuote2 = find("\x22", fsResponse, fiMarkerQuote1 + 1);
+				}
+				else
+				{
+					fiMarkerQuote1 = find(":", fsResponse, fiMarker8);
+					fiMarkerQuote2 = find("\x20", fsResponse);
+				}
+				fsTempType = mid(fsResponse, fiMarkerQuote1 + 1, fiMarkerQuote2 - (fiMarkerQuote1 + 1));
+				if(Enable_Debug)
+				{
+					trace("fProcessLdapGlobalAddressBook: search: fsTempType = %s;", fsTempType);
+				}
+			}
+			if(iGAddressbookSize > 0)
+			{
+				for(a = 0 to iGAddressbookSize - 1)
+				{
+					if(Enable_Debug)
+					{
+						trace("fProcessLdapGlobalAddressBook: search: checking names: fsTempName = %s, GlobalAddressBook[%d].sName = %s;", fsTempName, a, GlobalAddressBook[a].sName);
+						trace("fProcessLdapGlobalAddressBook: search: checking names: fsTempLabel = %s, GlobalAddressBook[%d].sLabel = %s;", fsTempName, a, GlobalAddressBook[a].sLabel);
+					}
+					if((fsTempName = GlobalAddressbook[a].sName) || (fsTempLabel = GlobalAddressbook[a].sLabel))
+					{
+						fsTempName = "";
+						fsTempLabel = "";
+						fsTempId = "";
+						fsTempPhoneNum = "";
+						fsTempType = "";
+						a = iGAddressbookSize;
+					}
+				}
+				if(a = iGAddressbookSize - 1)
+				{
+					iEntryCounter = iEntryCounter + 1;
+					if(iEntryCounter <= iGAddressbookSize)
+					{
+						GlobalAddressbook[iEntryCounter].sName = fsTempName;
+						GlobalAddressbook[iEntryCounter].sType = fsTempType;
+						GlobalAddressbook[iEntryCounter].sLabel = fsTempLabel;
+						GlobalAddressbook[iEntryCounter].sId = fsTempId;
+						GlobalAddressbook[iEntryCounter].sPhoneNum = fsTempPhoneNum;
+						GlobalAddressbook[iEntryCounter].iGroupPointer = 0;
+					}
+					else
+					{
+						siError = resizestructurearray(GlobalAddressbook, iEntryCounter);
+						GlobalAddressbook[iEntryCounter].sName = fsTempName;
+						GlobalAddressbook[iEntryCounter].sType = fsTempType;
+						GlobalAddressbook[iEntryCounter].sLabel = fsTempLabel;
+						GlobalAddressbook[iEntryCounter].sId = fsTempId;
+						GlobalAddressbook[iEntryCounter].sPhoneNum = fsTempPhoneNum;
+						GlobalAddressbook[iEntryCounter].iGroupPointer = 0;
+					}
+					iGAddressbookSize = iEntryCounter;
+				}
+			}
+		}
+	}
+}
+
+Function PopulateCharArray()
+{
+	sCharacterArray[0] = "0";
+	sCharacterArray[1] = "1";
+	sCharacterArray[2] = "2";
+	sCharacterArray[3] = "3";
+	sCharacterArray[4] = "4";
+	sCharacterArray[5] = "5";
+	sCharacterArray[6] = "6";
+	sCharacterArray[7] = "7";
+	sCharacterArray[8] = "8";
+	sCharacterArray[9] = "9";
+	sCharacterArray[10] = "-";
+	sCharacterArray[11] = "_";
+	sCharacterArray[12] = "\x5C";// \ character
+	sCharacterArray[13] = "/";
+	sCharacterArray[14] = ",";
+	sCharacterArray[15] = ".";
+	sCharacterArray[16] = "@";
+	sCharacterArray[17] = "a";
+	sCharacterArray[18] = "b";
+	sCharacterArray[19] = "c";
+	sCharacterArray[20] = "d";
+	sCharacterArray[21] = "e";
+	sCharacterArray[22] = "f";
+	sCharacterArray[23] = "g";
+	sCharacterArray[24] = "h";
+	sCharacterArray[25] = "i";
+	sCharacterArray[26] = "j";
+	sCharacterArray[27] = "k";
+	sCharacterArray[28] = "l";
+	sCharacterArray[29] = "m";
+	sCharacterArray[30] = "n";
+	sCharacterArray[31] = "o";
+	sCharacterArray[32] = "p";
+	sCharacterArray[33] = "q";
+	sCharacterArray[34] = "r";
+	sCharacterArray[35] = "s";
+	sCharacterArray[36] = "t";
+	sCharacterArray[37] = "u";
+	sCharacterArray[38] = "v";
+	sCharacterArray[39] = "w";
+	sCharacterArray[40] = "x";
+	sCharacterArray[41] = "y";
+	sCharacterArray[42] = "z";
+}
+
+Function fProcessResponse(string fsTempString)
+{
+	//notification:callstatus:<calldirection>:<call id>:<far site name>:<farsite number>:<connection status>:<callspeed>:<status-specific cause code from callengine>:<calltype>
+	//notification:callstatus:incoming:58:Unknown Caller::connecting::0:voiceonly
+	if(left(fsTempString, len("notification:callstatus:")) = "notification:callstatus:")
+	{
+		iMarker1 = find(":", fsTempString);
+		iMarker2 = find(":", fsTempString, iMarker1 + 1);
+		iMarker3 = find(":", fsTempString, iMarker2 + 1);
+		iMarker4 = find(":", fsTempString, iMarker3 + 1);
+		iMarker5 = find(":", fsTempString, iMarker4 + 1);
+		iMarker6 = find(":", fsTempString, iMarker5 + 1);
+		iMarker7 = find(":", fsTempString, iMarker6 + 1);
+		iMarker8 = find(":", fsTempString, iMarker7 + 1);
+		iMarker9 = find(":", fsTempString, iMarker8 + 1);
+		sTempDirection = mid(fsTempString, iMarker2 + 1, iMarker3 - (iMarker2 + 1));
+		iTempCallID = atoi(mid(fsTempString, iMarker3 + 1, iMarker4 - (iMarker3 + 1)));
+		sTempFEName = mid(fsTempString, iMarker4 + 1, iMarker5 - (iMarker4 + 1));
+		sTempFENumber = mid(fsTempString, iMarker5 + 1, iMarker6 - (iMarker5 + 1));
+		sTempStatus = mid(fsTempString, iMarker6 + 1, iMarker7 - (iMarker6 + 1));
+		sTempCallType = mid(fsTempString, iMarker9 + 1, len(fsTempString) - iMarker9);
+		fProcessNotification(sTempCallType);
+	}
+	else if(left(fsTempString, len("callinfo:")) = "callinfo:")
+	{//callinfo:<callid>:<far site name>:<far site number>:<speed>:<connection status>:<mute status>:<call direction>:<call type>
+		iMarker1 = find(":", fsTempString);
+		iMarker2 = find(":", fsTempString, iMarker1 + 1);
+		iMarker3 = find(":", fsTempString, iMarker2 + 1);
+		iMarker4 = find(":", fsTempString, iMarker3 + 1);
+		iMarker5 = find(":", fsTempString, iMarker4 + 1);
+		iMarker6 = find(":", fsTempString, iMarker5 + 1);
+		iMarker7 = find(":", fsTempString, iMarker6 + 1);
+		iMarker8 = find(":", fsTempString, iMarker7 + 1);
+		iTempCallID = atoi(mid(fsTempString, iMarker1 + 1, iMarker2 - (iMarker1 + 1)));
+		sTempFEName = mid(fsTempString, iMarker2 + 1, iMarker3 - (iMarker2 + 1));
+		sTempFENumber = mid(fsTempString, iMarker3 + 1, iMarker4 - (iMarker3 + 1));
+		sTempStatus = mid(fsTempString, iMarker5 + 1, iMarker6 - (iMarker5 + 1));
+		sTempDirection = mid(fsTempString, iMarker7 + 1, iMarker8 - (iMarker7 + 1));
+		sTempCallType = mid(fsTempString, iMarker8 + 1, len(fsTempString) - iMarker8);
+		fProcessNotification(sTempCallType);
+	}
+	else if(left(fsTempString, len("autoanswer")) = "autoanswer")
+	{
+		if(find("autoanswer yes", fsTempString) && len(fsTempString) = 16)
+		{
+			Auto_FB = 1;
+		}
+		else if(find("autoanswer no", fsTempString) && len(fsTempString) = 15)
+		{
+			Auto_FB = 0;
+		}
+	}
+	else if(find("addrbook", fsTempString) > 0)
+	{
+		cancelwait(wGetAddressBookTimeOut);
+		if(find("gaddrbook", fsTempString) > 0)
+		{
+			if(Enable_Debug)
+			{
+				trace("fProcessResponse: fsTempString = %s, GDS_Available = %d, LDAP_Available = %d;", fsTempString, GDS_Available, LDAP_Available);
+			}
+			if((!GDS_Available) && (LDAP_Available))
+			{
+				fProcessLdapGlobalAddressBook(fsTempString);
+			}
+			else
+			{
+				fProcessGlobalAddressBook();
+			}
+		}
+		else
+		{
+			fProcessLocalAddressBook();
+		}
+		if(len(sTempSend) > 0)
+		{
+			fGetAddressBookTimeOut();
+			ToDevice$ = sTempSend;
+			sTempSend = "";
+		}
+	}
+}
+/***********************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+***********************************************************************/
+CHANGE Enable_Local_Addressbook
+{
+	iEnableLocal = Enable_Local_Addressbook;
+}
+
+CHANGE Enable_Global_Addressbook
+{
+	iEnableGlobal = Enable_Global_Addressbook;
+}
+
+PUSH Get_Addressbooks
+{
+	if(iAddressBookRequestBusy = 0)
+	{
+		if(iEnableLocal = 1)
+		{
+			iAddressBookRequestBusy = 1;
+			Get_Addressbooks_Busy = iAddressBookRequestBusy;
+			fGetAddressBookTimeOut();
+			ToDevice$ = "addrbook names all size\n";
+		}
+		else if(iEnableGlobal = 1)
+		{
+			iAddressBookRequestBusy = 1;
+			Get_Addressbooks_Busy = iAddressBookRequestBusy;
+			fGetAddressBookTimeOut();
+			if((!GDS_Available) && (LDAP_Available))
+			{
+				iEntryCounter = 0;
+				nextSearchChar = 0;
+				makestring(ToDevice$, "gaddrbook names search \x22%s\x22 size\n", sCharacterArray[nextSearchChar]);
+			}
+			else if(GDS_Available)
+			{
+				iTempGlobalBatch = 1;
+				ToDevice$ = "gaddrbook batch 0\n";
+			}
+		}
+	}
+}
+
+#if_series3
+threadsafe RELEASE Process_Receive_String
+{
+	While((find("\x0D\x0A", Polycom_Rx$) > 0) || (find("\x0A\x0D", Polycom_Rx$) > 0))
+	{
+		mark1 = find("\x0D\x0A", Polycom_Rx$);
+		mark2 = find("\x0A\x0D", Polycom_Rx$);
+		if(((mark1 < mark2) && (mark1 > 0) && (mark2 > 0)) || (mark2 = 0)) 
+		{
+			Tempstring$ = Remove("\x0D\x0A", Polycom_Rx$);
+			Tempstring$ = left(Tempstring$, len(Tempstring$) - 2);
+			if(len(Tempstring$) > 0)
+			{
+				While((len(Tempstring$) > 0) && ((byte(Tempstring$, 1) = 13) || (byte(Tempstring$, 1) = 10) || (byte(Tempstring$, 1) = 45) || (byte(Tempstring$, 1) = 62) || (byte(Tempstring$, 1) = 32)))
+				{
+					Junk = getc(Tempstring$);
+				}
+			}
+		}
+		else
+		{
+			Tempstring$ = Remove("\x0A\x0D", Polycom_Rx$);
+			Tempstring$ = left(Tempstring$, len(Tempstring$) - 2);
+			if(len(Tempstring$) > 0)
+			{
+				While((len(Tempstring$) > 0) && ((byte(Tempstring$, 1) = 13) || (byte(Tempstring$, 1) = 10) || (byte(Tempstring$, 1) = 45) || (byte(Tempstring$, 1) = 62) || (byte(Tempstring$, 1) = 32)))
+				{
+					Junk = getc(Tempstring$);
+				}
+			}
+		}
+		if(len(Tempstring$) > 0)
+		{
+			if(Enable_Debug)
+			{
+				trace("Process_Receive_String: Tempstring$ = %s;", Tempstring$);
+			}
+			fProcessResponse(Tempstring$);
+		}
+		TempString$ = "";
+	}
+}
+#else
+RELEASE Process_Receive_String
+{
+	if(RxOk = 1)
+	{
+		RxOk = 0; 
+		While((find("\x0D\x0A", Polycom_Rx$) > 0) || (find("\x0A\x0D", Polycom_Rx$) > 0))
+		{
+			mark1 = find("\x0D\x0A", Polycom_Rx$);
+			mark2 = find("\x0A\x0D", Polycom_Rx$);
+			if(((mark1 < mark2) && (mark1 > 0) && (mark2 > 0)) || (mark2 = 0)) 
+			{
+				Tempstring$ = Remove("\x0D\x0A", Polycom_Rx$);
+				Tempstring$ = left(Tempstring$, len(Tempstring$) - 2);
+				if(len(Tempstring$) > 0)
+				{
+					While((len(Tempstring$) > 0) && ((byte(Tempstring$, 1) = 13) || (byte(Tempstring$, 1) = 10) || (byte(Tempstring$, 1) = 45) || (byte(Tempstring$, 1) = 62) || (byte(Tempstring$, 1) = 32)))
+					{
+						Junk = getc(Tempstring$);
+					}
+				}
+			}
+			else
+			{
+				Tempstring$ = Remove("\x0A\x0D", Polycom_Rx$);
+				Tempstring$ = left(Tempstring$, len(Tempstring$) - 2);
+				if(len(Tempstring$) > 0)
+				{
+					While((len(Tempstring$) > 0) && ((byte(Tempstring$, 1) = 13) || (byte(Tempstring$, 1) = 10) || (byte(Tempstring$, 1) = 45) || (byte(Tempstring$, 1) = 62) || (byte(Tempstring$, 1) = 32)))
+					{
+						Junk = getc(Tempstring$);
+					}
+				}
+			}
+			if(len(Tempstring$) > 0)
+			{
+				fProcessResponse(Tempstring$);
+			}
+			TempString$ = "";
+		}
+		RxOk = 1;
+	}
+}
+#endif
+
+PUSH Audio_Keypad
+{
+	iTempKey = getlastmodifiedarrayindex();
+	
+	if(iAudioHookState = 1)//Off Hook
+	{
+		switch(iTempKey)
+		{
+			case(ciKEYSTAR):
+			{
+				if(Enable_DTMF_In_Dial_String = 1)
+				{
+					if(len(sTempDialString) < Max_Characters)
+					{
+						sTempDialString = sTempDialString + "*";
+					}
+					else
+					{
+						sTempDialString = left(sTempDialString, len(sTempDialString) - 1) + "*";
+					}
+					Dial_String = sTempDialString;
+				}
+				ToDevice$ = "gendial *\n";
+			}
+			case(ciKEYPOUND):
+			{
+				if(Enable_DTMF_In_Dial_String = 1)
+				{
+					if(len(sTempDialString) < Max_Characters)
+					{
+						sTempDialString = sTempDialString + "#";
+					}
+					else
+					{
+						sTempDialString = left(sTempDialString, len(sTempDialString) - 1) + "#";
+					}
+					Dial_String = sTempDialString;
+				}
+				ToDevice$ = "gendial #\n";
+			}
+			case(ciKEYPAUSE):
+			{
+				//Do Nothing
+			}
+			case(ciKEYCLEAR):
+			{
+				//Do Nothing
+			}
+			case(ciKEYBACKSPACE):
+			{
+				//Do Nothing
+			}
+			default:
+			{
+				if(Enable_DTMF_In_Dial_String = 1)
+				{
+					if(len(sTempDialString) < Max_Characters)
+					{
+						makestring(sTempDialString, "%s%d", sTempDialString, iTempKey - 1);
+					}
+					else
+					{
+						makestring(sTempDialString, "%s%d", left(sTempDialString, len(sTempDialString) - 1), iTempKey - 1);
+					}
+					Dial_String = sTempDialString;
+				}
+				makestring(ToDevice$, "gendial %d\n", iTempKey - 1);
+			}
+		}
+	}
+	else//On Hook
+	{
+		switch(iTempKey)
+		{
+			case(ciKEYSTAR):
+			{
+				if(len(sTempDialString) < Max_Characters)
+				{
+					sTempDialString = sTempDialString + "*";
+					Dial_String = sTempDialString;
+				}
+			}
+			case(ciKEYPOUND):
+			{
+				if(len(sTempDialString) < Max_Characters)
+				{
+					sTempDialString = sTempDialString + "#";
+					Dial_String = sTempDialString;
+				}
+			}
+			case(ciKEYPAUSE):
+			{
+				if(len(sTempDialString) < Max_Characters)
+				{
+					sTempDialString = sTempDialString + ",";
+					Dial_String = sTempDialString;
+				}
+			}
+			case(ciKEYCLEAR):
+			{
+				sTempDialString = "";
+				Dial_String = sTempDialString;
+			}
+			case(ciKEYBACKSPACE):
+			{
+				sTempDialString = left(sTempDialString, len(sTempDialString) - 1);
+				Dial_String = sTempDialString;
+			}
+			default:
+			{
+				if(len(sTempDialString) < Max_Characters)
+				{
+					makestring(sTempDialString, "%s%d", sTempDialString, iTempKey - 1);
+					Dial_String = sTempDialString;
+				}
+			}
+		}
+	}
+}
+    
+PUSH Audio_Dial
+{
+	switch(Audio_Call_Type)
+	{
+		case(1)://POTS
+		{
+			if(len(sTempDialString) > 0)
+			{
+				makestring(ToDevice$, "dial phone pots %s\n", sTempDialString);
+			}
+		}
+		case(2)://ISDN PHONE
+		{
+			if(len(sTempDialString) > 0)
+			{
+				makestring(ToDevice$, "dial phone isdn_phone %s\n", sTempDialString);
+			}
+		}
+		case(3)://SIP SPEAKERPHONE
+		{
+			if(len(sTempDialString) > 0)
+			{
+				makestring(ToDevice$, "dial phone sip_speakerphone %s\n", sTempDialString);
+			}
+		}
+	}
+}
+
+PUSH Hang_Up_Video
+{
+	iTempHangUp = getlastmodifiedarrayindex();
+	
+	switch(iTempHangUp)
+	{
+		case(1):
+		{
+			makestring(ToDevice$, "hangup video %d\n", iVideoCallID[1]);
+		}
+		case(2):
+		{
+			makestring(ToDevice$, "hangup video %d\n", iVideoCallID[2]);
+		}
+		case(3):
+		{
+			makestring(ToDevice$, "hangup video %d\n", iVideoCallID[3]);
+		}
+		case(4):
+		{
+			makestring(ToDevice$, "hangup video %d\n", iVideoCallID[4]);
+		}
+		case(ciHANGUPALL):
+		{
+			makestring(ToDevice$, "hangup video\n");
+		}
+	}
+}
+
+PUSH Ignore_Video
+{
+	if(iIncomingVideoCallID > 0)
+	{
+		makestring(ToDevice$, "hangup video %d\n", iIncomingVideoCallID);
+	}
+}
+
+PUSH Local_Addressbook_Select
+{
+	iTemp = getlastmodifiedarrayindex();
+	if(LocalEntryValid[iTemp] = 1)
+	{
+		iTemp = (iTemp - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+		if(iCurrentLocalLevel = 0)
+		{
+			if(LocalAddressBook[iTemp].sType = "group")
+			{
+				fAddToLocalReturnStack(iCurrentLocalLevel, iCurrentLocalPage);
+				iCurrentLocalLevel = LocalAddressBook[iTemp].iGroupPointer;
+				iCurrentLocalPage = 1;
+				if((Local_Groups[iCurrentLocalLevel].iNumberOfEntries mod EntriesPerScreen) = 0)
+				{
+					iLocalAddrTotalPages = Local_Groups[iCurrentLocalLevel].iNumberOfEntries / EntriesPerScreen;
+				}
+				else
+				{
+					iLocalAddrTotalPages = (Local_Groups[iCurrentLocalLevel].iNumberOfEntries / EntriesPerScreen) + 1;
+				}
+				Local_Addressbook_CurrentPage = iCurrentLocalPage;
+				Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+				Local_Addressbook_List_Name_Text = Local_Groups[iCurrentLocalLevel].sName;
+				for(a = 1 to 25)
+				{
+					Local_Addressbook_Name$[a] = "";
+					Local_Addressbook_Number$[a] = "";
+					LocalEntryValid[a] = 0;
+				}
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= Local_Groups[iCurrentLocalLevel].iNumberOfEntries)
+					{
+						b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+						if(LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sType = "group")
+						{
+							Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+						}
+						else
+						{
+							Local_Addressbook_Name$[a] = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+						}
+						LocalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				Local_Addressbook_NameSelected$ = LocalAddressBook[iTemp].sName;
+				Local_Addressbook_NumberSelected$ = "";
+				Local_Addressbook_SpeedSelected$ = "";
+				makestring(sTempLocalDialString, "dial addressbook \x22%s\x22\n", LocalAddressBook[iTemp].sName);
+			}
+		}
+		else if((iCurrentLocalLevel > 0) && (iCurrentLocalLevel <= iAddrNumGroups))
+		{
+			if(LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[iTemp]].sType = "group")
+			{
+				fAddToLocalReturnStack(iCurrentLocalLevel, iCurrentLocalPage);
+				iCurrentLocalLevel = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[iTemp]].iGroupPointer;
+				iCurrentLocalPage = 1;
+				if((Local_Groups[iCurrentLocalLevel].iNumberOfEntries mod EntriesPerScreen) = 0)
+				{
+					iLocalAddrTotalPages = Local_Groups[iCurrentLocalLevel].iNumberOfEntries / EntriesPerScreen;
+				}
+				else
+				{
+					iLocalAddrTotalPages = (Local_Groups[iCurrentLocalLevel].iNumberOfEntries / EntriesPerScreen) + 1;
+				}
+				Local_Addressbook_CurrentPage = iCurrentLocalPage;
+				Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+				Local_Addressbook_List_Name_Text = Local_Groups[iCurrentLocalLevel].sName;
+				for(a = 1 to 25)
+				{
+					Local_Addressbook_Name$[a] = "";
+					Local_Addressbook_Number$[a] = "";
+					LocalEntryValid[a] = 0;
+				}
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= Local_Groups[iCurrentLocalLevel].iNumberOfEntries)
+					{
+						b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+						if(LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sType = "group")
+						{
+							Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+						}
+						else
+						{
+							Local_Addressbook_Name$[a] = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+						}
+						LocalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				Local_Addressbook_NameSelected$ = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[iTemp]].sName;
+				Local_Addressbook_NumberSelected$ = "";
+				Local_Addressbook_SpeedSelected$ = "";
+				makestring(sTempLocalDialString, "dial addressbook \x22%s\x22\n", LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[iTemp]].sName);
+			}
+		}
+	}
+}
+
+PUSH Local_Addressbook_Dial
+{
+	if(len(sTempLocalDialString) > 0)
+	{
+		ToDevice$ = sTempLocalDialString;
+	}
+}
+
+PUSH Local_Addressbook_Top
+{
+	if(iCurrentLocalLevel <> 0)
+	{
+		iCurrentLocalLevel = 0;
+		iCurrentLocalPage = 1;
+		fAddToLocalReturnStack(iCurrentLocalLevel, iCurrentLocalPage);
+		if((iAddrbookSize mod EntriesPerScreen) = 0)
+		{
+			iLocalAddrTotalPages = iAddrbookSize / EntriesPerScreen;
+		}
+		else
+		{
+			iLocalAddrTotalPages = (iAddrbookSize / EntriesPerScreen) + 1;
+		}
+		Local_Addressbook_CurrentPage = iCurrentLocalPage;
+		Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+		Local_Addressbook_List_Name_Text = "Local Addess Book";
+		for(a = 1 to 25)
+		{
+			Local_Addressbook_Name$[a] = "";
+			Local_Addressbook_Number$[a] = "";
+			LocalEntryValid[a] = 0;
+		}
+		if(iAddressBookRequestBusy = 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= iAddrbookSize)
+				{
+					b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+					if(LocalAddressBook[b].sType = "group")
+					{
+						Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[b].sName;
+					}
+					else
+					{
+						Local_Addressbook_Name$[a] = LocalAddressBook[b].sName;
+					}
+					LocalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
+PUSH Local_Addressbook_Return
+{
+	iTemp = fRemoveFromLocalReturnStack();
+	iTempLevel = iTemp /100;
+	iTempPage = iTemp mod 100;
+	if(iTempLevel = 0)
+	{
+		iCurrentLocalLevel = iTempLevel;
+		iCurrentLocalPage = iTempPage;
+		if((iAddrbookSize mod EntriesPerScreen) = 0)
+		{
+			iLocalAddrTotalPages = iAddrbookSize / EntriesPerScreen;
+		}
+		else
+		{
+			iLocalAddrTotalPages = (iAddrbookSize / EntriesPerScreen) + 1;
+		}
+		Local_Addressbook_CurrentPage = iCurrentLocalPage;
+		Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+		Local_Addressbook_List_Name_Text = "Local Addess Book";
+		for(a = 1 to 25)
+		{
+			Local_Addressbook_Name$[a] = "";
+			Local_Addressbook_Number$[a] = "";
+			LocalEntryValid[a] = 0;
+		}
+		if(iAddressBookRequestBusy = 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= iAddrbookSize)
+				{
+					b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+					if(LocalAddressBook[b].sType = "group")
+					{
+						Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[b].sName;
+					}
+					else
+					{
+						Local_Addressbook_Name$[a] = LocalAddressBook[b].sName;
+					}
+					LocalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+	else if(iTempLevel > 0)
+	{
+		iCurrentLocalLevel = iTempLevel;
+		iCurrentLocalPage = iTempPage;
+		if((Local_Groups[iCurrentLocalLevel].iNumberOfEntries mod EntriesPerScreen) = 0)
+		{
+			iLocalAddrTotalPages = Local_Groups[iCurrentLocalLevel].iNumberOfEntries / EntriesPerScreen;
+		}
+		else
+		{
+			iLocalAddrTotalPages = (Local_Groups[iCurrentLocalLevel].iNumberOfEntries / EntriesPerScreen) + 1;
+		}
+		Local_Addressbook_CurrentPage = iCurrentLocalPage;
+		Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+		Local_Addressbook_List_Name_Text = Local_Groups[iCurrentLocalLevel].sName;
+		for(a = 1 to 25)
+		{
+			Local_Addressbook_Name$[a] = "";
+			Local_Addressbook_Number$[a] = "";
+			LocalEntryValid[a] = 0;
+		}
+		if(iAddressBookRequestBusy = 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= Local_Groups[iCurrentLocalLevel].iNumberOfEntries)
+				{
+					b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+					if(LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sType = "group")
+					{
+						Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+					}
+					else
+					{
+						Local_Addressbook_Name$[a] = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+					}
+					LocalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
+PUSH Local_Addressbook_First
+{
+	for(a = 1 to 25)
+	{
+		Local_Addressbook_Name$[a] = "";
+		Local_Addressbook_Number$[a] = "";
+		LocalEntryValid[a] = 0;
+	}
+	if(iAddressBookRequestBusy = 0)
+	{
+		iCurrentLocalPage = 1;
+		Local_Addressbook_CurrentPage = iCurrentLocalPage;
+		Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+		if(iCurrentLocalLevel = 0)
+		{
+			fAddToLocalReturnStack(iCurrentLocalLevel, iCurrentLocalPage);
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= iAddrbookSize)
+				{
+					b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+					if(LocalAddressBook[b].sType = "group")
+					{
+						Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[b].sName;
+					}
+					else
+					{
+						Local_Addressbook_Name$[a] = LocalAddressBook[b].sName;
+					}
+					LocalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		else if(iCurrentLocalLevel > 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= Local_Groups[iCurrentLocalLevel].iNumberOfEntries)
+				{
+					b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+					if(LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sType = "group")
+					{
+						Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+					}
+					else
+					{
+						Local_Addressbook_Name$[a] = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+					}
+					LocalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
+PUSH Local_Addressbook_Prev
+{
+	for(a = 1 to 25)
+	{
+		Local_Addressbook_Name$[a] = "";
+		Local_Addressbook_Number$[a] = "";
+		LocalEntryValid[a] = 0;
+	}
+	if(iAddressBookRequestBusy = 0)
+	{
+		if(iCurrentLocalPage > 1)
+		{
+			iCurrentLocalPage = iCurrentLocalPage - 1;
+			Local_Addressbook_CurrentPage = iCurrentLocalPage;
+			Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+			if(iCurrentLocalLevel = 0)
+			{
+				fAddToLocalReturnStack(iCurrentLocalLevel, iCurrentLocalPage);
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= iAddrbookSize)
+					{
+						b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+						if(LocalAddressBook[b].sType = "group")
+						{
+							Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[b].sName;
+						}
+						else
+						{
+							Local_Addressbook_Name$[a] = LocalAddressBook[b].sName;
+						}
+						LocalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else if(iCurrentLocalLevel > 0)
+			{
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= Local_Groups[iCurrentLocalLevel].iNumberOfEntries)
+					{
+						b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+						if(LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sType = "group")
+						{
+							Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+						}
+						else
+						{
+							Local_Addressbook_Name$[a] = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+						}
+						LocalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+PUSH Local_Addressbook_Next
+{
+	for(a = 1 to 25)
+	{
+		Local_Addressbook_Name$[a] = "";
+		Local_Addressbook_Number$[a] = "";
+		LocalEntryValid[a] = 0;
+	}
+	if(iAddressBookRequestBusy = 0)
+	{
+		if(iCurrentLocalPage > iLocalAddrTotalPages)
+		{
+			iCurrentLocalPage = iCurrentLocalPage + 1;
+			Local_Addressbook_CurrentPage = iCurrentLocalPage;
+			Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+			if(iCurrentLocalLevel = 0)
+			{
+				fAddToLocalReturnStack(iCurrentLocalLevel, iCurrentLocalPage);
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= iAddrbookSize)
+					{
+						b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+						if(LocalAddressBook[b].sType = "group")
+						{
+							Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[b].sName;
+						}
+						else
+						{
+							Local_Addressbook_Name$[a] = LocalAddressBook[b].sName;
+						}
+						LocalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else if(iCurrentLocalLevel > 0)
+			{
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= Local_Groups[iCurrentLocalLevel].iNumberOfEntries)
+					{
+						b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+						if(LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sType = "group")
+						{
+							Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+						}
+						else
+						{
+							Local_Addressbook_Name$[a] = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+						}
+						LocalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+PUSH Local_Addressbook_Last
+{
+	for(a = 1 to 25)
+	{
+		Local_Addressbook_Name$[a] = "";
+		Local_Addressbook_Number$[a] = "";
+		LocalEntryValid[a] = 0;
+	}
+	if(iAddressBookRequestBusy = 0)
+	{
+		iCurrentLocalPage = iLocalAddrTotalPages;
+		Local_Addressbook_CurrentPage = iCurrentLocalPage;
+		Local_Addressbook_TotalPages = iLocalAddrTotalPages;
+		if(iCurrentLocalLevel = 0)
+		{
+			fAddToLocalReturnStack(iCurrentLocalLevel, iCurrentLocalPage);
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= iAddrbookSize)
+				{
+					b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+					if(LocalAddressBook[b].sType = "group")
+					{
+						Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[b].sName;
+					}
+					else
+					{
+						Local_Addressbook_Name$[a] = LocalAddressBook[b].sName;
+					}
+					LocalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		else if(iCurrentLocalLevel > 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= Local_Groups[iCurrentLocalLevel].iNumberOfEntries)
+				{
+					b =  (a - 1) + ((iCurrentLocalPage - 1) * EntriesPerScreen);
+					if(LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sType = "group")
+					{
+						Local_Addressbook_Name$[a] = csGROUPPREFIX + LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+					}
+					else
+					{
+						Local_Addressbook_Name$[a] = LocalAddressBook[Local_Groups[iCurrentLocalLevel].iEntryPointer[b]].sName;
+					}
+					LocalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
+PUSH Local_Addressbook_Clear_Selected
+{
+	LocalSiteRequested = 0;
+	LocalSelected = 0;
+	Local_Addressbook_NameSelected$ = "";
+	Local_Addressbook_NumberSelected$ = "";
+	Local_Addressbook_SpeedSelected$ = "";
+	sTempLocalDialString = "";
+}
+
+PUSH Global_Addressbook_Select
+{
+	iTemp = getlastmodifiedarrayindex();
+	if(GlobalEntryValid[iTemp] = 1)
+	{
+		iTemp = (iTemp - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+		if(iCurrentGlobalLevel = 0)
+		{
+			if(GlobalAddressBook[iTemp].sType = "group")
+			{
+				fAddToGlobalReturnStack(iCurrentGlobalLevel, iCurrentGlobalPage);
+				iCurrentGlobalLevel = GlobalAddressBook[iTemp].iGroupPointer;
+				iCurrentGlobalPage = 1;
+				if((Global_Groups[iCurrentGlobalLevel].iNumberOfEntries mod EntriesPerScreen) = 0)
+				{
+					iGlobalAddrTotalPages = Global_Groups[iCurrentGlobalLevel].iNumberOfEntries / EntriesPerScreen;
+				}
+				else
+				{
+					iGlobalAddrTotalPages = (Global_Groups[iCurrentGlobalLevel].iNumberOfEntries / EntriesPerScreen) + 1;
+				}
+				Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+				Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+				Global_Addressbook_List_Name_Text = Global_Groups[iCurrentGlobalLevel].sName;
+				for(a = 1 to 25)
+				{
+					Global_Addressbook_Name$[a] = "";
+					Global_Addressbook_Number$[a] = "";
+					GlobalEntryValid[a] = 0;
+				}
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= Global_Groups[iCurrentGlobalLevel].iNumberOfEntries)
+					{
+						b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+						if(GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sType = "group")
+						{
+							Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+						}
+						else
+						{
+							Global_Addressbook_Name$[a] = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+						}
+						GlobalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				Global_Addressbook_NameSelected$ = GlobalAddressBook[iTemp].sName;
+				Global_Addressbook_NumberSelected$ = "";
+				Global_Addressbook_SpeedSelected$ = "";
+				makestring(sTempGlobalDialString, "dial addressbook \x22%s\x22\n", GlobalAddressBook[iTemp].sName);
+			}
+		}
+		else if((iCurrentGlobalLevel > 0) && (iCurrentGlobalLevel <= iGAddrGroupSize))
+		{
+			if(GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[iTemp]].sType = "group")
+			{
+				fAddToGlobalReturnStack(iCurrentGlobalLevel, iCurrentGlobalPage);
+				iCurrentGlobalLevel = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[iTemp]].iGroupPointer;
+				iCurrentGlobalPage = 1;
+				if((Global_Groups[iCurrentGlobalLevel].iNumberOfEntries mod EntriesPerScreen) = 0)
+				{
+					iGlobalAddrTotalPages = Global_Groups[iCurrentGlobalLevel].iNumberOfEntries / EntriesPerScreen;
+				}
+				else
+				{
+					iGlobalAddrTotalPages = (Global_Groups[iCurrentGlobalLevel].iNumberOfEntries / EntriesPerScreen) + 1;
+				}
+				Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+				Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+				Global_Addressbook_List_Name_Text = Global_Groups[iCurrentGlobalLevel].sName;
+				for(a = 1 to 25)
+				{
+					Global_Addressbook_Name$[a] = "";
+					Global_Addressbook_Number$[a] = "";
+					GlobalEntryValid[a] = 0;
+				}
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= Global_Groups[iCurrentGlobalLevel].iNumberOfEntries)
+					{
+						b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+						if(GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sType = "group")
+						{
+							Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+						}
+						else
+						{
+							Global_Addressbook_Name$[a] = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+						}
+						GlobalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				Global_Addressbook_NameSelected$ = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[iTemp]].sName;
+				Global_Addressbook_NumberSelected$ = "";
+				Global_Addressbook_SpeedSelected$ = "";
+				makestring(sTempGlobalDialString, "dial addressbook \x22%s\x22\n", GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[iTemp]].sName);
+			}
+		}
+	}
+}
+
+PUSH Global_Addressbook_Dial
+{
+	if(len(sTempGlobalDialString) > 0)
+	{
+		ToDevice$ = sTempGlobalDialString;
+	}
+}
+
+PUSH Global_Addressbook_Top
+{
+	if(iCurrentGlobalLevel <> 0)
+	{
+		iCurrentGlobalLevel = 0;
+		iCurrentGlobalPage = 1;
+		fAddToGlobalReturnStack(iCurrentGlobalLevel, iCurrentGlobalPage);
+		if((iGAddressbookSize mod EntriesPerScreen) = 0)
+		{
+			iGlobalAddrTotalPages = iGAddressbookSize / EntriesPerScreen;
+		}
+		else
+		{
+			iGlobalAddrTotalPages = (iGAddressbookSize / EntriesPerScreen) + 1;
+		}
+		Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+		Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+		Global_Addressbook_List_Name_Text = "Global Addess Book";
+		for(a = 1 to 25)
+		{
+			Global_Addressbook_Name$[a] = "";
+			Global_Addressbook_Number$[a] = "";
+			GlobalEntryValid[a] = 0;
+		}
+		if(iAddressBookRequestBusy = 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= iGAddressbookSize)
+				{
+					b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+					if(GlobalAddressBook[b].sType = "group")
+					{
+						Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[b].sName;
+					}
+					else
+					{
+						Global_Addressbook_Name$[a] = GlobalAddressBook[b].sName;
+					}
+					GlobalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
+PUSH Global_Addressbook_Return
+{
+	iTemp = fRemoveFromGlobalReturnStack();
+	iTempLevel = iTemp /100;
+	iTempPage = iTemp mod 100;
+	if(iTempLevel = 0)
+	{
+		iCurrentGlobalLevel = iTempLevel;
+		iCurrentGlobalPage = iTempPage;
+		if((iAddrbookSize mod EntriesPerScreen) = 0)
+		{
+			iGlobalAddrTotalPages = iGAddressbookSize / EntriesPerScreen;
+		}
+		else
+		{
+			iGlobalAddrTotalPages = (iGAddressbookSize / EntriesPerScreen) + 1;
+		}
+		Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+		Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+		Global_Addressbook_List_Name_Text = "Global Addess Book";
+		for(a = 1 to 25)
+		{
+			Global_Addressbook_Name$[a] = "";
+			Global_Addressbook_Number$[a] = "";
+			GlobalEntryValid[a] = 0;
+		}
+		if(iAddressBookRequestBusy = 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= iGAddressbookSize)
+				{
+					b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+					if(GlobalAddressBook[b].sType = "group")
+					{
+						Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[b].sName;
+					}
+					else
+					{
+						Global_Addressbook_Name$[a] = GlobalAddressBook[b].sName;
+					}
+					GlobalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+	else if(iTempLevel > 0)
+	{
+		iCurrentGlobalLevel = iTempLevel;
+		iCurrentGlobalPage = iTempPage;
+		if((Global_Groups[iCurrentGlobalLevel].iNumberOfEntries mod EntriesPerScreen) = 0)
+		{
+			iGlobalAddrTotalPages = Global_Groups[iCurrentGlobalLevel].iNumberOfEntries / EntriesPerScreen;
+		}
+		else
+		{
+			iGlobalAddrTotalPages = (Global_Groups[iCurrentGlobalLevel].iNumberOfEntries / EntriesPerScreen) + 1;
+		}
+		Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+		Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+		Global_Addressbook_List_Name_Text = Global_Groups[iCurrentGlobalLevel].sName;
+		for(a = 1 to 25)
+		{
+			Global_Addressbook_Name$[a] = "";
+			Global_Addressbook_Number$[a] = "";
+			GlobalEntryValid[a] = 0;
+		}
+		if(iAddressBookRequestBusy = 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= Global_Groups[iCurrentGlobalLevel].iNumberOfEntries)
+				{
+					b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+					if(GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sType = "group")
+					{
+						Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+					}
+					else
+					{
+						Global_Addressbook_Name$[a] = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+					}
+					GlobalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
+PUSH Global_Addressbook_First
+{
+	for(a = 1 to 25)
+	{
+		Global_Addressbook_Name$[a] = "";
+		Global_Addressbook_Number$[a] = "";
+		GlobalEntryValid[a] = 0;
+	}
+	if(iAddressBookRequestBusy = 0)
+	{
+		iCurrentGlobalPage = 1;
+		Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+		Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+		if(iCurrentGlobalLevel = 0)
+		{
+			fAddToGlobalReturnStack(iCurrentGlobalLevel, iCurrentGlobalPage);
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= iGAddressbookSize)
+				{
+					b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+					if(GlobalAddressBook[b].sType = "group")
+					{
+						Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[b].sName;
+					}
+					else
+					{
+						Global_Addressbook_Name$[a] = GlobalAddressBook[b].sName;
+					}
+					GlobalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		else if(iCurrentGlobalLevel > 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= Global_Groups[iCurrentGlobalLevel].iNumberOfEntries)
+				{
+					b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+					if(GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sType = "group")
+					{
+						Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+					}
+					else
+					{
+						Global_Addressbook_Name$[a] = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+					}
+					GlobalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
+PUSH Global_Addressbook_Prev
+{
+	for(a = 1 to 25)
+	{
+		Global_Addressbook_Name$[a] = "";
+		Global_Addressbook_Number$[a] = "";
+		GlobalEntryValid[a] = 0;
+	}
+	if(iAddressBookRequestBusy = 0)
+	{
+		if(iCurrentGlobalPage > 1)
+		{
+			iCurrentGlobalPage = iCurrentGlobalPage - 1;
+			Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+			Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+			if(iCurrentGlobalLevel = 0)
+			{
+				fAddToGlobalReturnStack(iCurrentGlobalLevel, iCurrentGlobalPage);
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= iGAddressbookSize)
+					{
+						b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+						if(GlobalAddressBook[b].sType = "group")
+						{
+							Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[b].sName;
+						}
+						else
+						{
+							Global_Addressbook_Name$[a] = GlobalAddressBook[b].sName;
+						}
+						GlobalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else if(iCurrentGlobalLevel > 0)
+			{
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= Global_Groups[iCurrentGlobalLevel].iNumberOfEntries)
+					{
+						b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+						if(GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sType = "group")
+						{
+							Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+						}
+						else
+						{
+							Global_Addressbook_Name$[a] = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+						}
+						GlobalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+PUSH Global_Addressbook_Next
+{
+	for(a = 1 to 25)
+	{
+		Global_Addressbook_Name$[a] = "";
+		Global_Addressbook_Number$[a] = "";
+		GlobalEntryValid[a] = 0;
+	}
+	if(iAddressBookRequestBusy = 0)
+	{
+		if(iCurrentGlobalPage > iGlobalAddrTotalPages)
+		{
+			iCurrentGlobalPage = iCurrentGlobalPage + 1;
+			Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+			Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+			if(iCurrentGlobalLevel = 0)
+			{
+				fAddToGlobalReturnStack(iCurrentGlobalLevel, iCurrentGlobalPage);
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= iGAddressbookSize)
+					{
+						b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+						if(GlobalAddressBook[b].sType = "group")
+						{
+							Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[b].sName;
+						}
+						else
+						{
+							Global_Addressbook_Name$[a] = GlobalAddressBook[b].sName;
+						}
+						GlobalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+			else if(iCurrentGlobalLevel > 0)
+			{
+				for(a = 1 to EntriesPerScreen)
+				{
+					if(a <= Global_Groups[iCurrentGlobalLevel].iNumberOfEntries)
+					{
+						b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+						if(GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sType = "group")
+						{
+							Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+						}
+						else
+						{
+							Global_Addressbook_Name$[a] = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+						}
+						GlobalEntryValid[a] = 1;
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+PUSH Global_Addressbook_Last
+{
+	for(a = 1 to 25)
+	{
+		Global_Addressbook_Name$[a] = "";
+		Global_Addressbook_Number$[a] = "";
+		GlobalEntryValid[a] = 0;
+	}
+	if(iAddressBookRequestBusy = 0)
+	{
+		iCurrentGlobalPage = iGlobalAddrTotalPages;
+		Global_Addressbook_CurrentPage = iCurrentGlobalPage;
+		Global_Addressbook_TotalPages = iGlobalAddrTotalPages;
+		if(iCurrentGlobalLevel = 0)
+		{
+			fAddToGlobalReturnStack(iCurrentGlobalLevel, iCurrentGlobalPage);
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= iGAddressbookSize)
+				{
+					b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+					if(GlobalAddressBook[b].sType = "group")
+					{
+						Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[b].sName;
+					}
+					else
+					{
+						Global_Addressbook_Name$[a] = GlobalAddressBook[b].sName;
+					}
+					GlobalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		else if(iCurrentGlobalLevel > 0)
+		{
+			for(a = 1 to EntriesPerScreen)
+			{
+				if(a <= Global_Groups[iCurrentGlobalLevel].iNumberOfEntries)
+				{
+					b =  (a - 1) + ((iCurrentGlobalPage - 1) * EntriesPerScreen);
+					if(GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sType = "group")
+					{
+						Global_Addressbook_Name$[a] = csGROUPPREFIX + GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+					}
+					else
+					{
+						Global_Addressbook_Name$[a] = GlobalAddressBook[Global_Groups[iCurrentGlobalLevel].iEntryPointer[b]].sName;
+					}
+					GlobalEntryValid[a] = 1;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
+PUSH Global_Addressbook_Clear_Selected
+{
+	GlobalSiteRequested = 0;
+	GlobalSelected = 0;
+	Global_Addressbook_NameSelected$ = "";
+	Global_Addressbook_NumberSelected$ = "";
+	Global_Addressbook_SpeedSelected$ = "";
+	sTempGlobalDialString = "";
+}
+
+PUSH select_num_1
+{
+	text_fb$ = sNum1;
+	iIncomingText = ciENTERINGNUM1;
+}
+
+PUSH select_num_2
+{
+	text_fb$ = sNum2;
+	iIncomingText = ciENTERINGNUM2;
+}
+
+PUSH select_None
+{
+	iIncomingText = ciENTERINGNONE;
+}
+
+PUSH copy_num_1_to_num_2
+{
+	sNum2 = sNum1;
+	num_2_fb$ = sNum2;
+}
+
+PUSH clear_num_1_num_2
+{
+	sNum1 = "";
+	sNum2 = "";
+	num_1_fb$ = sNum1;
+	num_2_fb$ = sNum2;
+}
+
+PUSH dial
+{
+	if(len(sNum2) > 0)
+	{
+		makestring(todevice$, "%s%s%s%s%s", sHeader, sNum1, sSeparater, sNum2, sFooter);
+	}
+	else if(len(sNum2) = 0)
+	{
+		makestring(todevice$,  "%s%s%s", sHeader, sNum1, sFooter);
+	}
+}
+
+CHANGE max_phone_number_characters
+{
+	iMaxVideoChars = max_phone_number_characters;
+}
+
+CHANGE header$
+{
+	sHeader = header$;
+}
+
+CHANGE footer$
+{
+	sFooter = footer$;
+}
+
+CHANGE number_separater$
+{
+	sSeparater = number_separater$;
+}
+
+CHANGE num_1$
+{
+	sNum1 = num_1$;
+}
+
+CHANGE num_2$
+{
+	sNum2 = num_2$;
+}
+
+CHANGE text$
+{
+	if(iFlag2 = 0)
+	{
+		iFlag2 = 1;
+		if(iIncomingText = ciENTERINGNUM1)
+		{
+			sNum1 = left(text$, iMaxVideoChars);
+			num_1_fb$ = sNum1;
+		}
+		else if(iIncomingText = ciENTERINGNUM2)
+		{
+			sNum2 = left(text$, iMaxVideoChars);
+			num_2_fb$ = sNum2;
+		}
+		iFlag2 = 0;
+	}
+}
+
+/***********************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+***********************************************************************/
+Function Main()
+{
+	RxOk = 1;
+	sTempDialString = "";
+	TempString$ = "";
+	for(a = 1 to 4)
+	{
+		iVideoCallID[a] = 0;
+		sVideoStatus[a] = "";
+		sVideoFEName[a] = "";
+		sVideoFENumber[a] = "";
+	}
+	iAudioCallID = 0;
+	iAudioHookState = 0;
+	Audio_Hook_State = iAudioHookState;
+	mark1 = 0;
+	mark2 = 0;
+	junk = 0;
+	iMarker1 = 0;
+	iMarker2 = 0;
+	iMarker3 = 0;
+	iMarker4 = 0;
+	iMarker5 = 0;
+	iMarker6 = 0;
+	iMarker7 = 0;
+	iMarker8 = 0;
+	iMarker9 = 0;
+	iTempCallID = 0;
+	iAudioCallID = 0;
+	a = 0;
+	iVideoCall = 0;
+	iTempKey = 0;
+	iTempHangUp = 0;
+	iIncomingCallID = 0;
+	iIncomingVideoCallID = 0;
+	TempString$ = "";
+	sTempDialString = "";
+	sAudioStatus = "";
+	sAudioFEName = "";
+	sAudioFENumber = "";
+	sTempDirection = "";
+	sTempFEName = "";
+	sTempFENumber = "";
+	sTempStatus = "";
+	sTempCallType = "";
+	Marker = 0;
+	Marker0 = 0;
+	Marker1 = 0;
+	Marker2 = 0;
+	Marker3 = 0;
+	Marker4 = 0;
+	Marker5 = 0;
+	Marker6 = 0;
+	Marker7 = 0;
+	LocalSiteRequested = 0;
+	iLocalRequest = 0;
+	for(i = 1 to 25)
+	{
+		LocalEntryValid[i] = 0;
+	}
+	GlobalSiteRequested = 0;
+	iGlobalRequest = 0;
+	for(i = 1 to 25)
+	{
+		GlobalEntryValid[i] = 0;
+	}
+	iFlag2 = 0;
+	clearbuffer(sHeader);
+	clearbuffer(sFooter);
+	clearbuffer(sSeparater);
+	clearbuffer(sNum1);
+	clearbuffer(sNum2);
+	num_1_fb$ = sNum1;
+	num_2_fb$ = sNum2;
+	text_fb$ = "";
+	iIncomingText = ciENTERINGNUM1;
+	iAddrbkBusy = 0;
+	Local_Addressbook_Busy = iAddrbkBusy;
+	iGAddrbkBusy = 0;
+	Global_Addressbook_Busy = iGAddrbkBusy;
+	iAddrGroupSize = ciDEFAULTGROUPS;
+	iCurrentLocalLevel = 100;
+	iCurrentGlobalLevel = 100;
+	nextSearchChar = ciCHARARRAYSIZE + 1;
+	PopulateCharArray();
+}

@@ -1,0 +1,36 @@
+#SYMBOL_NAME "FunctionToggle3"
+
+DIGITAL_INPUT ToggleIn;
+DIGITAL_INPUT SetOnIn;
+DIGITAL_INPUT SetOffIn;
+
+ANALOG_INPUT StatusIn; 
+DIGITAL_OUTPUT SetOn;
+DIGITAL_OUTPUT SetOff;  
+
+PUSH ToggleIn
+{Integer SampleStatus;
+    SampleStatus=StatusIn;
+    If (SampleStatus=0)
+    {
+   		PULSE(20,SetOn);	 	
+    }
+    Else If (SampleStatus=1)
+    {
+    	PULSE(20,SetOff);
+    }
+    Else
+    {
+    	PULSE(20,SetOn);
+    }
+}
+
+PUSH SetOnIn
+{
+    PULSE(20,SetOn);	 	
+}
+
+PUSH SetOffIn
+{
+    PULSE(20,SetOff);	 	
+}

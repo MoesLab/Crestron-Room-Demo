@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="960" height="420" role="img" aria-label="Boardroom features: included items in bold, items not in this room in gray">
-<style>text{font-family:Arial,Helvetica,sans-serif;font-size:15px}.bg{fill:#F6F8FA;stroke:#D5DBE2}.l{stroke:#E1E6EC}.c{fill:#5B6673;font-size:13px;font-weight:700;letter-spacing:.4px}.a{fill:#10243E;font-weight:700}.n{fill:#868F9A}.t{fill:#10243E;font-size:17px;font-weight:700}@media (prefers-color-scheme:dark){.bg{fill:#18222F;stroke:#2F3B4A}.l{stroke:#2A3543}.c{fill:#8FA3B8}.a,.t{fill:#F2F6FA}.n{fill:#7E8B99}}</style>
-<rect x="1" y="1" width="958" height="418" rx="10" class="bg"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;font-size:15px}.c{font-size:13px;font-weight:700;letter-spacing:.4px}.a{font-weight:700}.t{font-size:17px;font-weight:700}.l{stroke:#D8DEE4}.c{fill:#59636E}.a,.t{fill:#1F2328}.n{fill:#818B98}</style>
 <text class="t" x="24" y="36">Boardroom</text>
 <text x="936" y="36" text-anchor="end" font-size="13"><tspan class="a">Bold</tspan><tspan class="n"> in this room</tspan><tspan class="n" dx="16">Gray</tspan><tspan class="n"> not in this room</tspan></text>
 <line x1="24" x2="936" y1="62" y2="62" class="l"/>

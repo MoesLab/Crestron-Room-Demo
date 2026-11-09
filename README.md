@@ -37,6 +37,7 @@ Project and client details have been removed from this public copy.
 - [Network and IP Table](docs/Network-and-IP-Table.md)
 - [Connectivity](docs/Connectivity.md)
 - [Crestron to Q-SYS Map](docs/Crestron-to-QSYS-Map.md)
+- [Q-SYS Build Sheet](docs/QSYS-Build-Sheet.md)
 - [Deployment Guide](docs/Deployment-Guide.md)
 
 ## How to open it
